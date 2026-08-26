@@ -1,790 +1,444 @@
-// =====================================================
-// LIFEFLOW V2.1
-// ROTINA + AGENDA 12x36
-// =====================================================
+document.addEventListener("DOMContentLoaded", () => {
 
+  // =====================================================
+  // LIFEFLOW V2.1.1
+  // CORREÇÃO DA AGENDA 12x36
+  // =====================================================
 
-// =====================================================
-// CONFIGURAÇÃO DA ESCALA
-// =====================================================
+  const WORK_ANCHOR = new Date(2026, 7, 24);
 
-// 24/08/2026 = TRABALHO
+  const today = new Date();
 
-const WORK_ANCHOR =
-  new Date(
-    2026,
-    7,
-    24
-  );
+  function startOfDay(date) {
+    return new Date(
+      date.getFullYear(),
+      date.getMonth(),
+      date.getDate()
+    );
+  }
 
+  function getDateKey(date) {
+    const year = date.getFullYear();
 
-// =====================================================
-// DATAS
-// =====================================================
-
-function startOfDay(date) {
-
-  return new Date(
-    date.getFullYear(),
-    date.getMonth(),
-    date.getDate()
-  );
-
-}
-
-
-function getDateKey(date) {
-
-  const year =
-    date.getFullYear();
-
-  const month =
-    String(
+    const month = String(
       date.getMonth() + 1
     ).padStart(2, "0");
 
-  const day =
-    String(
+    const day = String(
       date.getDate()
     ).padStart(2, "0");
 
+    return `${year}-${month}-${day}`;
+  }
 
-  return `${year}-${month}-${day}`;
-}
+  function isSameDay(a, b) {
+    return (
+      a.getFullYear() === b.getFullYear() &&
+      a.getMonth() === b.getMonth() &&
+      a.getDate() === b.getDate()
+    );
+  }
 
+  function isWorkDay(date) {
+    const anchor = startOfDay(WORK_ANCHOR);
+    const current = startOfDay(date);
 
-function isSameDay(a, b) {
-
-  return (
-    a.getFullYear() ===
-      b.getFullYear() &&
-
-    a.getMonth() ===
-      b.getMonth() &&
-
-    a.getDate() ===
-      b.getDate()
-  );
-
-}
-
-
-function isWorkDay(date) {
-
-  const anchor =
-    startOfDay(
-      WORK_ANCHOR
+    const difference = Math.round(
+      (current - anchor) / 86400000
     );
 
+    return ((difference % 2) + 2) % 2 === 0;
+  }
 
-  const current =
-    startOfDay(
-      date
-    );
+  function getGreeting() {
+    const hour = new Date().getHours();
 
+    if (hour < 12) {
+      return "Bom dia.";
+    }
 
-  const difference =
-    Math.round(
-      (
-        current -
-        anchor
-      ) /
-      86400000
-    );
+    if (hour < 18) {
+      return "Boa tarde.";
+    }
 
-
-  return (
-    (
-      difference % 2
-    ) + 2
-  ) % 2 === 0;
-
-}
-
-
-// =====================================================
-// SAUDAÇÃO
-// =====================================================
-
-function getGreeting() {
-
-  const hour =
-    new Date().getHours();
-
-
-  if (hour < 12) {
-    return "Bom dia.";
+    return "Boa noite.";
   }
 
 
-  if (hour < 18) {
-    return "Boa tarde.";
-  }
+  // =====================================================
+  // ROTINA DE TRABALHO
+  // =====================================================
+
+  const workTasks = [
+
+    {
+      time: "05:30",
+      title: "Acordar",
+      description: "Água, higiene, banho e se arrumar."
+    },
+
+    {
+      time: "05:45",
+      title: "Sair para academia",
+      description: "Moto • aproximadamente 10–15 min."
+    },
+
+    {
+      time: "06:00",
+      title: "Academia",
+      description: "Treino de aproximadamente 1 hora."
+    },
+
+    {
+      time: "07:05",
+      title: "Voltar para casa",
+      description: "Trocar roupa e fazer higiene rápida."
+    },
+
+    {
+      time: "07:40",
+      title: "Sair para o trabalho",
+      description: "Chegar antes das 08:00."
+    },
+
+    {
+      time: "08:00",
+      title: "Início do trabalho",
+      description: "Começar o expediente."
+    },
+
+    {
+      time: "11:30",
+      title: "Almoço",
+      description: "Marmita na empresa."
+    },
+
+    {
+      time: "12:30",
+      title: "Voltar ao trabalho",
+      description: "Retomar o expediente."
+    },
+
+    {
+      time: "20:00",
+      title: "Fim do trabalho",
+      description: "Voltar para casa."
+    },
+
+    {
+      time: "20:20",
+      title: "Jantar e banho",
+      description: "Alimentação e recuperação."
+    },
+
+    {
+      time: "21:30",
+      title: "Organizar amanhã",
+      description: "Roupas, água e compromissos."
+    },
+
+    {
+      time: "22:30",
+      title: "Dormir",
+      description: "Prioridade para recuperação."
+    }
+
+  ];
 
 
-  return "Boa noite.";
+  // =====================================================
+  // ROTINA DE FOLGA
+  // =====================================================
 
-}
+  const offTasks = [
 
+    {
+      time: "05:30",
+      title: "Acordar",
+      description: "Água, higiene, banho e se arrumar."
+    },
 
-// =====================================================
-// ROTINA DE TRABALHO
-// =====================================================
+    {
+      time: "05:45",
+      title: "Sair para academia",
+      description: "Moto • aproximadamente 10–15 min."
+    },
 
-const workTasks = [
+    {
+      time: "06:00",
+      title: "Academia",
+      description: "Musculação + aproximadamente 1h de esteira."
+    },
 
-  {
-    time: "05:30",
-    title: "Acordar",
-    description:
-      "Água, higiene, banho e se arrumar."
-  },
+    {
+      time: "08:15",
+      title: "Voltar para casa",
+      description: "Banho e café da manhã."
+    },
 
-  {
-    time: "05:45",
-    title: "Sair para academia",
-    description:
-      "Moto • aproximadamente 10–15 min."
-  },
+    {
+      time: "09:15",
+      title: "Estudo PMMG",
+      description: "Bloco principal de teoria."
+    },
 
-  {
-    time: "06:00",
-    title: "Academia",
-    description:
-      "Treino de aproximadamente 1 hora."
-  },
+    {
+      time: "11:30",
+      title: "Almoço",
+      description: "Refeição completa."
+    },
 
-  {
-    time: "07:05",
-    title: "Voltar para casa",
-    description:
-      "Trocar roupa e fazer higiene rápida."
-  },
+    {
+      time: "12:30",
+      title: "Descanso",
+      description: "Recuperar corpo e mente."
+    },
 
-  {
-    time: "07:40",
-    title: "Sair para o trabalho",
-    description:
-      "Chegar antes das 08:00."
-  },
+    {
+      time: "13:15",
+      title: "Projeto da moto",
+      description: "Tempo reservado para o projeto."
+    },
 
-  {
-    time: "08:00",
-    title: "Início do trabalho",
-    description:
-      "Começar expediente."
-  },
+    {
+      time: "14:15",
+      title: "Revisão PMMG",
+      description: "Questões e revisão dos erros."
+    },
 
-  {
-    time: "11:30",
-    title: "Almoço",
-    description:
-      "Marmita na empresa."
-  },
+    {
+      time: "15:15",
+      title: "Se preparar",
+      description: "Organizar tudo antes de sair."
+    },
 
-  {
-    time: "12:30",
-    title: "Voltar ao trabalho",
-    description:
-      "Retomar expediente."
-  },
+    {
+      time: "15:40",
+      title: "Sair para escola",
+      description: "Chegar antes das 16:00."
+    },
 
-  {
-    time: "20:00",
-    title: "Fim do trabalho",
-    description:
-      "Voltar para casa."
-  },
+    {
+      time: "16:00",
+      title: "Buscar sua filha",
+      description: "Chegar pontualmente."
+    },
 
-  {
-    time: "20:20",
-    title: "Jantar e banho",
-    description:
-      "Alimentação e recuperação."
-  },
+    {
+      time: "16:15",
+      title: "Tempo com sua filha",
+      description: "Período reservado para vocês."
+    },
 
-  {
-    time: "21:30",
-    title: "Organizar amanhã",
-    description:
-      "Roupas, água e compromissos."
-  },
+    {
+      time: "20:15",
+      title: "Levar sua filha",
+      description: "Entrega entre 20:30 e 21:00."
+    },
 
-  {
-    time: "22:30",
-    title: "Dormir",
-    description:
-      "Prioridade para recuperação."
-  }
+    {
+      time: "21:15",
+      title: "Organizar amanhã",
+      description: "Se trabalhar amanhã, preparar marmita e roupas."
+    },
 
-];
+    {
+      time: "22:30",
+      title: "Dormir",
+      description: "Preparar para o próximo dia."
+    }
 
-
-// =====================================================
-// ROTINA DE FOLGA
-// =====================================================
-
-const offTasks = [
-
-  {
-    time: "05:30",
-    title: "Acordar",
-    description:
-      "Água, higiene, banho e se arrumar."
-  },
-
-  {
-    time: "05:45",
-    title: "Sair para academia",
-    description:
-      "Moto • aproximadamente 10–15 min."
-  },
-
-  {
-    time: "06:00",
-    title: "Academia",
-    description:
-      "Musculação + aproximadamente 1h de esteira."
-  },
-
-  {
-    time: "08:15",
-    title: "Voltar para casa",
-    description:
-      "Banho e café da manhã."
-  },
-
-  {
-    time: "09:15",
-    title: "Estudo PMMG",
-    description:
-      "Bloco principal de teoria."
-  },
-
-  {
-    time: "11:30",
-    title: "Almoço",
-    description:
-      "Refeição completa."
-  },
-
-  {
-    time: "12:30",
-    title: "Descanso",
-    description:
-      "Recuperar corpo e mente."
-  },
-
-  {
-    time: "13:15",
-    title: "Projeto da moto",
-    description:
-      "Tempo reservado para o projeto."
-  },
-
-  {
-    time: "14:15",
-    title: "Revisão PMMG",
-    description:
-      "Questões e revisão dos erros."
-  },
-
-  {
-    time: "15:15",
-    title: "Se preparar",
-    description:
-      "Organizar tudo antes de sair."
-  },
-
-  {
-    time: "15:40",
-    title: "Sair para escola",
-    description:
-      "Chegar antes das 16:00."
-  },
-
-  {
-    time: "16:00",
-    title: "Buscar sua filha",
-    description:
-      "Chegar pontualmente."
-  },
-
-  {
-    time: "16:15",
-    title: "Tempo com sua filha",
-    description:
-      "Período reservado para vocês."
-  },
-
-  {
-    time: "20:15",
-    title: "Levar sua filha",
-    description:
-      "Entrega entre 20:30 e 21:00."
-  },
-
-  {
-    time: "21:15",
-    title: "Organizar amanhã",
-    description:
-      "Se trabalhar amanhã, preparar marmita e roupas."
-  },
-
-  {
-    time: "22:30",
-    title: "Dormir",
-    description:
-      "Preparar para o próximo dia."
-  }
-
-];
+  ];
 
 
-// =====================================================
-// DIA ATUAL
-// =====================================================
+  // =====================================================
+  // ESTADO DE HOJE
+  // =====================================================
 
-const today =
-  new Date();
+  const todayKey = getDateKey(today);
 
+  const workDay = isWorkDay(today);
 
-const todayKey =
-  getDateKey(today);
-
-
-const workDay =
-  isWorkDay(today);
-
-
-const tasks =
-  workDay
+  const tasks = workDay
     ? workTasks
     : offTasks;
 
+  const storageKey = `lifeflow-${todayKey}`;
 
-// =====================================================
-// ESTADO DO DIA
-// =====================================================
-
-const storageKey =
-  `lifeflow-${todayKey}`;
-
-
-const defaultState = {
-
-  completed: [],
-
-  water: 0,
-
-  xp: 0
-
-};
-
-
-let state;
-
-
-try {
-
-  const saved =
-    localStorage.getItem(
-      storageKey
-    );
-
-
-  state =
-    saved
-      ? JSON.parse(saved)
-      : {
-          ...defaultState
-        };
-
-} catch {
-
-  state = {
-    ...defaultState
+  let state = {
+    completed: [],
+    water: 0,
+    xp: 0
   };
 
-}
+  try {
 
+    const saved = localStorage.getItem(storageKey);
 
-// Compatibilidade com versões antigas
+    if (saved) {
+      state = {
+        ...state,
+        ...JSON.parse(saved)
+      };
+    }
 
-if (
-  state.done &&
-  !state.completed
-) {
+  } catch (error) {
+    console.log("Erro ao carregar dados:", error);
+  }
 
-  state.completed =
-    state.done;
+  if (state.done && !state.completed) {
+    state.completed = state.done;
+  }
 
-}
-
-
-if (
-  !Array.isArray(
-    state.completed
-  )
-) {
-
-  state.completed = [];
-
-}
-
-
-if (
-  typeof state.water !==
-  "number"
-) {
-
-  state.water = 0;
-
-}
-
-
-if (
-  typeof state.xp !==
-  "number"
-) {
-
-  state.xp = 0;
-
-}
-
-
-// =====================================================
-// SALVAR
-// =====================================================
-
-function saveState() {
-
-  localStorage.setItem(
-    storageKey,
-    JSON.stringify(state)
-  );
-
-}
-
-
-// =====================================================
-// ÁGUA
-// =====================================================
-
-function formatWater() {
-
-  return (
-    state.water / 1000
-  )
-    .toFixed(1)
-    .replace(".", ",");
-
-}
-
-
-function addWater(amount) {
-
-  state.water =
-    Math.min(
-      6000,
-      state.water + amount
-    );
-
-
-  saveState();
-
-  renderHome();
-
-}
-
-
-function resetWater() {
-
-  if (
-    !confirm(
-      "Deseja zerar a hidratação de hoje?"
-    )
-  ) {
-    return;
+  if (!Array.isArray(state.completed)) {
+    state.completed = [];
   }
 
 
-  state.water = 0;
+  // =====================================================
+  // SALVAR
+  // =====================================================
 
-
-  saveState();
-
-  renderHome();
-
-}
-
-
-// =====================================================
-// TAREFAS
-// =====================================================
-
-function toggleTask(index) {
-
-  if (
-    state.completed.includes(
-      index
-    )
-  ) {
-
-    state.completed =
-      state.completed.filter(
-        item =>
-          item !== index
-      );
-
-
-    state.xp =
-      Math.max(
-        0,
-        state.xp - 10
-      );
-
-  } else {
-
-    state.completed.push(
-      index
+  function saveState() {
+    localStorage.setItem(
+      storageKey,
+      JSON.stringify(state)
     );
-
-
-    state.xp += 10;
-
   }
 
 
-  saveState();
+  // =====================================================
+  // HOME
+  // =====================================================
 
-  renderHome();
+  function renderHome() {
 
-}
+    const todayText =
+      document.getElementById("todayText");
+
+    if (todayText) {
+
+      todayText.textContent =
+        today.toLocaleDateString(
+          "pt-BR",
+          {
+            weekday: "long",
+            day: "2-digit",
+            month: "long",
+            year: "numeric"
+          }
+        );
+
+    }
 
 
-function resetTasks() {
+    const welcomeTitle =
+      document.getElementById("welcomeTitle");
 
-  if (
-    !confirm(
-      "Deseja resetar todas as tarefas concluídas de hoje?"
-    )
-  ) {
-    return;
+    if (welcomeTitle) {
+      welcomeTitle.textContent = getGreeting();
+    }
+
+
+    const welcomeSubtitle =
+      document.getElementById("welcomeSubtitle");
+
+    if (welcomeSubtitle) {
+
+      welcomeSubtitle.textContent =
+        workDay
+          ? "Hoje é dia de trabalho. Vamos manter o ritmo sem exagerar."
+          : "Hoje é dia de folga. Um bom dia para avançar nos seus objetivos.";
+
+    }
+
+
+    const dayBadge =
+      document.getElementById("dayBadge");
+
+    if (dayBadge) {
+
+      dayBadge.textContent =
+        workDay
+          ? "TRABALHO"
+          : "FOLGA";
+
+    }
+
+
+    const dayTitle =
+      document.getElementById("dayTitle");
+
+    if (dayTitle) {
+
+      dayTitle.textContent =
+        workDay
+          ? "Trabalho • 08:00–20:00"
+          : "Dia de folga";
+
+    }
+
+
+    const routineHeading =
+      document.getElementById("routineHeading");
+
+    if (routineHeading) {
+
+      routineHeading.textContent =
+        workDay
+          ? "Rotina de trabalho"
+          : "Rotina de folga";
+
+    }
+
+
+    const studyText =
+      document.getElementById("studyText");
+
+    if (studyText) {
+
+      studyText.textContent =
+        workDay
+          ? "Dia de trabalho: estudo leve é opcional. Sono e recuperação continuam sendo prioridade."
+          : "Dia de folga: teoria pela manhã e revisão/questões à tarde.";
+
+    }
+
+
+    renderTasks();
+    renderProgress();
+    renderWater();
+    renderNextTask();
   }
 
 
-  state.completed = [];
+  // =====================================================
+  // TAREFAS
+  // =====================================================
 
-  state.xp = 0;
+  function renderTasks() {
 
+    const list =
+      document.getElementById("taskList");
 
-  saveState();
+    if (!list) {
+      return;
+    }
 
-  renderHome();
+    list.innerHTML = "";
 
-}
-
-
-// =====================================================
-// PRÓXIMA TAREFA
-// =====================================================
-
-function getNextTask() {
-
-  return tasks.find(
-    (
-      task,
-      index
-    ) =>
-      !state.completed.includes(
-        index
-      )
-  );
-
-}
-
-
-// =====================================================
-// RENDER DA HOME
-// =====================================================
-
-function renderHome() {
-
-  renderHeader();
-
-  renderNextTask();
-
-  renderTasks();
-
-  renderProgress();
-
-  renderWater();
-
-}
-
-
-// =====================================================
-// CABEÇALHO
-// =====================================================
-
-function renderHeader() {
-
-  document.getElementById(
-    "todayText"
-  ).textContent =
-    today.toLocaleDateString(
-      "pt-BR",
-      {
-        weekday: "long",
-        day: "2-digit",
-        month: "long",
-        year: "numeric"
-      }
-    );
-
-
-  document.getElementById(
-    "welcomeTitle"
-  ).textContent =
-    getGreeting();
-
-
-  document.getElementById(
-    "welcomeSubtitle"
-  ).textContent =
-    workDay
-      ? "Hoje é dia de trabalho. Vamos manter o ritmo sem exagerar."
-      : "Hoje é dia de folga. Um bom dia para avançar nos seus objetivos.";
-
-
-  document.getElementById(
-    "dayBadge"
-  ).textContent =
-    workDay
-      ? "TRABALHO"
-      : "FOLGA";
-
-
-  document.getElementById(
-    "dayTitle"
-  ).textContent =
-    workDay
-      ? "Trabalho • 08:00–20:00"
-      : "Dia de folga";
-
-
-  document.getElementById(
-    "routineHeading"
-  ).textContent =
-    workDay
-      ? "Rotina de trabalho"
-      : "Rotina de folga";
-
-
-  document.getElementById(
-    "studyText"
-  ).textContent =
-    workDay
-      ? "Dia de trabalho: estudo leve é opcional. Sono e recuperação continuam sendo prioridade."
-      : "Dia de folga: teoria pela manhã e revisão/questões à tarde.";
-
-}
-
-
-// =====================================================
-// PRÓXIMA TAREFA
-// =====================================================
-
-function renderNextTask() {
-
-  const next =
-    getNextTask();
-
-
-  if (!next) {
-
-    document.getElementById(
-      "nextTaskTitle"
-    ).textContent =
-      "Rotina concluída";
-
-
-    document.getElementById(
-      "nextTaskTime"
-    ).textContent =
-      "✓";
-
-
-    document.getElementById(
-      "nextTaskDescription"
-    ).textContent =
-      "Todas as tarefas de hoje foram concluídas.";
-
-
-    return;
-
-  }
-
-
-  document.getElementById(
-    "nextTaskTitle"
-  ).textContent =
-    next.title;
-
-
-  document.getElementById(
-    "nextTaskTime"
-  ).textContent =
-    next.time;
-
-
-  document.getElementById(
-    "nextTaskDescription"
-  ).textContent =
-    next.description;
-
-}
-
-
-// =====================================================
-// LISTA DE TAREFAS
-// =====================================================
-
-function renderTasks() {
-
-  const list =
-    document.getElementById(
-      "taskList"
-    );
-
-
-  list.innerHTML = "";
-
-
-  tasks.forEach(
-    (
-      task,
-      index
-    ) => {
+    tasks.forEach((task, index) => {
 
       const completed =
-        state.completed.includes(
-          index
-        );
-
+        state.completed.includes(index);
 
       const item =
-        document.createElement(
-          "article"
-        );
-
+        document.createElement("article");
 
       item.className =
         completed
           ? "task done"
           : "task";
-
 
       item.innerHTML = `
 
@@ -808,438 +462,618 @@ function renderTasks() {
           class="check"
           type="button"
         >
-          ${
-            completed
-              ? "✓"
-              : "○"
-          }
+          ${completed ? "✓" : "○"}
         </button>
 
       `;
 
+      const button =
+        item.querySelector(".check");
 
-      item
-        .querySelector(
-          ".check"
-        )
-        .addEventListener(
-          "click",
-          () =>
-            toggleTask(index)
-        );
+      button.addEventListener(
+        "click",
+        () => {
 
+          if (state.completed.includes(index)) {
 
-      list.appendChild(
-        item
+            state.completed =
+              state.completed.filter(
+                item => item !== index
+              );
+
+            state.xp =
+              Math.max(
+                0,
+                state.xp - 10
+              );
+
+          } else {
+
+            state.completed.push(index);
+
+            state.xp += 10;
+
+          }
+
+          saveState();
+          renderHome();
+
+        }
       );
 
-    }
-  );
+      list.appendChild(item);
 
-}
-
-
-// =====================================================
-// PROGRESSO
-// =====================================================
-
-function renderProgress() {
-
-  const completed =
-    state.completed.length;
-
-
-  const total =
-    tasks.length;
-
-
-  const percentage =
-    total
-      ? Math.round(
-          (
-            completed /
-            total
-          ) *
-          100
-        )
-      : 0;
-
-
-  document.getElementById(
-    "progressPct"
-  ).textContent =
-    `${percentage}%`;
-
-
-  document.getElementById(
-    "progressText"
-  ).textContent =
-    `${percentage}%`;
-
-
-  document.getElementById(
-    "doneCount"
-  ).textContent =
-    `${completed} de ${total} concluídas`;
-
-
-  document.getElementById(
-    "progressBar"
-  ).style.width =
-    `${percentage}%`;
-
-
-  document.getElementById(
-    "xp"
-  ).textContent =
-    `${state.xp} XP`;
-
-}
-
-
-// =====================================================
-// HIDRATAÇÃO
-// =====================================================
-
-function renderWater() {
-
-  const liters =
-    formatWater();
-
-
-  document.getElementById(
-    "waterText"
-  ).textContent =
-    `${liters} L`;
-
-
-  document.getElementById(
-    "waterGoalText"
-  ).textContent =
-    `${liters} / 4 L`;
-
-
-  const percentage =
-    Math.min(
-      100,
-      (
-        state.water /
-        4000
-      ) *
-      100
-    );
-
-
-  document.getElementById(
-    "waterFill"
-  ).style.width =
-    `${percentage}%`;
-
-}
-
-
-// =====================================================
-// AGENDA
-// =====================================================
-
-let calendarDate =
-  new Date(
-    today.getFullYear(),
-    today.getMonth(),
-    1
-  );
-
-
-let selectedCalendarDate =
-  new Date(
-    today.getFullYear(),
-    today.getMonth(),
-    today.getDate()
-  );
-
-
-const monthNames = [
-
-  "Janeiro",
-  "Fevereiro",
-  "Março",
-  "Abril",
-  "Maio",
-  "Junho",
-  "Julho",
-  "Agosto",
-  "Setembro",
-  "Outubro",
-  "Novembro",
-  "Dezembro"
-
-];
-
-
-// =====================================================
-// RENDER DO CALENDÁRIO
-// =====================================================
-
-function renderCalendar() {
-
-  const year =
-    calendarDate.getFullYear();
-
-
-  const month =
-    calendarDate.getMonth();
-
-
-  document.getElementById(
-    "calendarMonth"
-  ).textContent =
-    monthNames[month];
-
-
-  document.getElementById(
-    "calendarYear"
-  ).textContent =
-    year;
-
-
-  const grid =
-    document.getElementById(
-      "calendarGrid"
-    );
-
-
-  grid.innerHTML = "";
-
-
-  const firstDay =
-    new Date(
-      year,
-      month,
-      1
-    );
-
-
-  const lastDay =
-    new Date(
-      year,
-      month + 1,
-      0
-    );
-
-
-  const emptyBefore =
-    firstDay.getDay();
-
-
-  for (
-    let i = 0;
-    i < emptyBefore;
-    i++
-  ) {
-
-    const empty =
-      document.createElement(
-        "div"
-      );
-
-
-    empty.className =
-      "calendar-day empty";
-
-
-    grid.appendChild(
-      empty
-    );
+    });
 
   }
 
 
-  for (
-    let day = 1;
-    day <= lastDay.getDate();
-    day++
-  ) {
+  // =====================================================
+  // PRÓXIMA TAREFA
+  // =====================================================
 
-    const date =
-      new Date(
-        year,
-        month,
-        day
+  function renderNextTask() {
+
+    const next =
+      tasks.find(
+        (task, index) =>
+          !state.completed.includes(index)
+      );
+
+    const title =
+      document.getElementById(
+        "nextTaskTitle"
+      );
+
+    const time =
+      document.getElementById(
+        "nextTaskTime"
+      );
+
+    const description =
+      document.getElementById(
+        "nextTaskDescription"
+      );
+
+    if (!title || !time || !description) {
+      return;
+    }
+
+    if (!next) {
+
+      title.textContent =
+        "Rotina concluída";
+
+      time.textContent =
+        "✓";
+
+      description.textContent =
+        "Todas as tarefas foram concluídas.";
+
+      return;
+    }
+
+    title.textContent =
+      next.title;
+
+    time.textContent =
+      next.time;
+
+    description.textContent =
+      next.description;
+  }
+
+
+  // =====================================================
+  // PROGRESSO
+  // =====================================================
+
+  function renderProgress() {
+
+    const completed =
+      state.completed.length;
+
+    const total =
+      tasks.length;
+
+    const percentage =
+      Math.round(
+        (completed / total) * 100
       );
 
 
-    const work =
-      isWorkDay(date);
+    const progressPct =
+      document.getElementById(
+        "progressPct"
+      );
 
+    const progressText =
+      document.getElementById(
+        "progressText"
+      );
 
-    const button =
-      document.createElement(
-        "button"
+    const doneCount =
+      document.getElementById(
+        "doneCount"
+      );
+
+    const progressBar =
+      document.getElementById(
+        "progressBar"
+      );
+
+    const xp =
+      document.getElementById(
+        "xp"
       );
 
 
-    button.type =
-      "button";
+    if (progressPct) {
+      progressPct.textContent =
+        `${percentage}%`;
+    }
 
+    if (progressText) {
+      progressText.textContent =
+        `${percentage}%`;
+    }
 
-    button.className =
-      `calendar-day ${
-        work
-          ? "work-day"
-          : "off-day"
-      }`;
+    if (doneCount) {
 
-
-    if (
-      isSameDay(
-        date,
-        today
-      )
-    ) {
-
-      button.classList.add(
-        "today"
-      );
+      doneCount.textContent =
+        `${completed} de ${total} concluídas`;
 
     }
 
+    if (progressBar) {
 
-    if (
-      isSameDay(
-        date,
-        selectedCalendarDate
-      )
-    ) {
-
-      button.classList.add(
-        "selected"
-      );
+      progressBar.style.width =
+        `${percentage}%`;
 
     }
 
+    if (xp) {
+      xp.textContent =
+        `${state.xp} XP`;
+    }
 
-    button.innerHTML = `
+  }
 
-      <span class="calendar-day-number">
-        ${day}
-      </span>
 
-      <span class="calendar-day-label">
-        ${
-          work
-            ? "TRABALHO"
-            : "FOLGA"
+  // =====================================================
+  // ÁGUA
+  // =====================================================
+
+  function renderWater() {
+
+    const liters =
+      (state.water / 1000)
+        .toFixed(1)
+        .replace(".", ",");
+
+    const waterText =
+      document.getElementById(
+        "waterText"
+      );
+
+    const waterGoalText =
+      document.getElementById(
+        "waterGoalText"
+      );
+
+    const waterFill =
+      document.getElementById(
+        "waterFill"
+      );
+
+    if (waterText) {
+      waterText.textContent =
+        `${liters} L`;
+    }
+
+    if (waterGoalText) {
+
+      waterGoalText.textContent =
+        `${liters} / 4 L`;
+
+    }
+
+    if (waterFill) {
+
+      const percentage =
+        Math.min(
+          100,
+          (state.water / 4000) * 100
+        );
+
+      waterFill.style.width =
+        `${percentage}%`;
+
+    }
+
+  }
+
+
+  document
+    .querySelectorAll("[data-water]")
+    .forEach(button => {
+
+      button.addEventListener(
+        "click",
+        () => {
+
+          state.water +=
+            Number(
+              button.dataset.water
+            );
+
+          state.water =
+            Math.min(
+              6000,
+              state.water
+            );
+
+          saveState();
+
+          renderWater();
+
         }
-      </span>
+      );
 
-    `;
+    });
 
 
-    button.addEventListener(
+  const resetWaterButton =
+    document.getElementById(
+      "resetWater"
+    );
+
+  if (resetWaterButton) {
+
+    resetWaterButton.addEventListener(
       "click",
       () => {
 
-        selectedCalendarDate =
-          date;
+        state.water = 0;
 
+        saveState();
 
-        renderCalendar();
-
-        renderSelectedDay();
+        renderWater();
 
       }
     );
 
+  }
 
-    grid.appendChild(
-      button
+
+  const resetTasksButton =
+    document.getElementById(
+      "resetTasks"
+    );
+
+  if (resetTasksButton) {
+
+    resetTasksButton.addEventListener(
+      "click",
+      () => {
+
+        state.completed = [];
+
+        state.xp = 0;
+
+        saveState();
+
+        renderHome();
+
+      }
     );
 
   }
 
 
-  renderSelectedDay();
+  // =====================================================
+  // AGENDA
+  // =====================================================
 
-  renderNextDays();
+  let calendarDate =
+    new Date(
+      today.getFullYear(),
+      today.getMonth(),
+      1
+    );
 
-}
-
-
-// =====================================================
-// DIA SELECIONADO
-// =====================================================
-
-function renderSelectedDay() {
-
-  const work =
-    isWorkDay(
-      selectedCalendarDate
+  let selectedCalendarDate =
+    new Date(
+      today.getFullYear(),
+      today.getMonth(),
+      today.getDate()
     );
 
 
-  const selectedTasks =
-    work
-      ? workTasks
-      : offTasks;
+  const monthNames = [
+    "Janeiro",
+    "Fevereiro",
+    "Março",
+    "Abril",
+    "Maio",
+    "Junho",
+    "Julho",
+    "Agosto",
+    "Setembro",
+    "Outubro",
+    "Novembro",
+    "Dezembro"
+  ];
 
 
-  document.getElementById(
-    "selectedDateTitle"
-  ).textContent =
-    selectedCalendarDate
-      .toLocaleDateString(
-        "pt-BR",
-        {
-          weekday: "long",
-          day: "2-digit",
-          month: "long"
+  function renderCalendar() {
+
+    const grid =
+      document.getElementById(
+        "calendarGrid"
+      );
+
+    if (!grid) {
+      return;
+    }
+
+
+    const year =
+      calendarDate.getFullYear();
+
+    const month =
+      calendarDate.getMonth();
+
+
+    const monthElement =
+      document.getElementById(
+        "calendarMonth"
+      );
+
+    const yearElement =
+      document.getElementById(
+        "calendarYear"
+      );
+
+
+    if (monthElement) {
+      monthElement.textContent =
+        monthNames[month];
+    }
+
+    if (yearElement) {
+      yearElement.textContent =
+        year;
+    }
+
+
+    grid.innerHTML = "";
+
+
+    const firstDay =
+      new Date(
+        year,
+        month,
+        1
+      );
+
+    const lastDay =
+      new Date(
+        year,
+        month + 1,
+        0
+      );
+
+
+    for (
+      let i = 0;
+      i < firstDay.getDay();
+      i++
+    ) {
+
+      const empty =
+        document.createElement(
+          "div"
+        );
+
+      empty.className =
+        "calendar-day empty";
+
+      grid.appendChild(empty);
+
+    }
+
+
+    for (
+      let day = 1;
+      day <= lastDay.getDate();
+      day++
+    ) {
+
+      const date =
+        new Date(
+          year,
+          month,
+          day
+        );
+
+      const work =
+        isWorkDay(date);
+
+
+      const button =
+        document.createElement(
+          "button"
+        );
+
+      button.type =
+        "button";
+
+      button.className =
+        `calendar-day ${
+          work
+            ? "work-day"
+            : "off-day"
+        }`;
+
+
+      if (
+        isSameDay(
+          date,
+          today
+        )
+      ) {
+
+        button.classList.add(
+          "today"
+        );
+
+      }
+
+
+      if (
+        isSameDay(
+          date,
+          selectedCalendarDate
+        )
+      ) {
+
+        button.classList.add(
+          "selected"
+        );
+
+      }
+
+
+      button.innerHTML = `
+
+        <span class="calendar-day-number">
+          ${day}
+        </span>
+
+        <span class="calendar-day-label">
+
+          ${
+            work
+              ? "TRABALHO"
+              : "FOLGA"
+          }
+
+        </span>
+
+      `;
+
+
+      button.addEventListener(
+        "click",
+        () => {
+
+          selectedCalendarDate =
+            new Date(date);
+
+          renderCalendar();
+
         }
       );
 
 
-  document.getElementById(
-    "selectedDateType"
-  ).textContent =
-    work
-      ? "Escala 12x36 • expediente das 08:00 às 20:00"
-      : "Escala 12x36 • dia de folga";
+      grid.appendChild(button);
+
+    }
 
 
-  const badge =
-    document.getElementById(
-      "selectedDayBadge"
-    );
+    renderSelectedDay();
+    renderNextDays();
+
+  }
 
 
-  badge.textContent =
-    work
-      ? "TRABALHO"
-      : "FOLGA";
+  function renderSelectedDay() {
+
+    const title =
+      document.getElementById(
+        "selectedDateTitle"
+      );
+
+    const type =
+      document.getElementById(
+        "selectedDateType"
+      );
+
+    const badge =
+      document.getElementById(
+        "selectedDayBadge"
+      );
+
+    const list =
+      document.getElementById(
+        "selectedDayTasks"
+      );
 
 
-  badge.className =
-    work
-      ? "selected-day-badge work"
-      : "selected-day-badge off";
+    if (
+      !title ||
+      !type ||
+      !badge ||
+      !list
+    ) {
+
+      return;
+
+    }
 
 
-  const list =
-    document.getElementById(
-      "selectedDayTasks"
-    );
+    const work =
+      isWorkDay(
+        selectedCalendarDate
+      );
 
 
-  list.innerHTML = "";
+    title.textContent =
+      selectedCalendarDate
+        .toLocaleDateString(
+          "pt-BR",
+          {
+            weekday: "long",
+            day: "2-digit",
+            month: "long"
+          }
+        );
 
 
-  selectedTasks.forEach(
-    task => {
+    type.textContent =
+      work
+        ? "Escala 12x36 • expediente das 08:00 às 20:00"
+        : "Escala 12x36 • dia de folga";
+
+
+    badge.textContent =
+      work
+        ? "TRABALHO"
+        : "FOLGA";
+
+
+    badge.className =
+      work
+        ? "selected-day-badge work"
+        : "selected-day-badge off";
+
+
+    list.innerHTML = "";
+
+
+    const selectedTasks =
+      work
+        ? workTasks
+        : offTasks;
+
+
+    selectedTasks.forEach(task => {
 
       const item =
         document.createElement(
           "div"
         );
-
 
       item.className =
         "agenda-task";
@@ -1266,372 +1100,411 @@ function renderSelectedDay() {
       `;
 
 
-      list.appendChild(
-        item
+      list.appendChild(item);
+
+    });
+
+  }
+
+
+  function renderNextDays() {
+
+    const list =
+      document.getElementById(
+        "nextDaysList"
       );
 
+    if (!list) {
+      return;
     }
-  );
 
-}
+    list.innerHTML = "";
 
 
-// =====================================================
-// PRÓXIMOS 7 DIAS
-// =====================================================
+    for (
+      let i = 0;
+      i < 7;
+      i++
+    ) {
 
-function renderNextDays() {
+      const date =
+        new Date(
+          today.getFullYear(),
+          today.getMonth(),
+          today.getDate() + i
+        );
 
-  const list =
+      const work =
+        isWorkDay(date);
+
+
+      const item =
+        document.createElement(
+          "div"
+        );
+
+      item.className =
+        "next-day-item";
+
+
+      item.innerHTML = `
+
+        <div>
+
+          <strong>
+            ${
+              date.toLocaleDateString(
+                "pt-BR",
+                {
+                  weekday: "long"
+                }
+              )
+            }
+          </strong>
+
+          <span>
+            ${
+              date.toLocaleDateString(
+                "pt-BR",
+                {
+                  day: "2-digit",
+                  month: "2-digit"
+                }
+              )
+            }
+          </span>
+
+        </div>
+
+        <div
+          class="next-day-type ${
+            work
+              ? "work"
+              : "off"
+          }"
+        >
+
+          ${
+            work
+              ? "TRABALHO"
+              : "FOLGA"
+          }
+
+        </div>
+
+      `;
+
+
+      list.appendChild(item);
+
+    }
+
+  }
+
+
+  // =====================================================
+  // TELAS
+  // =====================================================
+
+  const homeScreen =
     document.getElementById(
-      "nextDaysList"
+      "homeScreen"
+    );
+
+  const agendaScreen =
+    document.getElementById(
+      "agendaScreen"
+    );
+
+  const homeButton =
+    document.getElementById(
+      "homeButton"
+    );
+
+  const agendaButton =
+    document.getElementById(
+      "agendaButton"
     );
 
 
-  list.innerHTML = "";
+  function clearNav() {
+
+    document
+      .querySelectorAll(
+        ".nav-item"
+      )
+      .forEach(button => {
+
+        button.classList.remove(
+          "active"
+        );
+
+      });
+
+  }
 
 
-  for (
-    let i = 0;
-    i < 7;
-    i++
-  ) {
+  function showHome() {
 
-    const date =
-      new Date(
-        today.getFullYear(),
-        today.getMonth(),
-        today.getDate() + i
+    if (homeScreen) {
+      homeScreen.classList.remove(
+        "hidden"
       );
+    }
 
-
-    const work =
-      isWorkDay(date);
-
-
-    const item =
-      document.createElement(
-        "div"
+    if (agendaScreen) {
+      agendaScreen.classList.add(
+        "hidden"
       );
+    }
 
+    clearNav();
 
-    item.className =
-      "next-day-item";
+    if (homeButton) {
+      homeButton.classList.add(
+        "active"
+      );
+    }
 
-
-    item.innerHTML = `
-
-      <div>
-
-        <strong>
-          ${
-            date.toLocaleDateString(
-              "pt-BR",
-              {
-                weekday: "long"
-              }
-            )
-          }
-        </strong>
-
-        <span>
-          ${
-            date.toLocaleDateString(
-              "pt-BR",
-              {
-                day: "2-digit",
-                month: "2-digit"
-              }
-            )
-          }
-        </span>
-
-      </div>
-
-      <div
-        class="next-day-type ${
-          work
-            ? "work"
-            : "off"
-        }"
-      >
-        ${
-          work
-            ? "TRABALHO"
-            : "FOLGA"
-        }
-      </div>
-
-    `;
-
-
-    list.appendChild(
-      item
+    window.scrollTo(
+      0,
+      0
     );
 
   }
 
-}
 
+  function showAgenda() {
 
-// =====================================================
-// MUDAR MÊS
-// =====================================================
+    if (!agendaScreen) {
 
-function changeMonth(amount) {
-
-  calendarDate =
-    new Date(
-      calendarDate.getFullYear(),
-      calendarDate.getMonth() + amount,
-      1
-    );
-
-
-  renderCalendar();
-
-}
-
-
-// =====================================================
-// TROCA DE TELAS
-// =====================================================
-
-function showHome() {
-
-  document.getElementById(
-    "homeScreen"
-  ).classList.remove(
-    "hidden"
-  );
-
-
-  document.getElementById(
-    "agendaScreen"
-  ).classList.add(
-    "hidden"
-  );
-
-
-  setActiveNav(
-    "homeButton"
-  );
-
-
-  window.scrollTo({
-    top: 0,
-    behavior: "smooth"
-  });
-
-}
-
-
-function showAgenda() {
-
-  document.getElementById(
-    "homeScreen"
-  ).classList.add(
-    "hidden"
-  );
-
-
-  document.getElementById(
-    "agendaScreen"
-  ).classList.remove(
-    "hidden"
-  );
-
-
-  setActiveNav(
-    "agendaButton"
-  );
-
-
-  renderCalendar();
-
-
-  window.scrollTo({
-    top: 0,
-    behavior: "smooth"
-  });
-
-}
-
-
-function setActiveNav(id) {
-
-  document
-    .querySelectorAll(
-      ".nav-item"
-    )
-    .forEach(
-      button =>
-        button.classList.remove(
-          "active"
-        )
-    );
-
-
-  document.getElementById(
-    id
-  ).classList.add(
-    "active"
-  );
-
-}
-
-
-// =====================================================
-// EVENTOS
-// =====================================================
-
-document
-  .querySelectorAll(
-    "[data-water]"
-  )
-  .forEach(
-    button => {
-
-      button.addEventListener(
-        "click",
-        () => {
-
-          addWater(
-            Number(
-              button.dataset.water
-            )
-          );
-
-        }
+      alert(
+        "A tela Agenda não foi encontrada no index.html."
       );
 
+      return;
+
     }
-  );
 
 
-document.getElementById(
-  "resetWater"
-).addEventListener(
-  "click",
-  resetWater
-);
+    if (homeScreen) {
+      homeScreen.classList.add(
+        "hidden"
+      );
+    }
 
 
-document.getElementById(
-  "resetTasks"
-).addEventListener(
-  "click",
-  resetTasks
-);
+    agendaScreen.classList.remove(
+      "hidden"
+    );
 
 
-document.getElementById(
-  "homeButton"
-).addEventListener(
-  "click",
-  showHome
-);
+    clearNav();
 
 
-document.getElementById(
-  "agendaButton"
-).addEventListener(
-  "click",
-  showAgenda
-);
+    if (agendaButton) {
+      agendaButton.classList.add(
+        "active"
+      );
+    }
 
 
-document.getElementById(
-  "prevMonth"
-).addEventListener(
-  "click",
-  () =>
-    changeMonth(-1)
-);
+    renderCalendar();
 
 
-document.getElementById(
-  "nextMonth"
-).addEventListener(
-  "click",
-  () =>
-    changeMonth(1)
-);
+    window.scrollTo(
+      0,
+      0
+    );
+
+  }
 
 
-// PMMG
+  if (homeButton) {
 
-function goToPMMG() {
+    homeButton.addEventListener(
+      "click",
+      showHome
+    );
 
-  showHome();
-
-
-  setTimeout(
-    () => {
-
-      document.getElementById(
-        "pmmgSection"
-      ).scrollIntoView({
-        behavior: "smooth",
-        block: "center"
-      });
-
-    },
-    100
-  );
-
-}
+  }
 
 
-document.getElementById(
-  "pmmgButton"
-).addEventListener(
-  "click",
-  goToPMMG
-);
+  if (agendaButton) {
+
+    agendaButton.addEventListener(
+      "click",
+      showAgenda
+    );
+
+  }
 
 
-document.getElementById(
-  "areaPMMG"
-).addEventListener(
-  "click",
-  goToPMMG
-);
+  // =====================================================
+  // MÊS ANTERIOR / PRÓXIMO
+  // =====================================================
+
+  const prevMonth =
+    document.getElementById(
+      "prevMonth"
+    );
+
+  const nextMonth =
+    document.getElementById(
+      "nextMonth"
+    );
 
 
-// PROGRESSO
+  if (prevMonth) {
 
-document.getElementById(
-  "progressButton"
-).addEventListener(
-  "click",
-  () => {
+    prevMonth.addEventListener(
+      "click",
+      () => {
+
+        calendarDate =
+          new Date(
+            calendarDate.getFullYear(),
+            calendarDate.getMonth() - 1,
+            1
+          );
+
+        renderCalendar();
+
+      }
+    );
+
+  }
+
+
+  if (nextMonth) {
+
+    nextMonth.addEventListener(
+      "click",
+      () => {
+
+        calendarDate =
+          new Date(
+            calendarDate.getFullYear(),
+            calendarDate.getMonth() + 1,
+            1
+          );
+
+        renderCalendar();
+
+      }
+    );
+
+  }
+
+
+  // =====================================================
+  // PMMG
+  // =====================================================
+
+  function goToPMMG() {
 
     showHome();
-
 
     setTimeout(
       () => {
 
-        document.getElementById(
-          "progressSection"
-        ).scrollIntoView({
-          behavior: "smooth",
-          block: "center"
-        });
+        const section =
+          document.getElementById(
+            "pmmgSection"
+          );
+
+        if (section) {
+
+          section.scrollIntoView({
+            behavior: "smooth",
+            block: "center"
+          });
+
+        }
 
       },
       100
     );
 
   }
-);
 
 
-// =====================================================
-// INICIAR
-// =====================================================
+  const pmmgButton =
+    document.getElementById(
+      "pmmgButton"
+    );
 
-renderHome();
+  const areaPMMG =
+    document.getElementById(
+      "areaPMMG"
+    );
 
-renderCalendar();
+
+  if (pmmgButton) {
+    pmmgButton.addEventListener(
+      "click",
+      goToPMMG
+    );
+  }
+
+  if (areaPMMG) {
+    areaPMMG.addEventListener(
+      "click",
+      goToPMMG
+    );
+  }
+
+
+  // =====================================================
+  // PROGRESSO
+  // =====================================================
+
+  const progressButton =
+    document.getElementById(
+      "progressButton"
+    );
+
+
+  if (progressButton) {
+
+    progressButton.addEventListener(
+      "click",
+      () => {
+
+        showHome();
+
+        setTimeout(
+          () => {
+
+            const section =
+              document.getElementById(
+                "progressSection"
+              );
+
+            if (section) {
+
+              section.scrollIntoView({
+                behavior: "smooth",
+                block: "center"
+              });
+
+            }
+
+          },
+          100
+        );
+
+      }
+    );
+
+  }
+
+
+  // =====================================================
+  // INICIAR
+  // =====================================================
+
+  renderHome();
+  renderCalendar();
+
+});
