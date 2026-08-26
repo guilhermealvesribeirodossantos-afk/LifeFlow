@@ -1,33 +1,36 @@
 :root {
-  --bg: #06080c;
-  --bg-2: #0a0f15;
+  --bg: #05070a;
+  --bg-soft: #090d12;
 
-  --surface: rgba(18, 24, 32, 0.78);
-  --surface-strong: rgba(20, 28, 38, 0.94);
-  --surface-soft: rgba(255, 255, 255, 0.035);
+  --surface: rgba(18, 24, 32, 0.76);
+  --surface-strong: rgba(21, 28, 38, 0.94);
+  --surface-hover: rgba(255, 255, 255, 0.045);
 
-  --text: #f6f8fb;
-  --text-soft: #c4cbd4;
-  --muted: #778391;
+  --text: #f7f9fc;
+  --text-soft: #c4ccd5;
+  --muted: #788593;
 
-  --primary: #43e39a;
-  --primary-soft: rgba(67, 227, 154, 0.12);
-  --primary-line: rgba(67, 227, 154, 0.22);
+  --primary: #44e39a;
+  --primary-bright: #72efb3;
+  --primary-soft: rgba(68, 227, 154, 0.1);
+  --primary-line: rgba(68, 227, 154, 0.2);
 
-  --blue: #69baff;
-  --blue-soft: rgba(105, 186, 255, 0.12);
+  --blue: #68baff;
+  --blue-soft: rgba(104, 186, 255, 0.1);
 
-  --work: #ffb45e;
-  --work-soft: rgba(255, 180, 94, 0.12);
+  --work: #ffb55f;
+  --work-soft: rgba(255, 181, 95, 0.1);
 
-  --border: rgba(255, 255, 255, 0.075);
-  --border-strong: rgba(255, 255, 255, 0.12);
+  --border: rgba(255, 255, 255, 0.07);
+  --border-hover: rgba(255, 255, 255, 0.13);
 
   --shadow:
-    0 20px 60px rgba(0, 0, 0, 0.34);
+    0 22px 60px
+    rgba(0, 0, 0, 0.34);
 
   --shadow-soft:
-    0 10px 30px rgba(0, 0, 0, 0.22);
+    0 10px 30px
+    rgba(0, 0, 0, 0.22);
 
   --radius-xl: 26px;
   --radius-lg: 20px;
@@ -36,9 +39,9 @@
 }
 
 
-/* =========================================
+/* ==================================================
    RESET
-========================================= */
+================================================== */
 
 * {
   box-sizing: border-box;
@@ -50,6 +53,7 @@ html {
 
 body {
   margin: 0;
+
   min-height: 100vh;
 
   color: var(--text);
@@ -67,23 +71,29 @@ body {
 
   background:
     radial-gradient(
-      circle at 85% -10%,
-      rgba(67, 227, 154, 0.15),
-      transparent 28%
+      circle at 85% -8%,
+      rgba(68, 227, 154, 0.14),
+      transparent 29%
     ),
     radial-gradient(
-      circle at -10% 20%,
-      rgba(105, 186, 255, 0.08),
-      transparent 25%
+      circle at -10% 24%,
+      rgba(104, 186, 255, 0.07),
+      transparent 26%
     ),
     linear-gradient(
       180deg,
       #0b1016 0%,
-      #070a0e 42%,
-      #05070a 100%
+      #070a0e 45%,
+      #040608 100%
     );
 
+  background-attachment: fixed;
+
   padding-bottom: 105px;
+
+  animation:
+    appFadeIn
+    0.45s ease;
 }
 
 button,
@@ -96,7 +106,7 @@ button {
 }
 
 button:active {
-  transform: scale(0.975);
+  transform: scale(0.97);
 }
 
 .hidden {
@@ -104,9 +114,79 @@ button:active {
 }
 
 
-/* =========================================
-   LAYOUT
-========================================= */
+/* ==================================================
+   ANIMAÇÕES
+================================================== */
+
+@keyframes appFadeIn {
+
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+
+}
+
+
+@keyframes cardEnter {
+
+  from {
+    opacity: 0;
+
+    transform:
+      translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+
+    transform:
+      translateY(0);
+  }
+
+}
+
+
+@keyframes softPulse {
+
+  0%,
+  100% {
+    box-shadow:
+      0 0 0
+      rgba(68, 227, 154, 0);
+  }
+
+  50% {
+    box-shadow:
+      0 0 26px
+      rgba(68, 227, 154, 0.12);
+  }
+
+}
+
+
+@keyframes progressGlow {
+
+  0%,
+  100% {
+    filter:
+      brightness(1);
+  }
+
+  50% {
+    filter:
+      brightness(1.15);
+  }
+
+}
+
+
+/* ==================================================
+   ESTRUTURA
+================================================== */
 
 .app-shell {
   width: 100%;
@@ -114,7 +194,12 @@ button:active {
 
 .app-header,
 .app-main {
-  width: min(100%, 800px);
+  width:
+    min(
+      100%,
+      800px
+    );
+
   margin: 0 auto;
 }
 
@@ -122,22 +207,32 @@ button:active {
   padding:
     18px
     14px
-    28px;
+    30px;
+
+  animation:
+    cardEnter
+    0.35s ease;
 }
 
 
-/* =========================================
+/* ==================================================
    HEADER
-========================================= */
+================================================== */
 
 .app-header {
+  position: relative;
+
+  z-index: 10;
+
   padding:
     22px
     18px
     10px;
 
   display: flex;
+
   justify-content: space-between;
+
   align-items: center;
 
   gap: 14px;
@@ -145,7 +240,9 @@ button:active {
 
 .brand-area {
   display: flex;
+
   align-items: center;
+
   gap: 12px;
 }
 
@@ -154,6 +251,7 @@ button:active {
   height: 48px;
 
   display: grid;
+
   place-items: center;
 
   border-radius: 16px;
@@ -161,27 +259,47 @@ button:active {
   background:
     linear-gradient(
       145deg,
-      #56efaa,
-      #29c47e
+      #62f0ad,
+      #29c37d
     );
 
-  color: #03100a;
+  color: #03110a;
 
   font-size: 14px;
+
   font-weight: 950;
 
   letter-spacing: -0.4px;
 
   box-shadow:
-    0 10px 35px rgba(67, 227, 154, 0.22);
+    0 12px 34px
+    rgba(68, 227, 154, 0.21);
+
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease;
+}
+
+.brand-icon:hover {
+  transform:
+    translateY(-2px)
+    rotate(-2deg);
+
+  box-shadow:
+    0 16px 40px
+    rgba(68, 227, 154, 0.28);
 }
 
 .brand-kicker {
-  margin: 0 0 4px;
+  margin:
+    0
+    0
+    4px;
 
   color: var(--primary);
 
   font-size: 9px;
+
   font-weight: 900;
 
   letter-spacing: 1.7px;
@@ -191,6 +309,7 @@ button:active {
   margin: 0;
 
   font-size: 25px;
+
   line-height: 1;
 
   letter-spacing: -0.8px;
@@ -201,6 +320,7 @@ button:active {
   height: 44px;
 
   display: grid;
+
   place-items: center;
 
   border:
@@ -214,19 +334,39 @@ button:active {
 
   color: var(--text);
 
-  backdrop-filter: blur(14px);
+  backdrop-filter:
+    blur(18px);
 
-  box-shadow: var(--shadow-soft);
+  box-shadow:
+    var(--shadow-soft);
 
   cursor: pointer;
+
+  transition:
+    transform 0.2s ease,
+    background 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.profile-button:hover {
+  transform:
+    translateY(-2px);
+
+  background:
+    rgba(255, 255, 255, 0.06);
+
+  border-color:
+    var(--border-hover);
 }
 
 
-/* =========================================
-   GLASS CARDS
-========================================= */
+/* ==================================================
+   CARDS
+================================================== */
 
 .card {
+  position: relative;
+
   border:
     1px solid
     var(--border);
@@ -238,20 +378,37 @@ button:active {
     linear-gradient(
       145deg,
       rgba(24, 31, 41, 0.88),
-      rgba(13, 18, 24, 0.83)
+      rgba(13, 18, 24, 0.82)
     );
 
   backdrop-filter:
-    blur(18px);
+    blur(20px);
 
   box-shadow:
     var(--shadow-soft);
+
+  transition:
+    transform 0.25s ease,
+    border-color 0.25s ease,
+    box-shadow 0.25s ease;
+}
+
+.card:hover {
+  transform:
+    translateY(-2px);
+
+  border-color:
+    var(--border-hover);
+
+  box-shadow:
+    0 18px 42px
+    rgba(0, 0, 0, 0.28);
 }
 
 
-/* =========================================
+/* ==================================================
    TYPOGRAPHY
-========================================= */
+================================================== */
 
 .section-label {
   display: block;
@@ -261,6 +418,7 @@ button:active {
   color: var(--primary);
 
   font-size: 9px;
+
   font-weight: 900;
 
   letter-spacing: 1.55px;
@@ -269,7 +427,9 @@ button:active {
 .card-header,
 .section-heading {
   display: flex;
+
   justify-content: space-between;
+
   align-items: center;
 
   gap: 14px;
@@ -285,23 +445,27 @@ button:active {
 }
 
 
-/* =========================================
+/* ==================================================
    WELCOME
-========================================= */
+================================================== */
 
 .welcome-section {
   padding:
     10px
     4px
-    24px;
+    25px;
 }
 
 .today-text {
-  margin: 0 0 8px;
+  margin:
+    0
+    0
+    8px;
 
   color: var(--muted);
 
   font-size: 11px;
+
   font-weight: 700;
 
   text-transform: capitalize;
@@ -312,33 +476,52 @@ button:active {
 
   font-size:
     clamp(
-      32px,
+      33px,
       8vw,
-      44px
+      45px
     );
 
   line-height: 1;
 
-  letter-spacing: -1.7px;
+  letter-spacing: -1.8px;
+
+  background:
+    linear-gradient(
+      90deg,
+      #ffffff,
+      #dce3e9
+    );
+
+  -webkit-background-clip:
+    text;
+
+  background-clip:
+    text;
+
+  color:
+    transparent;
 }
 
 .welcome-subtitle {
-  margin: 10px 0 0;
+  margin:
+    10px
+    0
+    0;
 
-  color: var(--text-soft);
+  color:
+    var(--text-soft);
 
   font-size: 13px;
+
   line-height: 1.45;
 }
 
 
-/* =========================================
+/* ==================================================
    NEXT ACTIVITY
-========================================= */
+================================================== */
 
 .next-card {
-  position: relative;
-
   overflow: hidden;
 
   padding: 21px;
@@ -346,7 +529,12 @@ button:active {
   margin-bottom: 12px;
 
   border-color:
-    rgba(67, 227, 154, 0.13);
+    rgba(68, 227, 154, 0.13);
+
+  animation:
+    softPulse
+    5s ease-in-out
+    infinite;
 }
 
 .next-card::before {
@@ -354,28 +542,33 @@ button:active {
 
   position: absolute;
 
-  width: 170px;
-  height: 170px;
+  width: 180px;
+  height: 180px;
 
-  right: -80px;
-  top: -85px;
+  right: -90px;
+  top: -95px;
 
   border-radius: 50%;
 
   background:
     radial-gradient(
       circle,
-      rgba(67, 227, 154, 0.16),
+      rgba(68, 227, 154, 0.18),
       transparent 70%
     );
+
+  pointer-events: none;
 }
 
 .next-top {
   position: relative;
+
   z-index: 1;
 
   display: flex;
+
   justify-content: space-between;
+
   align-items: flex-start;
 
   gap: 14px;
@@ -387,6 +580,7 @@ button:active {
   max-width: 270px;
 
   font-size: 22px;
+
   line-height: 1.15;
 
   letter-spacing: -0.65px;
@@ -399,6 +593,7 @@ button:active {
   flex-shrink: 0;
 
   display: grid;
+
   place-items: center;
 
   border:
@@ -411,10 +606,20 @@ button:active {
     var(--primary-soft);
 
   font-size: 18px;
+
+  transition:
+    transform 0.2s ease;
+}
+
+.next-card:hover
+.next-icon {
+  transform:
+    scale(1.07);
 }
 
 .next-info {
   position: relative;
+
   z-index: 1;
 
   margin-top: 20px;
@@ -447,7 +652,8 @@ button:active {
 
   margin-bottom: 4px;
 
-  color: var(--muted);
+  color:
+    var(--muted);
 
   font-size: 9px;
 }
@@ -455,16 +661,18 @@ button:active {
 .next-info strong {
   display: block;
 
-  color: var(--text-soft);
+  color:
+    var(--text-soft);
 
   font-size: 11px;
+
   line-height: 1.4;
 }
 
 
-/* =========================================
+/* ==================================================
    OVERVIEW
-========================================= */
+================================================== */
 
 .overview-grid {
   display: grid;
@@ -478,12 +686,14 @@ button:active {
 }
 
 .overview-card {
-  min-height: 96px;
+  min-height: 97px;
 
   padding: 13px;
 
   display: flex;
+
   flex-direction: column;
+
   justify-content: space-between;
 }
 
@@ -492,16 +702,17 @@ button:active {
   height: 31px;
 
   display: grid;
+
   place-items: center;
+
+  border:
+    1px solid
+    var(--border);
 
   border-radius: 10px;
 
   background:
     rgba(255, 255, 255, 0.035);
-
-  border:
-    1px solid
-    var(--border);
 
   font-size: 14px;
 }
@@ -509,7 +720,8 @@ button:active {
 .overview-card span {
   display: block;
 
-  color: var(--muted);
+  color:
+    var(--muted);
 
   font-size: 9px;
 }
@@ -525,9 +737,9 @@ button:active {
 }
 
 
-/* =========================================
+/* ==================================================
    PROGRESS
-========================================= */
+================================================== */
 
 .progress-card {
   padding: 18px;
@@ -536,7 +748,9 @@ button:active {
 }
 
 .day-badge {
-  padding: 7px 9px;
+  padding:
+    7px
+    9px;
 
   border:
     1px solid
@@ -547,9 +761,11 @@ button:active {
   background:
     var(--primary-soft);
 
-  color: var(--primary);
+  color:
+    var(--primary);
 
   font-size: 8px;
+
   font-weight: 900;
 
   letter-spacing: 0.6px;
@@ -557,6 +773,7 @@ button:active {
 
 .progress-track {
   width: 100%;
+
   height: 8px;
 
   margin-top: 19px;
@@ -571,6 +788,7 @@ button:active {
 
 .progress-bar {
   width: 0;
+
   height: 100%;
 
   border-radius: 999px;
@@ -578,36 +796,51 @@ button:active {
   background:
     linear-gradient(
       90deg,
-      #3ddb91,
-      #67efb0
+      var(--primary),
+      var(--primary-bright)
     );
 
   box-shadow:
-    0 0 18px rgba(67, 227, 154, 0.26);
+    0 0 18px
+    rgba(68, 227, 154, 0.25);
 
   transition:
-    width 0.35s ease;
+    width 0.45s
+    cubic-bezier(
+      0.22,
+      1,
+      0.36,
+      1
+    );
+
+  animation:
+    progressGlow
+    3s ease-in-out
+    infinite;
 }
 
 .progress-footer {
   margin-top: 10px;
 
   display: flex;
+
   justify-content: space-between;
 
-  color: var(--muted);
+  color:
+    var(--muted);
 
   font-size: 10px;
 }
 
 .progress-footer strong {
-  color: var(--primary);
+  color:
+    var(--primary);
 }
 
 
-/* =========================================
+/* ==================================================
    ROUTINE
-========================================= */
+================================================== */
 
 .routine-section {
   margin-bottom: 25px;
@@ -615,7 +848,10 @@ button:active {
 
 .section-heading {
   margin-bottom: 13px;
-  padding: 0 3px;
+
+  padding:
+    0
+    3px;
 }
 
 .text-button {
@@ -625,27 +861,42 @@ button:active {
 
   background: transparent;
 
-  color: var(--muted);
+  color:
+    var(--muted);
 
   font-size: 10px;
+
   font-weight: 800;
 
   cursor: pointer;
+
+  transition:
+    color 0.2s ease;
+}
+
+.text-button:hover {
+  color:
+    var(--text-soft);
 }
 
 .task-list,
 .selected-day-tasks {
   display: flex;
+
   flex-direction: column;
+
   gap: 8px;
 }
 
 .task {
   min-height: 73px;
 
-  padding: 12px 13px;
+  padding:
+    12px
+    13px;
 
   display: flex;
+
   align-items: center;
 
   gap: 12px;
@@ -667,8 +918,11 @@ button:active {
 }
 
 .task:hover {
+  transform:
+    translateX(2px);
+
   border-color:
-    var(--border-strong);
+    var(--border-hover);
 
   background:
     rgba(255, 255, 255, 0.04);
@@ -678,8 +932,10 @@ button:active {
   opacity: 0.45;
 }
 
-.task.done .task-title {
-  text-decoration: line-through;
+.task.done
+.task-title {
+  text-decoration:
+    line-through;
 }
 
 .task-time {
@@ -687,30 +943,37 @@ button:active {
 
   flex-shrink: 0;
 
-  color: var(--blue);
+  color:
+    var(--blue);
 
   font-size: 10px;
+
   font-weight: 900;
 }
 
 .task-body {
   flex: 1;
+
   min-width: 0;
 }
 
 .task-title {
   font-size: 13px;
+
   font-weight: 800;
 
-  color: var(--text);
+  color:
+    var(--text);
 }
 
 .task-sub {
   margin-top: 4px;
 
-  color: var(--muted);
+  color:
+    var(--muted);
 
   font-size: 10px;
+
   line-height: 1.4;
 }
 
@@ -721,6 +984,7 @@ button:active {
   flex-shrink: 0;
 
   display: grid;
+
   place-items: center;
 
   padding: 0;
@@ -734,28 +998,42 @@ button:active {
   background:
     rgba(255, 255, 255, 0.04);
 
-  color: #9aa6b2;
+  color:
+    #9aa6b2;
 
   cursor: pointer;
+
+  transition:
+    transform 0.18s ease,
+    background 0.18s ease,
+    border-color 0.18s ease;
 }
 
-.task.done .check {
+.check:hover {
+  transform:
+    scale(1.06);
+}
+
+.task.done
+.check {
   border-color:
     var(--primary);
 
   background:
     var(--primary);
 
-  color: #05120c;
+  color:
+    #05120c;
 
   box-shadow:
-    0 6px 18px rgba(67, 227, 154, 0.18);
+    0 7px 20px
+    rgba(68, 227, 154, 0.2);
 }
 
 
-/* =========================================
+/* ==================================================
    WATER
-========================================= */
+================================================== */
 
 .water-card {
   padding: 18px;
@@ -764,13 +1042,15 @@ button:active {
 }
 
 .water-goal {
-  color: var(--blue);
+  color:
+    var(--blue);
 
   font-size: 11px;
 }
 
 .water-track {
   width: 100%;
+
   height: 9px;
 
   margin-top: 18px;
@@ -785,6 +1065,7 @@ button:active {
 
 .water-fill {
   width: 0;
+
   height: 100%;
 
   border-radius: 999px;
@@ -797,10 +1078,17 @@ button:active {
     );
 
   box-shadow:
-    0 0 18px rgba(105, 186, 255, 0.2);
+    0 0 18px
+    rgba(104, 186, 255, 0.2);
 
   transition:
-    width 0.35s ease;
+    width 0.45s
+    cubic-bezier(
+      0.22,
+      1,
+      0.36,
+      1
+    );
 }
 
 .water-buttons {
@@ -828,12 +1116,27 @@ button:active {
   background:
     rgba(255, 255, 255, 0.03);
 
-  color: var(--text-soft);
+  color:
+    var(--text-soft);
 
   font-size: 10px;
+
   font-weight: 850;
 
   cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.water-button:hover {
+  background:
+    rgba(255, 255, 255, 0.055);
+
+  border-color:
+    var(--border-hover);
 }
 
 .water-button.primary {
@@ -843,19 +1146,21 @@ button:active {
   background:
     var(--primary-soft);
 
-  color: var(--primary);
+  color:
+    var(--primary);
 }
 
 .water-button.reset {
   width: 65px;
 
-  color: var(--muted);
+  color:
+    var(--muted);
 }
 
 
-/* =========================================
-   MAIN ACTION
-========================================= */
+/* ==================================================
+   ACTION BUTTON
+================================================== */
 
 .main-action-button {
   width: 100%;
@@ -875,21 +1180,41 @@ button:active {
       #29c57e
     );
 
-  color: #04100a;
+  color:
+    #04100a;
 
   font-size: 11px;
+
   font-weight: 900;
 
   box-shadow:
-    0 10px 28px rgba(67, 227, 154, 0.16);
+    0 10px 28px
+    rgba(68, 227, 154, 0.16);
 
   cursor: pointer;
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    filter 0.2s ease;
+}
+
+.main-action-button:hover {
+  transform:
+    translateY(-2px);
+
+  filter:
+    brightness(1.05);
+
+  box-shadow:
+    0 14px 34px
+    rgba(68, 227, 154, 0.22);
 }
 
 
-/* =========================================
+/* ==================================================
    STUDY
-========================================= */
+================================================== */
 
 .study-card {
   padding: 18px;
@@ -899,6 +1224,7 @@ button:active {
 
 .study-top {
   display: flex;
+
   gap: 13px;
 }
 
@@ -909,6 +1235,7 @@ button:active {
   flex-shrink: 0;
 
   display: grid;
+
   place-items: center;
 
   border:
@@ -930,11 +1257,16 @@ button:active {
 }
 
 .study-content p {
-  margin: 7px 0 0;
+  margin:
+    7px
+    0
+    0;
 
-  color: var(--muted);
+  color:
+    var(--muted);
 
   font-size: 11px;
+
   line-height: 1.5;
 }
 
@@ -967,7 +1299,8 @@ button:active {
 .study-summary-grid span {
   display: block;
 
-  color: var(--muted);
+  color:
+    var(--muted);
 
   font-size: 8px;
 }
@@ -981,9 +1314,9 @@ button:active {
 }
 
 
-/* =========================================
+/* ==================================================
    AREAS
-========================================= */
+================================================== */
 
 .areas-section {
   margin-bottom: 16px;
@@ -1004,6 +1337,7 @@ button:active {
   padding: 13px;
 
   display: flex;
+
   align-items: center;
 
   gap: 10px;
@@ -1017,27 +1351,32 @@ button:active {
   background:
     rgba(255, 255, 255, 0.025);
 
-  color: var(--text-soft);
+  color:
+    var(--text-soft);
 
   font-size: 11px;
+
   font-weight: 800;
 
   text-align: left;
+
+  cursor: pointer;
 
   transition:
     transform 0.2s ease,
     background 0.2s ease,
     border-color 0.2s ease;
-
-  cursor: pointer;
 }
 
 .area-card:hover {
+  transform:
+    translateY(-2px);
+
   background:
     rgba(255, 255, 255, 0.045);
 
   border-color:
-    var(--border-strong);
+    var(--border-hover);
 }
 
 .area-card span {
@@ -1045,6 +1384,7 @@ button:active {
   height: 36px;
 
   display: grid;
+
   place-items: center;
 
   flex-shrink: 0;
@@ -1059,12 +1399,20 @@ button:active {
     rgba(255, 255, 255, 0.035);
 
   font-size: 16px;
+
+  transition:
+    transform 0.2s ease;
+}
+
+.area-card:hover span {
+  transform:
+    scale(1.06);
 }
 
 
-/* =========================================
+/* ==================================================
    SCREEN TITLES
-========================================= */
+================================================== */
 
 .screen-title {
   padding:
@@ -1082,18 +1430,23 @@ button:active {
 }
 
 .screen-title p {
-  margin: 8px 0 0;
+  margin:
+    8px
+    0
+    0;
 
-  color: var(--muted);
+  color:
+    var(--muted);
 
   font-size: 12px;
+
   line-height: 1.5;
 }
 
 
-/* =========================================
+/* ==================================================
    CALENDAR
-========================================= */
+================================================== */
 
 .calendar-toolbar {
   padding: 13px;
@@ -1123,11 +1476,24 @@ button:active {
   background:
     rgba(255, 255, 255, 0.03);
 
-  color: var(--text);
+  color:
+    var(--text);
 
   font-size: 26px;
 
   cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease;
+}
+
+.calendar-arrow:hover {
+  background:
+    rgba(255, 255, 255, 0.06);
+
+  transform:
+    scale(1.04);
 }
 
 .calendar-title-area {
@@ -1147,13 +1513,15 @@ button:active {
 
   margin-top: 2px;
 
-  color: var(--muted);
+  color:
+    var(--muted);
 
   font-size: 10px;
 }
 
 .calendar-legend {
   display: flex;
+
   flex-wrap: wrap;
 
   gap: 14px;
@@ -1163,13 +1531,15 @@ button:active {
     4px
     14px;
 
-  color: var(--muted);
+  color:
+    var(--muted);
 
   font-size: 9px;
 }
 
 .calendar-legend span {
   display: flex;
+
   align-items: center;
 
   gap: 5px;
@@ -1185,11 +1555,13 @@ button:active {
 }
 
 .work-dot {
-  background: var(--work);
+  background:
+    var(--work);
 }
 
 .off-dot {
-  background: var(--primary);
+  background:
+    var(--primary);
 }
 
 .today-dot {
@@ -1208,11 +1580,13 @@ button:active {
 
   margin-bottom: 6px;
 
-  color: #697582;
+  color:
+    #697582;
 
   text-align: center;
 
   font-size: 8px;
+
   font-weight: 900;
 }
 
@@ -1243,7 +1617,8 @@ button:active {
   background:
     rgba(255, 255, 255, 0.025);
 
-  color: var(--text-soft);
+  color:
+    var(--text-soft);
 
   text-align: left;
 
@@ -1251,15 +1626,16 @@ button:active {
 
   transition:
     transform 0.18s ease,
-    border-color 0.18s ease;
+    border-color 0.18s ease,
+    background 0.18s ease;
 }
 
 .calendar-day:hover {
   transform:
-    translateY(-1px);
+    translateY(-2px);
 
   border-color:
-    var(--border-strong);
+    var(--border-hover);
 }
 
 .calendar-day.empty {
@@ -1272,6 +1648,7 @@ button:active {
   display: block;
 
   font-size: 11px;
+
   font-weight: 900;
 }
 
@@ -1285,9 +1662,11 @@ button:active {
   overflow: hidden;
 
   white-space: nowrap;
+
   text-overflow: ellipsis;
 
   font-size: 6px;
+
   font-weight: 900;
 }
 
@@ -1295,54 +1674,60 @@ button:active {
   background:
     linear-gradient(
       145deg,
-      rgba(255, 180, 94, 0.07),
+      rgba(255, 181, 95, 0.07),
       rgba(255, 255, 255, 0.02)
     );
 }
 
 .calendar-day.work-day
 .calendar-day-label {
-  color: var(--work);
+  color:
+    var(--work);
 }
 
 .calendar-day.off-day {
   background:
     linear-gradient(
       145deg,
-      rgba(67, 227, 154, 0.07),
+      rgba(68, 227, 154, 0.07),
       rgba(255, 255, 255, 0.02)
     );
 }
 
 .calendar-day.off-day
 .calendar-day-label {
-  color: var(--primary);
+  color:
+    var(--primary);
 }
 
 .calendar-day.today {
   border:
     1px solid
-    rgba(105, 186, 255, 0.7);
+    rgba(104, 186, 255, 0.7);
 
   box-shadow:
     inset
     0 0 0
     1px
-    rgba(105, 186, 255, 0.18);
+    rgba(104, 186, 255, 0.18);
 }
 
 .calendar-day.selected {
   border-color:
-    rgba(255, 255, 255, 0.22);
+    rgba(255, 255, 255, 0.24);
 
   transform:
-    translateY(-1px);
+    translateY(-2px);
+
+  box-shadow:
+    0 8px 22px
+    rgba(0, 0, 0, 0.18);
 }
 
 
-/* =========================================
+/* ==================================================
    AGENDA DETAILS
-========================================= */
+================================================== */
 
 .agenda-details {
   padding: 18px;
@@ -1352,7 +1737,9 @@ button:active {
 
 .selected-date-header {
   display: flex;
+
   justify-content: space-between;
+
   align-items: flex-start;
 
   gap: 14px;
@@ -1367,31 +1754,39 @@ button:active {
 }
 
 .selected-date-header p {
-  margin: 5px 0 0;
+  margin:
+    5px
+    0
+    0;
 
-  color: var(--muted);
+  color:
+    var(--muted);
 
   font-size: 10px;
 }
 
 .selected-day-badge {
-  padding: 7px 9px;
+  padding:
+    7px
+    9px;
 
   border-radius: 10px;
 
   font-size: 8px;
+
   font-weight: 900;
 }
 
 .selected-day-badge.work {
   border:
     1px solid
-    rgba(255, 180, 94, 0.2);
+    rgba(255, 181, 95, 0.2);
 
   background:
     var(--work-soft);
 
-  color: var(--work);
+  color:
+    var(--work);
 }
 
 .selected-day-badge.off {
@@ -1402,7 +1797,8 @@ button:active {
   background:
     var(--primary-soft);
 
-  color: var(--primary);
+  color:
+    var(--primary);
 }
 
 .agenda-task {
@@ -1410,7 +1806,9 @@ button:active {
 
   gap: 10px;
 
-  padding: 11px 0;
+  padding:
+    11px
+    0;
 
   border-bottom:
     1px solid
@@ -1426,9 +1824,11 @@ button:active {
 
   flex-shrink: 0;
 
-  color: var(--blue);
+  color:
+    var(--blue);
 
   font-size: 9px;
+
   font-weight: 900;
 }
 
@@ -1443,24 +1843,31 @@ button:active {
 
   margin-top: 3px;
 
-  color: var(--muted);
+  color:
+    var(--muted);
 
   font-size: 9px;
+
   line-height: 1.4;
 }
 
 .next-days-list {
   display: flex;
+
   flex-direction: column;
 
   gap: 7px;
 }
 
 .next-day-item {
-  padding: 12px 13px;
+  padding:
+    12px
+    13px;
 
   display: flex;
+
   justify-content: space-between;
+
   align-items: center;
 
   border:
@@ -1471,6 +1878,18 @@ button:active {
 
   background:
     rgba(255, 255, 255, 0.025);
+
+  transition:
+    transform 0.2s ease,
+    background 0.2s ease;
+}
+
+.next-day-item:hover {
+  transform:
+    translateX(2px);
+
+  background:
+    rgba(255, 255, 255, 0.04);
 }
 
 .next-day-item strong {
@@ -1484,17 +1903,21 @@ button:active {
 
   margin-top: 3px;
 
-  color: var(--muted);
+  color:
+    var(--muted);
 
   font-size: 8px;
 }
 
 .next-day-type {
-  padding: 6px 8px;
+  padding:
+    6px
+    8px;
 
   border-radius: 9px;
 
   font-size: 7px;
+
   font-weight: 900;
 }
 
@@ -1502,20 +1925,22 @@ button:active {
   background:
     var(--work-soft);
 
-  color: var(--work);
+  color:
+    var(--work);
 }
 
 .next-day-type.off {
   background:
     var(--primary-soft);
 
-  color: var(--primary);
+  color:
+    var(--primary);
 }
 
 
-/* =========================================
+/* ==================================================
    STUDY SCREEN
-========================================= */
+================================================== */
 
 .study-plan-card,
 .study-method-card {
@@ -1530,6 +1955,7 @@ button:active {
   padding: 14px;
 
   display: flex;
+
   align-items: center;
 
   gap: 12px;
@@ -1549,6 +1975,7 @@ button:active {
   height: 42px;
 
   display: grid;
+
   place-items: center;
 
   flex-shrink: 0;
@@ -1572,25 +1999,34 @@ button:active {
 }
 
 .study-plan-main p {
-  margin: 5px 0 0;
+  margin:
+    5px
+    0
+    0;
 
-  color: var(--muted);
+  color:
+    var(--muted);
 
   font-size: 9px;
+
   line-height: 1.5;
 }
 
 .study-schedule-list {
   display: flex;
+
   flex-direction: column;
 
   gap: 8px;
 }
 
 .study-schedule-item {
-  padding: 13px 14px;
+  padding:
+    13px
+    14px;
 
   display: flex;
+
   align-items: center;
 
   gap: 12px;
@@ -1603,6 +2039,14 @@ button:active {
 
   background:
     rgba(255, 255, 255, 0.025);
+
+  transition:
+    transform 0.2s ease;
+}
+
+.study-schedule-item:hover {
+  transform:
+    translateX(2px);
 }
 
 .study-schedule-time {
@@ -1610,9 +2054,11 @@ button:active {
 
   flex-shrink: 0;
 
-  color: var(--blue);
+  color:
+    var(--blue);
 
   font-size: 9px;
+
   font-weight: 900;
 }
 
@@ -1627,9 +2073,11 @@ button:active {
 
   margin-top: 3px;
 
-  color: var(--muted);
+  color:
+    var(--muted);
 
   font-size: 8px;
+
   line-height: 1.45;
 }
 
@@ -1641,6 +2089,7 @@ button:active {
 
 .study-method-list {
   display: flex;
+
   flex-direction: column;
 
   gap: 8px;
@@ -1652,6 +2101,7 @@ button:active {
   padding: 11px;
 
   display: flex;
+
   align-items: center;
 
   gap: 10px;
@@ -1671,6 +2121,7 @@ button:active {
   height: 30px;
 
   display: grid;
+
   place-items: center;
 
   flex-shrink: 0;
@@ -1680,25 +2131,29 @@ button:active {
   background:
     var(--primary-soft);
 
-  color: var(--primary);
+  color:
+    var(--primary);
 
   font-size: 8px;
+
   font-weight: 900;
 }
 
 .study-method-list p {
   margin: 0;
 
-  color: var(--text-soft);
+  color:
+    var(--text-soft);
 
   font-size: 10px;
+
   line-height: 1.45;
 }
 
 
-/* =========================================
+/* ==================================================
    PROGRESS SCREEN
-========================================= */
+================================================== */
 
 .progress-dashboard {
   padding: 18px;
@@ -1708,7 +2163,9 @@ button:active {
 
 .progress-dashboard-top {
   display: flex;
+
   justify-content: space-between;
+
   align-items: center;
 
   gap: 15px;
@@ -1727,8 +2184,11 @@ button:active {
   flex-shrink: 0;
 
   display: flex;
+
   flex-direction: column;
+
   justify-content: center;
+
   align-items: center;
 
   border:
@@ -1740,18 +2200,24 @@ button:active {
   background:
     radial-gradient(
       circle,
-      rgba(67, 227, 154, 0.1),
+      rgba(68, 227, 154, 0.1),
       rgba(255, 255, 255, 0.02)
     );
 
   box-shadow:
     inset
     0 0 30px
-    rgba(67, 227, 154, 0.04);
+    rgba(68, 227, 154, 0.04);
+
+  animation:
+    softPulse
+    4s ease-in-out
+    infinite;
 }
 
 .progress-circle-small strong {
-  color: var(--primary);
+  color:
+    var(--primary);
 
   font-size: 19px;
 }
@@ -1759,7 +2225,8 @@ button:active {
 .progress-circle-small span {
   margin-top: 2px;
 
-  color: var(--muted);
+  color:
+    var(--muted);
 
   font-size: 7px;
 }
@@ -1781,7 +2248,9 @@ button:active {
   padding: 14px;
 
   display: flex;
+
   flex-direction: column;
+
   justify-content: space-between;
 }
 
@@ -1790,6 +2259,7 @@ button:active {
   height: 34px;
 
   display: grid;
+
   place-items: center;
 
   border:
@@ -1807,7 +2277,8 @@ button:active {
 .progress-stat-card small {
   margin-top: 10px;
 
-  color: var(--muted);
+  color:
+    var(--muted);
 
   font-size: 8px;
 }
@@ -1834,25 +2305,31 @@ button:active {
 
 .progress-detail-card
 .card-header > strong {
-  color: var(--blue);
+  color:
+    var(--blue);
 
   font-size: 11px;
 }
 
 .progress-detail-text,
 .progress-future-card p {
-  margin: 11px 0 0;
+  margin:
+    11px
+    0
+    0;
 
-  color: var(--muted);
+  color:
+    var(--muted);
 
   font-size: 10px;
+
   line-height: 1.55;
 }
 
 
-/* =========================================
+/* ==================================================
    BOTTOM NAV
-========================================= */
+================================================== */
 
 .bottom-nav {
   position: fixed;
@@ -1885,7 +2362,7 @@ button:active {
   border-radius: 22px;
 
   background:
-    rgba(11, 15, 20, 0.84);
+    rgba(10, 14, 19, 0.84);
 
   backdrop-filter:
     blur(24px);
@@ -1904,16 +2381,24 @@ button:active {
 
   background: transparent;
 
-  color: #697582;
+  color:
+    #697582;
 
   cursor: pointer;
 
   font-size: 9px;
+
   font-weight: 750;
 
   transition:
-    color 0.2s ease,
-    background 0.2s ease;
+    color 0.22s ease,
+    background 0.22s ease,
+    transform 0.22s ease;
+}
+
+.nav-item:hover {
+  color:
+    #aab4be;
 }
 
 .nav-icon {
@@ -1922,17 +2407,28 @@ button:active {
   margin-bottom: 3px;
 
   font-size: 18px;
+
+  transition:
+    transform 0.22s ease;
 }
 
 .nav-item.active {
-  color: var(--primary);
+  color:
+    var(--primary);
 
   background:
     linear-gradient(
       180deg,
-      rgba(67, 227, 154, 0.08),
+      rgba(68, 227, 154, 0.08),
       transparent
     );
+}
+
+.nav-item.active
+.nav-icon {
+  transform:
+    translateY(-1px)
+    scale(1.08);
 }
 
 .nav-item.active::before {
@@ -1951,17 +2447,18 @@ button:active {
 
   border-radius: 999px;
 
-  background: var(--primary);
+  background:
+    var(--primary);
 
   box-shadow:
     0 0 12px
-    rgba(67, 227, 154, 0.45);
+    rgba(68, 227, 154, 0.5);
 }
 
 
-/* =========================================
-   DESKTOP
-========================================= */
+/* ==================================================
+   TABLET / DESKTOP
+================================================== */
 
 @media (min-width: 650px) {
 
@@ -1986,24 +2483,27 @@ button:active {
 }
 
 
-/* =========================================
-   SMALL MOBILE
-========================================= */
+/* ==================================================
+   CELULAR PEQUENO
+================================================== */
 
 @media (max-width: 390px) {
 
   .app-header {
     padding-left: 14px;
+
     padding-right: 14px;
   }
 
   .app-main {
     padding-left: 11px;
+
     padding-right: 11px;
   }
 
   .brand-icon {
     width: 43px;
+
     height: 43px;
   }
 
@@ -2016,7 +2516,8 @@ button:active {
   }
 
   .next-info {
-    grid-template-columns: 1fr;
+    grid-template-columns:
+      1fr;
   }
 
   .water-buttons {
@@ -2058,6 +2559,7 @@ button:active {
 
   .progress-circle-small {
     width: 68px;
+
     height: 68px;
   }
 
@@ -2073,6 +2575,34 @@ button:active {
         100%
         - 16px
       );
+  }
+
+}
+
+
+/* ==================================================
+   REDUZIR ANIMAÇÕES
+================================================== */
+
+@media (
+  prefers-reduced-motion:
+  reduce
+) {
+
+  *,
+  *::before,
+  *::after {
+    animation-duration:
+      0.01ms !important;
+
+    animation-iteration-count:
+      1 !important;
+
+    transition-duration:
+      0.01ms !important;
+
+    scroll-behavior:
+      auto !important;
   }
 
 }
