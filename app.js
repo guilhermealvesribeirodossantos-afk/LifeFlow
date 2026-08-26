@@ -4199,7 +4199,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
   // =====================================================
-  // LIFEFLOW 2.6 — ACADEMIA INTELIGENTE
+  // LIFEFLOW 2.7 — ACADEMIA COMPLETA / TREINOS PERSONALIZADOS
   // =====================================================
 
   const gymStorageKey = "lifeflow-gym-v26";
@@ -4381,6 +4381,409 @@ document.addEventListener("DOMContentLoaded", () => {
     updateRestTimerDisplay();
   }
 
+
+  const gymProgramsStorageKey = "lifeflow-gym-programs-v27";
+
+  const defaultGymPrograms = {
+    activePlanId: "A",
+    plans: [
+      {
+        id: "A",
+        name: "Treino A",
+        focus: "Peito • Ombro • Tríceps",
+        exercises: [
+          {
+            id: "supino-reto",
+            name: "Supino reto",
+            sets: 4,
+            reps: "8–12",
+            load: 0,
+            rest: 90,
+            image: "",
+            posture: "Pés firmes no chão, escápulas levemente para trás e peito elevado. Mantenha punhos alinhados.",
+            execution: "Desça a barra de forma controlada até a região média do peito e empurre sem perder a posição dos ombros.",
+            mistakes: "Evite quicar a barra no peito, abrir demais os cotovelos ou tirar os pés do chão."
+          },
+          {
+            id: "desenvolvimento",
+            name: "Desenvolvimento de ombros",
+            sets: 3,
+            reps: "8–12",
+            load: 0,
+            rest: 75,
+            image: "",
+            posture: "Abdômen firme e coluna neutra. Ombros para baixo, sem elevar excessivamente.",
+            execution: "Empurre os pesos acima da cabeça até quase estender os cotovelos e retorne com controle.",
+            mistakes: "Evite arquear muito a lombar ou usar impulso."
+          },
+          {
+            id: "triceps-polia",
+            name: "Tríceps na polia",
+            sets: 3,
+            reps: "10–15",
+            load: 0,
+            rest: 60,
+            image: "",
+            posture: "Cotovelos próximos ao corpo e tronco estável.",
+            execution: "Estenda os cotovelos até contrair o tríceps e retorne sem deixar o braço balançar.",
+            mistakes: "Evite abrir os cotovelos ou movimentar o ombro."
+          }
+        ]
+      },
+      {
+        id: "B",
+        name: "Treino B",
+        focus: "Costas • Bíceps",
+        exercises: [
+          {
+            id: "puxada-frontal",
+            name: "Puxada frontal",
+            sets: 4,
+            reps: "8–12",
+            load: 0,
+            rest: 90,
+            image: "",
+            posture: "Peito aberto, tronco levemente inclinado e ombros longe das orelhas.",
+            execution: "Puxe a barra em direção à parte superior do peito, conduzindo o movimento pelos cotovelos.",
+            mistakes: "Evite puxar atrás da nuca, balançar o tronco ou usar impulso."
+          },
+          {
+            id: "remada-baixa",
+            name: "Remada baixa",
+            sets: 4,
+            reps: "8–12",
+            load: 0,
+            rest: 90,
+            image: "",
+            posture: "Coluna neutra, peito aberto e abdômen firme.",
+            execution: "Puxe o pegador em direção ao abdômen, aproximando as escápulas sem jogar o tronco para trás.",
+            mistakes: "Evite arredondar a lombar ou transformar o exercício em balanço."
+          },
+          {
+            id: "rosca-direta",
+            name: "Rosca direta",
+            sets: 3,
+            reps: "10–12",
+            load: 0,
+            rest: 60,
+            image: "",
+            posture: "Cotovelos próximos ao corpo e tronco parado.",
+            execution: "Flexione os cotovelos sem mover os ombros e desça lentamente.",
+            mistakes: "Evite jogar o corpo para trás ou avançar os cotovelos."
+          }
+        ]
+      },
+      {
+        id: "C",
+        name: "Treino C",
+        focus: "Pernas • Glúteos",
+        exercises: [
+          {
+            id: "agachamento",
+            name: "Agachamento livre",
+            sets: 4,
+            reps: "8–12",
+            load: 0,
+            rest: 120,
+            image: "",
+            posture: "Pés firmes, joelhos acompanhando a direção dos pés, abdômen ativo e coluna neutra.",
+            execution: "Desça controlando quadril e joelhos até uma amplitude confortável e suba empurrando o chão.",
+            mistakes: "Evite deixar os joelhos colapsarem para dentro ou perder a posição da lombar."
+          },
+          {
+            id: "leg-press",
+            name: "Leg press",
+            sets: 4,
+            reps: "10–15",
+            load: 0,
+            rest: 90,
+            image: "",
+            posture: "Lombar e quadril apoiados no encosto durante todo o movimento.",
+            execution: "Flexione joelhos e quadris com controle e empurre a plataforma sem travar os joelhos.",
+            mistakes: "Evite tirar a lombar do banco ou descer além da amplitude que consegue controlar."
+          },
+          {
+            id: "mesa-flexora",
+            name: "Mesa flexora",
+            sets: 3,
+            reps: "10–15",
+            load: 0,
+            rest: 60,
+            image: "",
+            posture: "Quadril apoiado e abdômen levemente contraído.",
+            execution: "Flexione os joelhos até sentir forte contração posterior e retorne devagar.",
+            mistakes: "Evite levantar o quadril ou soltar o peso na volta."
+          }
+        ]
+      }
+    ]
+  };
+
+  let gymPrograms = JSON.parse(
+    JSON.stringify(defaultGymPrograms)
+  );
+
+  try {
+    const savedPrograms =
+      localStorage.getItem(gymProgramsStorageKey);
+
+    if (savedPrograms) {
+      gymPrograms = {
+        ...gymPrograms,
+        ...JSON.parse(savedPrograms)
+      };
+    }
+  } catch (error) {
+    console.log("Erro ao carregar treinos:", error);
+  }
+
+  function saveGymPrograms() {
+    localStorage.setItem(
+      gymProgramsStorageKey,
+      JSON.stringify(gymPrograms)
+    );
+  }
+
+  function getActiveGymPlan() {
+    return gymPrograms.plans.find(
+      plan => plan.id === gymPrograms.activePlanId
+    ) || gymPrograms.plans[0];
+  }
+
+  function makeGymId(prefix = "item") {
+    return `${prefix}-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+  }
+
+  function getGymSessionProgress() {
+    const saved = getTodayGym();
+
+    return saved.exerciseProgress || {};
+  }
+
+  function saveGymExerciseProgress(progress) {
+    saveTodayGym({
+      exerciseProgress: progress
+    });
+  }
+
+  function escapeGymHtml(value) {
+    return String(value ?? "")
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;");
+  }
+
+  function renderGymExerciseImage(exercise) {
+    if (exercise.image) {
+      return `
+        <div class="gym-exercise-media">
+          <img
+            src="${escapeGymHtml(exercise.image)}"
+            alt="Referência visual de ${escapeGymHtml(exercise.name)}"
+            loading="lazy"
+            onerror="this.parentElement.classList.add('image-error');this.remove();"
+          >
+          <div class="gym-image-fallback">
+            <span>🏋️</span>
+            <small>Imagem indisponível</small>
+          </div>
+        </div>
+      `;
+    }
+
+    return `
+      <div class="gym-exercise-media image-empty">
+        <div class="gym-image-placeholder">
+          <span>🏋️</span>
+          <strong>${escapeGymHtml(exercise.name)}</strong>
+          <small>Adicione uma foto no editor</small>
+        </div>
+      </div>
+    `;
+  }
+
+  function adjustExerciseLoad(exerciseId, delta) {
+    const plan = getActiveGymPlan();
+    const exercise = plan?.exercises.find(
+      item => item.id === exerciseId
+    );
+
+    if (!exercise) return;
+
+    exercise.load =
+      Math.max(
+        0,
+        Math.round(
+          ((Number(exercise.load) || 0) + delta) * 10
+        ) / 10
+      );
+
+    saveGymPrograms();
+    renderGymPanel();
+  }
+
+  function completeGymSet(exerciseId) {
+    const plan = getActiveGymPlan();
+    const exercise = plan?.exercises.find(
+      item => item.id === exerciseId
+    );
+
+    if (!exercise) return;
+
+    const progress = getGymSessionProgress();
+    const current = Number(progress[exerciseId] || 0);
+
+    progress[exerciseId] =
+      current >= exercise.sets
+        ? 0
+        : current + 1;
+
+    saveGymExerciseProgress(progress);
+
+    if (progress[exerciseId] > 0) {
+      startRestTimer(exercise.rest || 60);
+    }
+
+    renderGymPanel();
+  }
+
+  function addGymExerciseFromEditor() {
+    const plan = getActiveGymPlan();
+    if (!plan) return;
+
+    const name =
+      document.getElementById("gymEditName")?.value.trim();
+
+    if (!name) {
+      alert("Informe o nome do exercício.");
+      return;
+    }
+
+    const sets =
+      Math.max(
+        1,
+        Number(
+          document.getElementById("gymEditSets")?.value
+        ) || 3
+      );
+
+    const reps =
+      document.getElementById("gymEditReps")?.value.trim() ||
+      "8–12";
+
+    const load =
+      Math.max(
+        0,
+        Number(
+          document.getElementById("gymEditLoad")?.value
+        ) || 0
+      );
+
+    const rest =
+      Math.max(
+        15,
+        Number(
+          document.getElementById("gymEditRest")?.value
+        ) || 60
+      );
+
+    const image =
+      document.getElementById("gymEditImage")?.value.trim() || "";
+
+    const posture =
+      document.getElementById("gymEditPosture")?.value.trim() ||
+      "Mantenha uma postura estável e use uma amplitude que consiga controlar.";
+
+    const execution =
+      document.getElementById("gymEditExecution")?.value.trim() ||
+      "Faça o movimento de forma controlada, sem usar impulso.";
+
+    const mistakes =
+      document.getElementById("gymEditMistakes")?.value.trim() ||
+      "Evite cargas que prejudiquem a técnica.";
+
+    plan.exercises.push({
+      id: makeGymId("exercise"),
+      name,
+      sets,
+      reps,
+      load,
+      rest,
+      image,
+      posture,
+      execution,
+      mistakes
+    });
+
+    saveGymPrograms();
+    renderGymPanel();
+  }
+
+  function deleteGymExercise(exerciseId) {
+    const plan = getActiveGymPlan();
+    if (!plan) return;
+
+    const confirmed =
+      confirm("Remover este exercício do treino?");
+
+    if (!confirmed) return;
+
+    plan.exercises =
+      plan.exercises.filter(
+        exercise => exercise.id !== exerciseId
+      );
+
+    saveGymPrograms();
+    renderGymPanel();
+  }
+
+  function createGymPlan() {
+    const name =
+      prompt(
+        "Nome do novo treino:",
+        `Treino ${gymPrograms.plans.length + 1}`
+      );
+
+    if (!name?.trim()) return;
+
+    const id = makeGymId("plan");
+
+    gymPrograms.plans.push({
+      id,
+      name: name.trim(),
+      focus: "Treino personalizado",
+      exercises: []
+    });
+
+    gymPrograms.activePlanId = id;
+
+    saveGymPrograms();
+    renderGymPanel();
+  }
+
+  function deleteActiveGymPlan() {
+    if (gymPrograms.plans.length <= 1) {
+      alert("Mantenha pelo menos um treino cadastrado.");
+      return;
+    }
+
+    const plan = getActiveGymPlan();
+
+    if (!confirm(`Excluir ${plan.name}?`)) return;
+
+    gymPrograms.plans =
+      gymPrograms.plans.filter(
+        item => item.id !== plan.id
+      );
+
+    gymPrograms.activePlanId =
+      gymPrograms.plans[0].id;
+
+    saveGymPrograms();
+    renderGymPanel();
+  }
+
   function setupGymHub() {
     if (!document.getElementById("gymScreen")) {
       const sleepScreen =
@@ -4459,6 +4862,9 @@ document.addEventListener("DOMContentLoaded", () => {
         Number(saved.workoutSeconds || 0);
     }
 
+    const plan = getActiveGymPlan();
+    const progress = getGymSessionProgress();
+
     const workoutType =
       workDay
         ? "Treino de dia de trabalho"
@@ -4480,6 +4886,44 @@ document.addEventListener("DOMContentLoaded", () => {
           ${workDay ? "Trabalho" : "Folga"}
         </span>
       </div>
+
+      <section class="gym-plan-switcher">
+        <div class="gym-plan-tabs">
+          ${gymPrograms.plans.map(item => `
+            <button
+              type="button"
+              class="gym-plan-tab ${item.id === gymPrograms.activePlanId ? "active" : ""}"
+              data-gym-plan="${escapeGymHtml(item.id)}"
+            >
+              ${escapeGymHtml(item.name)}
+            </button>
+          `).join("")}
+        </div>
+
+        <button
+          id="gymNewPlanButton"
+          class="gym-add-plan-button"
+          type="button"
+        >
+          ＋ Novo treino
+        </button>
+      </section>
+
+      <section class="gym-active-plan-card">
+        <div>
+          <span>PLANO ATUAL</span>
+          <h3>${escapeGymHtml(plan?.name || "Treino")}</h3>
+          <p>${escapeGymHtml(plan?.focus || "")}</p>
+        </div>
+
+        <button
+          id="gymDeletePlanButton"
+          type="button"
+          aria-label="Excluir treino"
+        >
+          🗑️
+        </button>
+      </section>
 
       <section class="gym-timer-card">
         <div class="gym-section-heading">
@@ -4527,13 +4971,191 @@ document.addEventListener("DOMContentLoaded", () => {
         </div>
       </section>
 
-      <section class="gym-coming-card">
-        <span>ACADEMIA INTELIGENTE</span>
-        <h3>Base do seu treino pronta</h3>
-        <p>
-          O cronômetro total e o descanso entre séries já estão funcionando.
-          Na próxima evolução desta aba entram exercícios, séries,
-          repetições, cargas e histórico de evolução.
+      <section class="gym-exercises-section">
+        <div class="gym-exercises-heading">
+          <div>
+            <span>EXERCÍCIOS</span>
+            <h3>${plan?.exercises.length || 0} exercícios</h3>
+          </div>
+        </div>
+
+        <div class="gym-exercises-list">
+          ${(plan?.exercises || []).map(exercise => {
+            const completedSets =
+              Number(progress[exercise.id] || 0);
+
+            const done =
+              completedSets >= exercise.sets;
+
+            return `
+              <article class="gym-exercise-card ${done ? "done" : ""}">
+                ${renderGymExerciseImage(exercise)}
+
+                <div class="gym-exercise-content">
+                  <div class="gym-exercise-title-row">
+                    <div>
+                      <span>${done ? "✓ CONCLUÍDO" : "EXERCÍCIO"}</span>
+                      <h4>${escapeGymHtml(exercise.name)}</h4>
+                    </div>
+
+                    <button
+                      type="button"
+                      class="gym-delete-exercise"
+                      data-gym-delete="${escapeGymHtml(exercise.id)}"
+                      aria-label="Remover exercício"
+                    >×</button>
+                  </div>
+
+                  <div class="gym-exercise-stats">
+                    <div>
+                      <span>Séries</span>
+                      <strong>${completedSets}/${exercise.sets}</strong>
+                    </div>
+                    <div>
+                      <span>Reps</span>
+                      <strong>${escapeGymHtml(exercise.reps)}</strong>
+                    </div>
+                    <div>
+                      <span>Descanso</span>
+                      <strong>${exercise.rest}s</strong>
+                    </div>
+                  </div>
+
+                  <div class="gym-load-control">
+                    <span>CARGA</span>
+
+                    <div>
+                      <button
+                        type="button"
+                        data-gym-load="${escapeGymHtml(exercise.id)}"
+                        data-gym-load-delta="-2.5"
+                      >−2,5</button>
+
+                      <strong>${Number(exercise.load || 0).toLocaleString("pt-BR")} kg</strong>
+
+                      <button
+                        type="button"
+                        data-gym-load="${escapeGymHtml(exercise.id)}"
+                        data-gym-load-delta="2.5"
+                      >+2,5</button>
+                    </div>
+                  </div>
+
+                  <details class="gym-technique-details">
+                    <summary>📘 Ver postura e execução</summary>
+
+                    <div class="gym-tip">
+                      <strong>🧍 Postura</strong>
+                      <p>${escapeGymHtml(exercise.posture)}</p>
+                    </div>
+
+                    <div class="gym-tip">
+                      <strong>🎯 Como executar</strong>
+                      <p>${escapeGymHtml(exercise.execution)}</p>
+                    </div>
+
+                    <div class="gym-tip warning">
+                      <strong>⚠️ Evite</strong>
+                      <p>${escapeGymHtml(exercise.mistakes)}</p>
+                    </div>
+                  </details>
+
+                  <button
+                    type="button"
+                    class="gym-complete-set-button"
+                    data-gym-complete="${escapeGymHtml(exercise.id)}"
+                  >
+                    ${done ? "↻ Reiniciar séries" : "✓ Concluir série"}
+                  </button>
+                </div>
+              </article>
+            `;
+          }).join("")}
+        </div>
+      </section>
+
+      <section class="gym-editor-card">
+        <div class="gym-section-heading">
+          <div>
+            <span>PERSONALIZAR TREINO</span>
+            <h3>Adicionar exercício</h3>
+          </div>
+        </div>
+
+        <div class="gym-editor-grid">
+          <label>
+            <span>Nome</span>
+            <input id="gymEditName" type="text" placeholder="Ex.: Supino inclinado">
+          </label>
+
+          <label>
+            <span>Séries</span>
+            <input id="gymEditSets" type="number" min="1" value="3">
+          </label>
+
+          <label>
+            <span>Repetições</span>
+            <input id="gymEditReps" type="text" value="8–12">
+          </label>
+
+          <label>
+            <span>Carga inicial (kg)</span>
+            <input id="gymEditLoad" type="number" min="0" step="0.5" value="0">
+          </label>
+
+          <label>
+            <span>Descanso (s)</span>
+            <input id="gymEditRest" type="number" min="15" step="15" value="60">
+          </label>
+
+          <label class="gym-editor-wide">
+            <span>Foto / imagem por link</span>
+            <input
+              id="gymEditImage"
+              type="url"
+              placeholder="https://..."
+            >
+          </label>
+
+          <label class="gym-editor-wide">
+            <span>Dica de postura</span>
+            <textarea
+              id="gymEditPosture"
+              rows="2"
+              placeholder="Como posicionar corpo, pés, mãos..."
+            ></textarea>
+          </label>
+
+          <label class="gym-editor-wide">
+            <span>Como executar</span>
+            <textarea
+              id="gymEditExecution"
+              rows="2"
+              placeholder="Explique o movimento..."
+            ></textarea>
+          </label>
+
+          <label class="gym-editor-wide">
+            <span>Erros a evitar</span>
+            <textarea
+              id="gymEditMistakes"
+              rows="2"
+              placeholder="Erros comuns..."
+            ></textarea>
+          </label>
+        </div>
+
+        <button
+          id="gymAddExerciseButton"
+          class="gym-editor-add-button"
+          type="button"
+        >
+          ＋ Adicionar ao ${escapeGymHtml(plan?.name || "treino")}
+        </button>
+
+        <p class="gym-safety-note">
+          Use as dicas como referência geral. Priorize técnica confortável,
+          carga controlada e interrompa o exercício se sentir dor incomum.
         </p>
       </section>
     `;
@@ -4554,9 +5176,7 @@ document.addEventListener("DOMContentLoaded", () => {
       .querySelectorAll("[data-rest]")
       .forEach(button => {
         button.addEventListener("click", () => {
-          startRestTimer(
-            Number(button.dataset.rest)
-          );
+          startRestTimer(Number(button.dataset.rest));
         });
       });
 
@@ -4564,9 +5184,7 @@ document.addEventListener("DOMContentLoaded", () => {
       .querySelectorAll("[data-rest-add]")
       .forEach(button => {
         button.addEventListener("click", () => {
-          addRestTime(
-            Number(button.dataset.restAdd)
-          );
+          addRestTime(Number(button.dataset.restAdd));
         });
       });
 
@@ -4579,10 +5197,68 @@ document.addEventListener("DOMContentLoaded", () => {
         updateRestTimerDisplay();
       });
 
+    document
+      .querySelectorAll("[data-gym-plan]")
+      .forEach(button => {
+        button.addEventListener("click", () => {
+          gymPrograms.activePlanId =
+            button.dataset.gymPlan;
+          saveGymPrograms();
+          renderGymPanel();
+        });
+      });
+
+    document
+      .getElementById("gymNewPlanButton")
+      ?.addEventListener("click", createGymPlan);
+
+    document
+      .getElementById("gymDeletePlanButton")
+      ?.addEventListener("click", deleteActiveGymPlan);
+
+    document
+      .querySelectorAll("[data-gym-load]")
+      .forEach(button => {
+        button.addEventListener("click", () => {
+          adjustExerciseLoad(
+            button.dataset.gymLoad,
+            Number(button.dataset.gymLoadDelta)
+          );
+        });
+      });
+
+    document
+      .querySelectorAll("[data-gym-complete]")
+      .forEach(button => {
+        button.addEventListener("click", () => {
+          completeGymSet(
+            button.dataset.gymComplete
+          );
+        });
+      });
+
+    document
+      .querySelectorAll("[data-gym-delete]")
+      .forEach(button => {
+        button.addEventListener("click", () => {
+          deleteGymExercise(
+            button.dataset.gymDelete
+          );
+        });
+      });
+
+    document
+      .getElementById("gymAddExerciseButton")
+      ?.addEventListener(
+        "click",
+        addGymExerciseFromEditor
+      );
+
     updateWorkoutTimerDisplay();
     updateRestTimerDisplay();
     updateGymTimerButtons();
   }
+
 
   function injectGymStyles() {
     if (document.getElementById("lifeflowGymStyles")) return;
@@ -4765,6 +5441,380 @@ document.addEventListener("DOMContentLoaded", () => {
         font-weight: 800;
       }
 
+
+      .gym-plan-switcher {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin: 12px 0;
+      }
+
+      .gym-plan-tabs {
+        display: flex;
+        flex: 1 1 auto;
+        gap: 7px;
+        overflow-x: auto;
+        scrollbar-width: none;
+      }
+
+      .gym-plan-tabs::-webkit-scrollbar {
+        display: none;
+      }
+
+      .gym-plan-tab,
+      .gym-add-plan-button {
+        flex: 0 0 auto;
+        min-height: 42px;
+        border: 1px solid rgba(255,255,255,.08);
+        border-radius: 13px;
+        padding: 0 13px;
+        background: #0d0d0f;
+        color: #8f8f96;
+        font-size: 9px;
+        font-weight: 900;
+        cursor: pointer;
+      }
+
+      .gym-plan-tab.active {
+        border-color: rgba(92,230,153,.24);
+        background: rgba(92,230,153,.08);
+        color: #8ae9b6;
+      }
+
+      .gym-active-plan-card {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin: 12px 0;
+        padding: 14px;
+        border: 1px solid rgba(255,255,255,.07);
+        border-radius: 18px;
+        background: rgba(255,255,255,.018);
+      }
+
+      .gym-active-plan-card span,
+      .gym-exercises-heading span,
+      .gym-editor-card label > span {
+        display: block;
+        color: #707078;
+        font-size: 8px;
+        font-weight: 900;
+        letter-spacing: .6px;
+        text-transform: uppercase;
+      }
+
+      .gym-active-plan-card h3 {
+        margin: 4px 0 2px;
+        color: #eeeeef;
+        font-size: 17px;
+      }
+
+      .gym-active-plan-card p {
+        margin: 0;
+        color: #777780;
+        font-size: 9px;
+      }
+
+      .gym-active-plan-card > button {
+        width: 42px;
+        height: 42px;
+        border: 1px solid rgba(255,255,255,.07);
+        border-radius: 12px;
+        background: rgba(255,255,255,.025);
+        cursor: pointer;
+      }
+
+      .gym-exercises-section,
+      .gym-editor-card {
+        margin: 14px 0;
+      }
+
+      .gym-exercises-heading {
+        margin-bottom: 10px;
+      }
+
+      .gym-exercises-heading h3 {
+        margin: 4px 0 0;
+        color: #ededee;
+        font-size: 17px;
+      }
+
+      .gym-exercises-list {
+        display: grid;
+        gap: 12px;
+      }
+
+      .gym-exercise-card {
+        overflow: hidden;
+        border: 1px solid rgba(255,255,255,.075);
+        border-radius: 20px;
+        background:
+          linear-gradient(145deg, rgba(17,17,19,.98), rgba(8,8,9,.98));
+      }
+
+      .gym-exercise-card.done {
+        border-color: rgba(92,230,153,.18);
+      }
+
+      .gym-exercise-media {
+        position: relative;
+        width: 100%;
+        aspect-ratio: 16 / 8;
+        overflow: hidden;
+        background: #101012;
+      }
+
+      .gym-exercise-media img {
+        display: block;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      .gym-image-fallback,
+      .gym-image-placeholder {
+        width: 100%;
+        height: 100%;
+        display: grid;
+        place-items: center;
+        align-content: center;
+        gap: 4px;
+        text-align: center;
+        background:
+          radial-gradient(circle at 50% 20%, rgba(92,230,153,.08), transparent 42%),
+          #101012;
+      }
+
+      .gym-image-fallback {
+        display: none;
+      }
+
+      .gym-exercise-media.image-error .gym-image-fallback {
+        display: grid;
+      }
+
+      .gym-image-placeholder > span {
+        font-size: 28px;
+      }
+
+      .gym-image-placeholder strong {
+        color: #d7d7da;
+        font-size: 12px;
+      }
+
+      .gym-image-placeholder small,
+      .gym-image-fallback small {
+        color: #6f6f76;
+        font-size: 8px;
+      }
+
+      .gym-exercise-content {
+        padding: 14px;
+      }
+
+      .gym-exercise-title-row {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 10px;
+      }
+
+      .gym-exercise-title-row span {
+        color: #66d99d;
+        font-size: 7px;
+        font-weight: 950;
+        letter-spacing: .8px;
+      }
+
+      .gym-exercise-title-row h4 {
+        margin: 4px 0 0;
+        color: #f0f0f1;
+        font-size: 18px;
+      }
+
+      .gym-delete-exercise {
+        width: 34px;
+        height: 34px;
+        border: 1px solid rgba(255,255,255,.065);
+        border-radius: 10px;
+        background: rgba(255,255,255,.02);
+        color: #77777e;
+        font-size: 18px;
+        cursor: pointer;
+      }
+
+      .gym-exercise-stats {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 7px;
+        margin-top: 12px;
+      }
+
+      .gym-exercise-stats > div {
+        padding: 9px;
+        border: 1px solid rgba(255,255,255,.055);
+        border-radius: 12px;
+        background: rgba(255,255,255,.02);
+      }
+
+      .gym-exercise-stats span,
+      .gym-load-control > span {
+        display: block;
+        color: #6f6f76;
+        font-size: 7px;
+        font-weight: 850;
+        text-transform: uppercase;
+      }
+
+      .gym-exercise-stats strong {
+        display: block;
+        margin-top: 3px;
+        color: #e4e4e6;
+        font-size: 12px;
+      }
+
+      .gym-load-control {
+        margin-top: 10px;
+        padding: 10px;
+        border: 1px solid rgba(255,255,255,.055);
+        border-radius: 13px;
+        background: rgba(255,255,255,.018);
+      }
+
+      .gym-load-control > div {
+        display: grid;
+        grid-template-columns: 1fr 1.2fr 1fr;
+        align-items: center;
+        gap: 7px;
+        margin-top: 7px;
+      }
+
+      .gym-load-control button {
+        min-height: 42px;
+        border: 1px solid rgba(255,255,255,.07);
+        border-radius: 11px;
+        background: #0d0d0f;
+        color: #9c9ca3;
+        font-size: 9px;
+        font-weight: 900;
+      }
+
+      .gym-load-control strong {
+        text-align: center;
+        color: #f0f0f2;
+        font-size: 14px;
+      }
+
+      .gym-technique-details {
+        margin-top: 10px;
+        border: 1px solid rgba(106,167,255,.09);
+        border-radius: 13px;
+        background: rgba(106,167,255,.025);
+      }
+
+      .gym-technique-details summary {
+        list-style: none;
+        padding: 12px;
+        color: #aebcd2;
+        font-size: 9px;
+        font-weight: 900;
+        cursor: pointer;
+      }
+
+      .gym-technique-details summary::-webkit-details-marker {
+        display: none;
+      }
+
+      .gym-tip {
+        margin: 0 10px 10px;
+        padding: 10px;
+        border-radius: 11px;
+        background: rgba(255,255,255,.024);
+      }
+
+      .gym-tip strong {
+        display: block;
+        color: #d9d9dc;
+        font-size: 9px;
+      }
+
+      .gym-tip p {
+        margin: 5px 0 0;
+        color: #82828a;
+        font-size: 9px;
+        line-height: 1.55;
+      }
+
+      .gym-tip.warning {
+        background: rgba(231,182,95,.04);
+      }
+
+      .gym-complete-set-button,
+      .gym-editor-add-button {
+        width: 100%;
+        min-height: 48px;
+        margin-top: 10px;
+        border: 1px solid rgba(92,230,153,.20);
+        border-radius: 13px;
+        background: rgba(92,230,153,.07);
+        color: #8ae9b6;
+        font-size: 10px;
+        font-weight: 950;
+        cursor: pointer;
+        touch-action: manipulation;
+      }
+
+      .gym-editor-card {
+        padding: 15px;
+        border: 1px solid rgba(255,255,255,.075);
+        border-radius: 20px;
+        background:
+          radial-gradient(circle at 92% 0%, rgba(106,167,255,.08), transparent 32%),
+          linear-gradient(145deg, rgba(17,17,19,.98), rgba(8,8,9,.98));
+      }
+
+      .gym-editor-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 9px;
+        margin-top: 12px;
+      }
+
+      .gym-editor-grid label {
+        display: block;
+      }
+
+      .gym-editor-wide {
+        grid-column: 1 / -1;
+      }
+
+      .gym-editor-grid input,
+      .gym-editor-grid textarea {
+        box-sizing: border-box;
+        width: 100%;
+        margin-top: 6px;
+        border: 1px solid rgba(255,255,255,.075);
+        border-radius: 12px;
+        outline: none;
+        background: #0d0d0f;
+        color: #e7e7e9;
+        padding: 11px;
+        font: inherit;
+        font-size: 10px;
+      }
+
+      .gym-editor-grid textarea {
+        resize: vertical;
+      }
+
+      .gym-safety-note {
+        margin: 10px 2px 0;
+        color: #686870;
+        font-size: 8px;
+        line-height: 1.5;
+      }
+
       @media (max-width: 520px) {
         .gym-page-header {
           padding: 15px;
@@ -4796,6 +5846,40 @@ document.addEventListener("DOMContentLoaded", () => {
           min-width: 0 !important;
           padding-left: 3px !important;
           padding-right: 3px !important;
+        }
+
+        .gym-plan-switcher {
+          align-items: stretch;
+          flex-direction: column;
+        }
+
+        .gym-add-plan-button {
+          width: 100%;
+        }
+
+        .gym-exercise-media {
+          aspect-ratio: 16 / 9;
+        }
+
+        .gym-exercise-content {
+          padding: 12px;
+        }
+
+        .gym-exercise-title-row h4 {
+          font-size: 16px;
+        }
+
+        .gym-editor-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .gym-editor-wide {
+          grid-column: auto;
+        }
+
+        .gym-editor-grid input,
+        .gym-editor-grid textarea {
+          font-size: 16px;
         }
       }
     `;
