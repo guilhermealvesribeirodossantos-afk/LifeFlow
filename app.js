@@ -458,6 +458,782 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
 
+
+  // =====================================================
+  // LIFEFLOW 3.3 — INTERFACE ORGANIZADA + PAINEL GRÁFICO
+  // =====================================================
+
+  function getProfessionalOverviewData() {
+    const routineWeek =
+      typeof getHistoryRange === "function"
+        ? getHistoryRange(7)
+        : [];
+
+    const gymWeek =
+      typeof getGymDateRange === "function"
+        ? getGymDateRange(7)
+        : [];
+
+    const routineAvg =
+      routineWeek.length
+        ? Math.round(
+            routineWeek.reduce(
+              (sum, item) =>
+                sum + Number(item.routinePercent || 0),
+              0
+            ) / routineWeek.length
+          )
+        : 0;
+
+    const gymDays =
+      gymWeek.filter(item => item.trained).length;
+
+    const sleepWeek =
+      typeof getSleepRange === "function"
+        ? getSleepRange(7)
+        : [];
+
+    const sleepRegistered =
+      sleepWeek.filter(item => item.hasData);
+
+    const sleepAvg =
+      sleepRegistered.length
+        ? Math.round(
+            sleepRegistered.reduce(
+              (sum, item) => sum + Number(item.minutes || 0),
+              0
+            ) / sleepRegistered.length
+          )
+        : 0;
+
+    return {
+      routineWeek,
+      gymWeek,
+      sleepWeek,
+      routineAvg,
+      gymDays,
+      sleepAvg
+    };
+  }
+
+  function makeMiniLineSvg(values, maxValue = 100) {
+    const clean =
+      values.map(value =>
+        Math.max(0, Number(value || 0))
+      );
+
+    if (!clean.length) {
+      return "";
+    }
+
+    const ceiling =
+      Math.max(
+        1,
+        maxValue || Math.max(...clean, 1)
+      );
+
+    const points =
+      clean.map((value, index) => {
+        const x =
+          clean.length === 1
+            ? 50
+            : (index / (clean.length - 1)) * 100;
+
+        const y =
+          88 - Math.min(
+            78,
+            (value / ceiling) * 78
+          );
+
+        return `${x.toFixed(2)},${y.toFixed(2)}`;
+      }).join(" ");
+
+    return `
+      <svg
+        viewBox="0 0 100 100"
+        preserveAspectRatio="none"
+        class="lf-pro-chart-svg"
+      >
+        <polyline
+          points="${points}"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2.5"
+          vector-effect="non-scaling-stroke"
+        ></polyline>
+      </svg>
+    `;
+  }
+
+  function setupProfessionalStatsDrawer() {
+    if (
+      document.getElementById(
+        "lfProfessionalStatsDrawer"
+      )
+    ) return;
+
+    const overlay =
+      document.createElement("div");
+
+    overlay.id =
+      "lfProfessionalStatsOverlay";
+
+    overlay.className =
+      "lf-professional-stats-overlay";
+
+    const drawer =
+      document.createElement("aside");
+
+    drawer.id =
+      "lfProfessionalStatsDrawer";
+
+    drawer.className =
+      "lf-professional-stats-drawer";
+
+    const handle =
+      document.createElement("button");
+
+    handle.id =
+      "lfProfessionalStatsHandle";
+
+    handle.className =
+      "lf-professional-stats-handle";
+
+    handle.type = "button";
+    handle.setAttribute(
+      "aria-label",
+      "Abrir gráficos"
+    );
+
+    handle.innerHTML = "📊";
+
+    document.body.appendChild(overlay);
+    document.body.appendChild(drawer);
+    document.body.appendChild(handle);
+
+    const open = () => {
+      renderProfessionalStatsDrawer();
+      drawer.classList.add("open");
+      overlay.classList.add("open");
+      handle.classList.add("hidden");
+      document.body.classList.add(
+        "lf-stats-open"
+      );
+    };
+
+    const close = () => {
+      drawer.classList.remove("open");
+      overlay.classList.remove("open");
+      handle.classList.remove("hidden");
+      document.body.classList.remove(
+        "lf-stats-open"
+      );
+    };
+
+    window.openProfessionalStats = open;
+    window.closeProfessionalStats = close;
+
+    handle.addEventListener("click", open);
+    overlay.addEventListener("click", close);
+
+    let touchStartX = null;
+    let touchStartY = null;
+
+    document.addEventListener(
+      "touchstart",
+      event => {
+        const touch =
+          event.touches?.[0];
+
+        if (!touch) return;
+
+        touchStartX =
+          touch.clientX;
+
+        touchStartY =
+          touch.clientY;
+      },
+      { passive: true }
+    );
+
+    document.addEventListener(
+      "touchend",
+      event => {
+        if (touchStartX === null) {
+          return;
+        }
+
+        const touch =
+          event.changedTouches?.[0];
+
+        if (!touch) return;
+
+        const dx =
+          touch.clientX - touchStartX;
+
+        const dy =
+          touch.clientY - touchStartY;
+
+        if (
+          Math.abs(dx) > 55 &&
+          Math.abs(dx) > Math.abs(dy)
+        ) {
+          if (
+            touchStartX < 65 &&
+            dx > 55
+          ) {
+            open();
+          }
+
+          if (
+            drawer.classList.contains("open") &&
+            dx < -55
+          ) {
+            close();
+          }
+        }
+
+        touchStartX = null;
+        touchStartY = null;
+      },
+      { passive: true }
+    );
+  }
+
+  function renderProfessionalStatsDrawer() {
+    const drawer =
+      document.getElementById(
+        "lfProfessionalStatsDrawer"
+      );
+
+    if (!drawer) return;
+
+    const data =
+      getProfessionalOverviewData();
+
+    const routineValues =
+      data.routineWeek.map(
+        item => Number(item.routinePercent || 0)
+      );
+
+    const gymValues =
+      data.gymWeek.map(
+        item => Number(item.sets || 0)
+      );
+
+    const maxGymSets =
+      Math.max(
+        1,
+        ...gymValues
+      );
+
+    const sleepHours =
+      data.sleepWeek.map(
+        item =>
+          item.hasData
+            ? Number(item.minutes || 0) / 60
+            : 0
+      );
+
+    const dayLabels =
+      data.routineWeek.map(
+        item =>
+          item.date
+            .toLocaleDateString(
+              "pt-BR",
+              { weekday: "short" }
+            )
+            .replace(".", "")
+            .slice(0, 3)
+      );
+
+    drawer.innerHTML = `
+      <div class="lf-stats-head">
+        <div>
+          <span>PAINEL RÁPIDO</span>
+          <h2>Seu progresso</h2>
+          <p>Visão simples dos últimos 7 dias.</p>
+        </div>
+
+        <button
+          id="lfStatsClose"
+          type="button"
+        >×</button>
+      </div>
+
+      <div class="lf-stats-summary">
+        <article>
+          <span>ROTINA</span>
+          <strong>${data.routineAvg}%</strong>
+          <small>média semanal</small>
+        </article>
+
+        <article>
+          <span>ACADEMIA</span>
+          <strong>${data.gymDays}</strong>
+          <small>dias treinados</small>
+        </article>
+
+        <article>
+          <span>SONO</span>
+          <strong>${
+            data.sleepAvg
+              ? formatSleepDuration(
+                  data.sleepAvg
+                )
+              : "—"
+          }</strong>
+          <small>média registrada</small>
+        </article>
+      </div>
+
+      <section class="lf-stats-chart-card">
+        <div class="lf-stats-chart-head">
+          <div>
+            <span>ROTINA</span>
+            <strong>Consistência</strong>
+          </div>
+          <b>${data.routineAvg}%</b>
+        </div>
+
+        <div class="lf-prof-chart">
+          ${makeMiniLineSvg(
+            routineValues,
+            100
+          )}
+        </div>
+
+        <div class="lf-prof-labels">
+          ${dayLabels.map(
+            label =>
+              `<span>${label}</span>`
+          ).join("")}
+        </div>
+      </section>
+
+      <section class="lf-stats-chart-card">
+        <div class="lf-stats-chart-head">
+          <div>
+            <span>ACADEMIA</span>
+            <strong>Séries realizadas</strong>
+          </div>
+          <b>${gymValues.reduce(
+            (sum, value) =>
+              sum + value,
+            0
+          )}</b>
+        </div>
+
+        <div class="lf-prof-chart gym">
+          ${makeMiniLineSvg(
+            gymValues,
+            maxGymSets
+          )}
+        </div>
+
+        <div class="lf-prof-labels">
+          ${dayLabels.map(
+            label =>
+              `<span>${label}</span>`
+          ).join("")}
+        </div>
+      </section>
+
+      <section class="lf-stats-chart-card">
+        <div class="lf-stats-chart-head">
+          <div>
+            <span>SONO</span>
+            <strong>Horas dormidas</strong>
+          </div>
+          <b>${
+            data.sleepAvg
+              ? formatSleepDuration(
+                  data.sleepAvg
+                )
+              : "—"
+          }</b>
+        </div>
+
+        <div class="lf-prof-chart sleep">
+          ${makeMiniLineSvg(
+            sleepHours,
+            9
+          )}
+        </div>
+
+        <div class="lf-prof-labels">
+          ${dayLabels.map(
+            label =>
+              `<span>${label}</span>`
+          ).join("")}
+        </div>
+      </section>
+
+      <button
+        id="lfOpenFullProgress"
+        class="lf-open-full-progress"
+        type="button"
+      >
+        Abrir Progresso completo →
+      </button>
+    `;
+
+    document
+      .getElementById(
+        "lfStatsClose"
+      )
+      ?.addEventListener(
+        "click",
+        window.closeProfessionalStats
+      );
+
+    document
+      .getElementById(
+        "lfOpenFullProgress"
+      )
+      ?.addEventListener(
+        "click",
+        () => {
+          window.closeProfessionalStats?.();
+          showProgress();
+        }
+      );
+  }
+
+  function injectSimplifiedInterfaceStyles() {
+    if (
+      document.getElementById(
+        "lifeflowSimplifiedStyles"
+      )
+    ) return;
+
+    const style =
+      document.createElement("style");
+
+    style.id =
+      "lifeflowSimplifiedStyles";
+
+    style.textContent = `
+      /*
+       * Tela Hoje mais limpa.
+       * Estudos e "Áreas da sua vida" continuam disponíveis
+       * pelo menu lateral e não precisam ocupar a Home.
+       */
+      #homeScreen #studySection,
+      #homeScreen .life-grid,
+      #homeScreen .life-grid + *,
+      #homeScreen .content-section:has(.life-grid) {
+        display: none !important;
+      }
+
+      #homeScreen {
+        padding-bottom: 105px;
+      }
+
+      .lf-professional-stats-overlay {
+        position: fixed;
+        inset: 0;
+        z-index: 10990;
+        background: rgba(0,0,0,.62);
+        backdrop-filter: blur(6px);
+        -webkit-backdrop-filter: blur(6px);
+        opacity: 0;
+        visibility: hidden;
+        transition: .24s ease;
+      }
+
+      .lf-professional-stats-overlay.open {
+        opacity: 1;
+        visibility: visible;
+      }
+
+      .lf-professional-stats-drawer {
+        position: fixed;
+        z-index: 10991;
+        top: 0;
+        left: 0;
+        width: min(88vw, 390px);
+        height: 100dvh;
+        box-sizing: border-box;
+        padding:
+          max(18px, env(safe-area-inset-top))
+          14px
+          max(18px, env(safe-area-inset-bottom));
+        border-right: 1px solid rgba(255,255,255,.08);
+        background:
+          radial-gradient(
+            circle at 10% 0%,
+            rgba(106,167,255,.08),
+            transparent 26%
+          ),
+          #0b0d0f;
+        box-shadow:
+          30px 0 90px rgba(0,0,0,.62);
+        transform:
+          translateX(-103%);
+        transition:
+          transform .30s cubic-bezier(.22,.9,.3,1);
+        overflow-y: auto;
+      }
+
+      .lf-professional-stats-drawer.open {
+        transform:
+          translateX(0);
+      }
+
+      .lf-professional-stats-handle {
+        position: fixed;
+        z-index: 9997;
+        top: 59%;
+        left: 0;
+        width: 25px;
+        height: 68px;
+        border:
+          1px solid rgba(106,167,255,.25);
+        border-left: 0;
+        border-radius:
+          0 16px 16px 0;
+        background:
+          rgba(45,84,145,.68);
+        color: #a9c8ff;
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        box-shadow:
+          8px 0 28px rgba(0,0,0,.34);
+        font-size: 14px;
+        cursor: pointer;
+        touch-action: manipulation;
+        transition: opacity .2s ease;
+      }
+
+      .lf-professional-stats-handle.hidden {
+        opacity: 0;
+        pointer-events: none;
+      }
+
+      body.lf-stats-open {
+        overflow: hidden;
+      }
+
+      .lf-stats-head {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 12px;
+        padding-bottom: 13px;
+        border-bottom:
+          1px solid rgba(255,255,255,.06);
+      }
+
+      .lf-stats-head span {
+        display: block;
+        color: #8fb7f8;
+        font-size: 8px;
+        font-weight: 950;
+        letter-spacing: 1.1px;
+      }
+
+      .lf-stats-head h2 {
+        margin: 4px 0 2px;
+        color: #f2f3f4;
+        font-size: 21px;
+      }
+
+      .lf-stats-head p {
+        margin: 0;
+        color: #73777c;
+        font-size: 9px;
+      }
+
+      .lf-stats-head button {
+        width: 42px;
+        height: 42px;
+        border:
+          1px solid rgba(255,255,255,.07);
+        border-radius: 12px;
+        background: #131517;
+        color: #c8cacc;
+        font-size: 22px;
+      }
+
+      .lf-stats-summary {
+        display: grid;
+        grid-template-columns:
+          repeat(3, 1fr);
+        gap: 7px;
+        margin-top: 13px;
+      }
+
+      .lf-stats-summary article {
+        min-width: 0;
+        padding: 10px 8px;
+        border:
+          1px solid rgba(255,255,255,.06);
+        border-radius: 13px;
+        background:
+          rgba(255,255,255,.018);
+      }
+
+      .lf-stats-summary span,
+      .lf-stats-summary strong,
+      .lf-stats-summary small {
+        display: block;
+      }
+
+      .lf-stats-summary span {
+        color: #686c71;
+        font-size: 6px;
+        font-weight: 950;
+      }
+
+      .lf-stats-summary strong {
+        margin-top: 4px;
+        color: #eceeef;
+        font-size: 16px;
+      }
+
+      .lf-stats-summary small {
+        margin-top: 2px;
+        color: #606469;
+        font-size: 6px;
+      }
+
+      .lf-stats-chart-card {
+        margin-top: 10px;
+        padding: 12px;
+        border:
+          1px solid rgba(255,255,255,.07);
+        border-radius: 16px;
+        background:
+          radial-gradient(
+            circle at 90% 0%,
+            rgba(106,167,255,.045),
+            transparent 34%
+          ),
+          #0e1012;
+      }
+
+      .lf-stats-chart-head {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 10px;
+      }
+
+      .lf-stats-chart-head span {
+        display: block;
+        color: #6f7479;
+        font-size: 7px;
+        font-weight: 950;
+        letter-spacing: .7px;
+      }
+
+      .lf-stats-chart-head strong {
+        display: block;
+        margin-top: 3px;
+        color: #dfe1e2;
+        font-size: 12px;
+      }
+
+      .lf-stats-chart-head b {
+        color: #9ec2ff;
+        font-size: 14px;
+      }
+
+      .lf-prof-chart {
+        position: relative;
+        height: 105px;
+        margin-top: 9px;
+        overflow: hidden;
+        border-radius: 10px;
+        background:
+          linear-gradient(
+            rgba(255,255,255,.028) 1px,
+            transparent 1px
+          );
+        background-size:
+          100% 25%;
+        color: #75a9ff;
+      }
+
+      .lf-prof-chart.gym {
+        color: #72e8a8;
+      }
+
+      .lf-prof-chart.sleep {
+        color: #b19cff;
+      }
+
+      .lf-pro-chart-svg {
+        width: 100%;
+        height: 100%;
+      }
+
+      .lf-prof-labels {
+        display: grid;
+        grid-template-columns:
+          repeat(7, 1fr);
+        gap: 2px;
+        margin-top: 4px;
+      }
+
+      .lf-prof-labels span {
+        color: #5f6368;
+        font-size: 6px;
+        text-align: center;
+        text-transform: uppercase;
+      }
+
+      .lf-open-full-progress {
+        width: 100%;
+        min-height: 47px;
+        margin-top: 11px;
+        border:
+          1px solid rgba(106,167,255,.17);
+        border-radius: 13px;
+        background:
+          rgba(106,167,255,.065);
+        color: #a4c6ff;
+        font-size: 9px;
+        font-weight: 900;
+      }
+
+      /*
+       * Menu inferior mais leve:
+       * quatro atalhos principais.
+       * Academia/Sono já ficam no menu lateral.
+       */
+      .bottom-nav {
+        grid-template-columns:
+          repeat(4, 1fr) !important;
+      }
+
+      @media (max-width: 520px) {
+        .lf-professional-stats-drawer {
+          width: min(91vw, 380px);
+        }
+
+        .lf-professional-stats-handle {
+          height: 64px;
+        }
+
+        .lf-stats-summary {
+          gap: 5px;
+        }
+
+        .lf-stats-summary article {
+          padding: 9px 6px;
+        }
+
+        .lf-prof-chart {
+          height: 100px;
+        }
+      }
+    `;
+
+    document.head.appendChild(style);
+  }
+
   // =====================================================
   // LIFEFLOW 3.2 — ROTINA EDITÁVEL
   // =====================================================
@@ -5089,7 +5865,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
   // =====================================================
-  // LIFEFLOW 3.2 — ROTINA EDITÁVEL + ACADEMIA PRO
+  // LIFEFLOW 3.3 — INTERFACE ORGANIZADA + GRÁFICOS PRO
   // =====================================================
 
   const gymStorageKey = "lifeflow-gym-v26";
@@ -11077,6 +11853,8 @@ document.addEventListener("DOMContentLoaded", () => {
   injectOrganizedLayoutStyles();
   injectGymProStyles();
   injectRoutineEditorStyles();
+  setupProfessionalStatsDrawer();
+  injectSimplifiedInterfaceStyles();
 
   // =====================================================
   // NAVEGAÇÃO
