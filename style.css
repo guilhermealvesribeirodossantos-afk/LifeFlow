@@ -2532,3 +2532,356 @@ button:active {
   }
 
 }
+/* =========================================================
+   LIFEFLOW 2.1 — HOJE INTELIGENTE / BLACK PREMIUM
+   Estados visuais do card de próxima missão
+========================================================= */
+
+/* Base mais refinada para o card inteligente */
+.next-card {
+  isolation: isolate;
+  transition:
+    border-color .28s ease,
+    box-shadow .28s ease,
+    background .28s ease,
+    transform .28s ease;
+}
+
+.next-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: .8;
+  background:
+    linear-gradient(
+      110deg,
+      rgba(255,255,255,.025),
+      transparent 35%,
+      transparent 70%,
+      rgba(255,255,255,.018)
+    );
+}
+
+.next-card > * {
+  position: relative;
+  z-index: 2;
+}
+
+/* Classes compatíveis com nomes comuns usados pelo JS */
+.next-card.normal,
+.next-card.status-normal,
+.next-card[data-status="normal"] {
+  border-color: rgba(255,255,255,.10);
+}
+
+.next-card.soon,
+.next-card.warning,
+.next-card.status-soon,
+.next-card.status-warning,
+.next-card[data-status="soon"],
+.next-card[data-status="warning"] {
+  border-color: rgba(231,182,95,.38);
+  background:
+    radial-gradient(circle at 88% 5%, rgba(231,182,95,.11), transparent 30%),
+    linear-gradient(145deg, #191712, #0a0a0a 72%);
+  box-shadow:
+    0 20px 55px rgba(0,0,0,.48),
+    inset 0 1px 0 rgba(255,255,255,.035);
+}
+
+.next-card.soon .section-label,
+.next-card.warning .section-label,
+.next-card.status-soon .section-label,
+.next-card.status-warning .section-label,
+.next-card[data-status="soon"] .section-label,
+.next-card[data-status="warning"] .section-label {
+  color: var(--gold);
+}
+
+.next-card.soon .next-icon,
+.next-card.warning .next-icon,
+.next-card.status-soon .next-icon,
+.next-card.status-warning .next-icon,
+.next-card[data-status="soon"] .next-icon,
+.next-card[data-status="warning"] .next-icon {
+  border-color: rgba(231,182,95,.30);
+  background: rgba(231,182,95,.10);
+  box-shadow: 0 0 28px rgba(231,182,95,.07);
+}
+
+/* AGORA */
+.next-card.now,
+.next-card.active-now,
+.next-card.status-now,
+.next-card[data-status="now"] {
+  border-color: rgba(85,227,154,.46);
+  background:
+    radial-gradient(circle at 88% 3%, rgba(85,227,154,.15), transparent 32%),
+    linear-gradient(145deg, #151a17, #090a09 72%);
+  box-shadow:
+    0 22px 65px rgba(0,0,0,.52),
+    0 0 0 1px rgba(85,227,154,.025),
+    inset 0 1px 0 rgba(255,255,255,.045);
+}
+
+.next-card.now .next-card-glow,
+.next-card.active-now .next-card-glow,
+.next-card.status-now .next-card-glow,
+.next-card[data-status="now"] .next-card-glow {
+  background:
+    radial-gradient(circle, rgba(85,227,154,.20), transparent 70%);
+  animation: lifeflowGlow 2.4s ease-in-out infinite;
+}
+
+.next-card.now .next-icon,
+.next-card.active-now .next-icon,
+.next-card.status-now .next-icon,
+.next-card[data-status="now"] .next-icon {
+  border-color: rgba(85,227,154,.36);
+  background: rgba(85,227,154,.14);
+  box-shadow:
+    0 0 0 5px rgba(85,227,154,.025),
+    0 0 30px rgba(85,227,154,.10);
+}
+
+.next-card.now .section-label,
+.next-card.active-now .section-label,
+.next-card.status-now .section-label,
+.next-card[data-status="now"] .section-label {
+  color: #70edb1;
+}
+
+/* ATRASADA */
+.next-card.late,
+.next-card.overdue,
+.next-card.status-late,
+.next-card.status-overdue,
+.next-card[data-status="late"],
+.next-card[data-status="overdue"] {
+  border-color: rgba(255,92,92,.38);
+  background:
+    radial-gradient(circle at 88% 3%, rgba(255,82,82,.12), transparent 32%),
+    linear-gradient(145deg, #1a1212, #0a0909 72%);
+  box-shadow:
+    0 22px 60px rgba(0,0,0,.52),
+    inset 0 1px 0 rgba(255,255,255,.035);
+}
+
+.next-card.late .section-label,
+.next-card.overdue .section-label,
+.next-card.status-late .section-label,
+.next-card.status-overdue .section-label,
+.next-card[data-status="late"] .section-label,
+.next-card[data-status="overdue"] .section-label {
+  color: #ff7777;
+}
+
+.next-card.late .next-icon,
+.next-card.overdue .next-icon,
+.next-card.status-late .next-icon,
+.next-card.status-overdue .next-icon,
+.next-card[data-status="late"] .next-icon,
+.next-card[data-status="overdue"] .next-icon {
+  border-color: rgba(255,92,92,.28);
+  background: rgba(255,92,92,.09);
+}
+
+/* Contagem / status gerados pelo Hoje Inteligente */
+.next-countdown,
+.mission-countdown,
+.countdown,
+.next-status,
+.mission-status,
+.time-status {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  max-width: 100%;
+  min-height: 28px;
+  margin-top: 10px;
+  padding: 7px 10px;
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 999px;
+  background: rgba(255,255,255,.035);
+  color: #d8d8d8;
+  font-size: 9px;
+  font-weight: 950;
+  letter-spacing: .55px;
+  text-transform: uppercase;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.025);
+}
+
+.next-card.soon .next-countdown,
+.next-card.warning .next-countdown,
+.next-card.status-soon .next-countdown,
+.next-card.status-warning .next-countdown,
+.next-card[data-status="soon"] .next-countdown,
+.next-card[data-status="warning"] .next-countdown,
+.next-card.soon .mission-countdown,
+.next-card.warning .mission-countdown {
+  border-color: rgba(231,182,95,.22);
+  background: rgba(231,182,95,.08);
+  color: var(--gold);
+}
+
+.next-card.now .next-countdown,
+.next-card.active-now .next-countdown,
+.next-card.status-now .next-countdown,
+.next-card[data-status="now"] .next-countdown,
+.next-card.now .mission-countdown,
+.next-card.active-now .mission-countdown {
+  border-color: rgba(85,227,154,.24);
+  background: rgba(85,227,154,.10);
+  color: #72edb2;
+}
+
+.next-card.late .next-countdown,
+.next-card.overdue .next-countdown,
+.next-card.status-late .next-countdown,
+.next-card.status-overdue .next-countdown,
+.next-card[data-status="late"] .next-countdown,
+.next-card[data-status="overdue"] .next-countdown,
+.next-card.late .mission-countdown,
+.next-card.overdue .mission-countdown {
+  border-color: rgba(255,92,92,.22);
+  background: rgba(255,92,92,.08);
+  color: #ff8181;
+}
+
+/* Informações internas mais sofisticadas */
+.next-data-item {
+  position: relative;
+  overflow: hidden;
+  transition:
+    border-color .22s ease,
+    background .22s ease,
+    transform .22s ease;
+}
+
+.next-data-item:hover {
+  border-color: rgba(255,255,255,.12);
+  background: rgba(255,255,255,.032);
+  transform: translateY(-1px);
+}
+
+.next-data-item strong {
+  font-weight: 850;
+  letter-spacing: -.1px;
+}
+
+/* Linha de próxima atividade, caso exista no HTML/JS */
+.next-after,
+.next-after-this,
+.following-mission,
+.next-secondary {
+  margin-top: 13px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255,255,255,.065);
+  color: var(--muted);
+  font-size: 9px;
+  line-height: 1.5;
+}
+
+.next-after strong,
+.next-after-this strong,
+.following-mission strong,
+.next-secondary strong {
+  color: var(--text-soft);
+}
+
+/* Microinterações premium */
+.metric-card,
+.task,
+.life-card,
+.study-schedule-item,
+.next-day-item,
+.water-action,
+.ghost-button,
+.primary-button,
+.calendar-arrow,
+.profile-button {
+  transition:
+    transform .18s ease,
+    border-color .18s ease,
+    background .18s ease,
+    box-shadow .18s ease,
+    opacity .18s ease;
+}
+
+.metric-card:hover,
+.life-card:hover,
+.next-day-item:hover,
+.study-schedule-item:hover {
+  border-color: rgba(255,255,255,.115);
+  transform: translateY(-1px);
+}
+
+.primary-button:hover {
+  box-shadow:
+    0 13px 34px rgba(255,255,255,.09);
+  transform: translateY(-1px);
+}
+
+.ghost-button:hover,
+.water-action:hover,
+.calendar-arrow:hover,
+.profile-button:hover {
+  border-color: rgba(255,255,255,.14);
+  background: rgba(255,255,255,.04);
+}
+
+/* Barra inferior ainda mais limpa */
+.bottom-nav {
+  box-shadow:
+    0 22px 65px rgba(0,0,0,.62),
+    inset 0 1px 0 rgba(255,255,255,.025);
+}
+
+.nav-item.active .nav-icon {
+  filter: drop-shadow(0 0 9px rgba(85,227,154,.16));
+}
+
+/* Animações discretas */
+@keyframes lifeflowGlow {
+  0%, 100% {
+    opacity: .72;
+    transform: scale(.96);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.05);
+  }
+}
+
+@media (max-width: 430px) {
+  .next-countdown,
+  .mission-countdown,
+  .countdown,
+  .next-status,
+  .mission-status,
+  .time-status {
+    font-size: 8px;
+    padding: 6px 9px;
+  }
+
+  .next-card.now,
+  .next-card.active-now,
+  .next-card.status-now,
+  .next-card[data-status="now"],
+  .next-card.soon,
+  .next-card.warning,
+  .next-card.status-soon,
+  .next-card.status-warning,
+  .next-card[data-status="soon"],
+  .next-card[data-status="warning"],
+  .next-card.late,
+  .next-card.overdue,
+  .next-card.status-late,
+  .next-card.status-overdue,
+  .next-card[data-status="late"],
+  .next-card[data-status="overdue"] {
+    box-shadow: 0 16px 42px rgba(0,0,0,.48);
+  }
+}
