@@ -457,6 +457,681 @@ document.addEventListener("DOMContentLoaded", () => {
   ];
 
 
+
+  // =====================================================
+  // LIFEFLOW 3.2 — ROTINA EDITÁVEL
+  // =====================================================
+
+  const routineStorageKey =
+    "lifeflow-custom-routines-v32";
+
+  const defaultWorkTasks =
+    JSON.parse(JSON.stringify(workTasks));
+
+  const defaultOffTasks =
+    JSON.parse(JSON.stringify(offTasks));
+
+  function normalizeRoutineTask(task) {
+    return {
+      time:
+        typeof task?.time === "string"
+          ? task.time
+          : "08:00",
+      title:
+        typeof task?.title === "string"
+          ? task.title
+          : "Nova atividade",
+      description:
+        typeof task?.description === "string"
+          ? task.description
+          : ""
+    };
+  }
+
+  function loadCustomRoutines() {
+    try {
+      const saved =
+        JSON.parse(
+          localStorage.getItem(
+            routineStorageKey
+          ) || "null"
+        );
+
+      if (Array.isArray(saved?.work)) {
+        workTasks.splice(
+          0,
+          workTasks.length,
+          ...saved.work.map(normalizeRoutineTask)
+        );
+      }
+
+      if (Array.isArray(saved?.off)) {
+        offTasks.splice(
+          0,
+          offTasks.length,
+          ...saved.off.map(normalizeRoutineTask)
+        );
+      }
+    } catch (error) {
+      console.log(
+        "Erro ao carregar rotina personalizada:",
+        error
+      );
+    }
+  }
+
+  function saveCustomRoutines() {
+    localStorage.setItem(
+      routineStorageKey,
+      JSON.stringify({
+        work: workTasks,
+        off: offTasks
+      })
+    );
+  }
+
+  function sortRoutineTasks(list) {
+    list.sort(
+      (a, b) =>
+        String(a.time).localeCompare(
+          String(b.time)
+        )
+    );
+  }
+
+  function escapeRoutineHtml(value) {
+    return String(value ?? "")
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;");
+  }
+
+  function getCurrentRoutineLabel() {
+    return workDay
+      ? "Rotina de trabalho"
+      : "Rotina de folga";
+  }
+
+  function ensureRoutineEditor() {
+    if (
+      document.getElementById(
+        "lfRoutineEditor"
+      )
+    ) return;
+
+    const modal =
+      document.createElement("div");
+
+    modal.id = "lfRoutineEditor";
+    modal.className =
+      "lf-routine-editor";
+
+    modal.innerHTML = `
+      <div class="lf-routine-editor-card">
+        <div class="lf-routine-editor-head">
+          <div>
+            <span>ROTINA</span>
+            <h3 id="lfRoutineEditorTitle">
+              Editar atividade
+            </h3>
+          </div>
+
+          <button
+            id="lfRoutineEditorClose"
+            type="button"
+            aria-label="Fechar"
+          >×</button>
+        </div>
+
+        <div class="lf-routine-editor-grid">
+          <label>
+            <span>Horário</span>
+            <input
+              id="lfRoutineTime"
+              type="time"
+            >
+          </label>
+
+          <label>
+            <span>Atividade</span>
+            <input
+              id="lfRoutineTitle"
+              type="text"
+              maxlength="70"
+              placeholder="Ex.: Café da manhã"
+            >
+          </label>
+
+          <label class="wide">
+            <span>Descrição</span>
+            <textarea
+              id="lfRoutineDescription"
+              rows="3"
+              maxlength="220"
+              placeholder="Detalhes da atividade..."
+            ></textarea>
+          </label>
+        </div>
+
+        <button
+          id="lfRoutineSave"
+          class="lf-routine-save"
+          type="button"
+        >
+          Salvar atividade
+        </button>
+      </div>
+    `;
+
+    document.body.appendChild(modal);
+
+    const close = () =>
+      modal.classList.remove("open");
+
+    document
+      .getElementById(
+        "lfRoutineEditorClose"
+      )
+      ?.addEventListener(
+        "click",
+        close
+      );
+
+    modal.addEventListener(
+      "click",
+      event => {
+        if (event.target === modal) {
+          close();
+        }
+      }
+    );
+  }
+
+  function openRoutineEditor(index = null) {
+    ensureRoutineEditor();
+
+    const modal =
+      document.getElementById(
+        "lfRoutineEditor"
+      );
+
+    const titleElement =
+      document.getElementById(
+        "lfRoutineEditorTitle"
+      );
+
+    const timeInput =
+      document.getElementById(
+        "lfRoutineTime"
+      );
+
+    const titleInput =
+      document.getElementById(
+        "lfRoutineTitle"
+      );
+
+    const descriptionInput =
+      document.getElementById(
+        "lfRoutineDescription"
+      );
+
+    const saveButton =
+      document.getElementById(
+        "lfRoutineSave"
+      );
+
+    if (
+      !modal ||
+      !timeInput ||
+      !titleInput ||
+      !descriptionInput ||
+      !saveButton
+    ) return;
+
+    const editing =
+      Number.isInteger(index);
+
+    const task =
+      editing
+        ? tasks[index]
+        : {
+            time: "08:00",
+            title: "",
+            description: ""
+          };
+
+    if (!task) return;
+
+    if (titleElement) {
+      titleElement.textContent =
+        editing
+          ? "Editar atividade"
+          : "Nova atividade";
+    }
+
+    timeInput.value =
+      task.time || "08:00";
+
+    titleInput.value =
+      task.title || "";
+
+    descriptionInput.value =
+      task.description || "";
+
+    modal.classList.add("open");
+
+    setTimeout(
+      () => titleInput.focus(),
+      40
+    );
+
+    saveButton.onclick = () => {
+      const time =
+        timeInput.value || "08:00";
+
+      const title =
+        titleInput.value.trim();
+
+      const description =
+        descriptionInput.value.trim();
+
+      if (!title) {
+        showSiteMessage(
+          "Digite o nome da atividade.",
+          "warning"
+        );
+        titleInput.focus();
+        return;
+      }
+
+      if (editing) {
+        tasks[index] = {
+          time,
+          title,
+          description
+        };
+
+        showSiteMessage(
+          "Atividade atualizada.",
+          "success"
+        );
+      } else {
+        tasks.push({
+          time,
+          title,
+          description
+        });
+
+        showSiteMessage(
+          "Nova atividade adicionada.",
+          "success"
+        );
+      }
+
+      sortRoutineTasks(tasks);
+      saveCustomRoutines();
+
+      modal.classList.remove("open");
+
+      renderHome();
+      renderProgressScreen();
+    };
+  }
+
+  function deleteRoutineTask(index) {
+    const task = tasks[index];
+
+    if (!task) return;
+
+    showSiteConfirm(
+      `Excluir "${task.title}" da ${getCurrentRoutineLabel().toLowerCase()}?`,
+      () => {
+        const wasCompleted =
+          state.completed.includes(index);
+
+        tasks.splice(index, 1);
+
+        state.completed =
+          state.completed
+            .filter(item => item !== index)
+            .map(item =>
+              item > index
+                ? item - 1
+                : item
+            );
+
+        if (wasCompleted) {
+          state.xp =
+            Math.max(
+              0,
+              state.xp - 10
+            );
+
+          addEvolutionXp(-10);
+        }
+
+        saveCustomRoutines();
+        saveState();
+        syncDailyEvolution();
+
+        showSiteMessage(
+          "Atividade excluída da rotina.",
+          "success"
+        );
+
+        renderHome();
+        renderProgressScreen();
+      },
+      {
+        title: "Excluir atividade",
+        icon: "🗑️",
+        confirmText: "Excluir"
+      }
+    );
+  }
+
+  function restoreCurrentRoutine() {
+    showSiteConfirm(
+      `Restaurar a ${getCurrentRoutineLabel().toLowerCase()} original? As alterações feitas nessa rotina serão perdidas.`,
+      () => {
+        const defaults =
+          workDay
+            ? defaultWorkTasks
+            : defaultOffTasks;
+
+        const completedCount =
+          state.completed.length;
+
+        tasks.splice(
+          0,
+          tasks.length,
+          ...JSON.parse(
+            JSON.stringify(defaults)
+          )
+        );
+
+        state.completed = [];
+
+        if (completedCount > 0) {
+          const removedXp =
+            completedCount * 10;
+
+          state.xp =
+            Math.max(
+              0,
+              state.xp - removedXp
+            );
+
+          addEvolutionXp(
+            -removedXp
+          );
+        }
+
+        saveCustomRoutines();
+        saveState();
+        syncDailyEvolution();
+
+        showSiteMessage(
+          "Rotina padrão restaurada.",
+          "success"
+        );
+
+        renderHome();
+        renderProgressScreen();
+      },
+      {
+        title: "Restaurar rotina",
+        icon: "↻",
+        confirmText: "Restaurar"
+      }
+    );
+  }
+
+  function injectRoutineEditorStyles() {
+    if (
+      document.getElementById(
+        "lifeflowRoutineEditorStyles"
+      )
+    ) return;
+
+    const style =
+      document.createElement("style");
+
+    style.id =
+      "lifeflowRoutineEditorStyles";
+
+    style.textContent = `
+      .routine-manage-bar {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 8px;
+        margin: 0 0 11px;
+      }
+
+      .routine-manage-bar button {
+        min-height: 44px;
+        border: 1px solid rgba(255,255,255,.075);
+        border-radius: 13px;
+        background: rgba(255,255,255,.025);
+        color: #a7aaad;
+        padding: 0 12px;
+        font: inherit;
+        font-size: 9px;
+        font-weight: 900;
+        cursor: pointer;
+        touch-action: manipulation;
+      }
+
+      .routine-manage-bar .routine-add-button {
+        border-color: rgba(100,231,155,.18);
+        background: rgba(100,231,155,.065);
+        color: #78eaae;
+      }
+
+      .task {
+        position: relative;
+      }
+
+      .task-body {
+        min-width: 0;
+      }
+
+      .routine-task-actions {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        margin-top: 8px;
+      }
+
+      .routine-task-actions button {
+        min-height: 30px;
+        border: 1px solid rgba(255,255,255,.06);
+        border-radius: 9px;
+        background: rgba(255,255,255,.018);
+        color: #777b80;
+        padding: 0 8px;
+        font: inherit;
+        font-size: 7px;
+        font-weight: 850;
+        cursor: pointer;
+        touch-action: manipulation;
+      }
+
+      .routine-task-actions button:first-child {
+        color: #9ebfff;
+        border-color: rgba(106,167,255,.10);
+      }
+
+      .routine-task-actions button:last-child {
+        color: #d58d8d;
+        border-color: rgba(255,105,105,.09);
+      }
+
+      .lf-routine-editor {
+        position: fixed;
+        inset: 0;
+        z-index: 13000;
+        display: grid;
+        place-items: end center;
+        padding: 14px;
+        box-sizing: border-box;
+        background: rgba(0,0,0,.72);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        opacity: 0;
+        visibility: hidden;
+        transition: .22s ease;
+      }
+
+      .lf-routine-editor.open {
+        opacity: 1;
+        visibility: visible;
+      }
+
+      .lf-routine-editor-card {
+        width: min(100%, 500px);
+        max-height: 88dvh;
+        overflow-y: auto;
+        border: 1px solid rgba(255,255,255,.09);
+        border-radius: 23px;
+        background:
+          radial-gradient(circle at 90% 0%, rgba(100,231,155,.07), transparent 34%),
+          #0d0f10;
+        box-shadow: 0 28px 90px rgba(0,0,0,.65);
+        padding: 16px;
+      }
+
+      .lf-routine-editor-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        margin-bottom: 14px;
+      }
+
+      .lf-routine-editor-head span {
+        display: block;
+        color: #72e8a8;
+        font-size: 8px;
+        font-weight: 950;
+        letter-spacing: 1px;
+      }
+
+      .lf-routine-editor-head h3 {
+        margin: 4px 0 0;
+        color: #f1f1f2;
+        font-size: 19px;
+      }
+
+      .lf-routine-editor-head button {
+        width: 42px;
+        height: 42px;
+        border: 1px solid rgba(255,255,255,.07);
+        border-radius: 12px;
+        background: #141617;
+        color: #c8cacc;
+        font-size: 23px;
+      }
+
+      .lf-routine-editor-grid {
+        display: grid;
+        grid-template-columns: .7fr 1.3fr;
+        gap: 9px;
+      }
+
+      .lf-routine-editor-grid label {
+        display: block;
+      }
+
+      .lf-routine-editor-grid label.wide {
+        grid-column: 1 / -1;
+      }
+
+      .lf-routine-editor-grid label > span {
+        display: block;
+        color: #72767a;
+        font-size: 7px;
+        font-weight: 900;
+        text-transform: uppercase;
+      }
+
+      .lf-routine-editor-grid input,
+      .lf-routine-editor-grid textarea {
+        box-sizing: border-box;
+        width: 100%;
+        margin-top: 6px;
+        border: 1px solid rgba(255,255,255,.08);
+        border-radius: 12px;
+        outline: none;
+        background: #121415;
+        color: #ededee;
+        padding: 11px;
+        font: inherit;
+        font-size: 12px;
+      }
+
+      .lf-routine-editor-grid textarea {
+        resize: vertical;
+      }
+
+      .lf-routine-save {
+        width: 100%;
+        min-height: 49px;
+        margin-top: 12px;
+        border: 1px solid rgba(100,231,155,.21);
+        border-radius: 13px;
+        background: rgba(100,231,155,.09);
+        color: #75eaaa;
+        font: inherit;
+        font-size: 10px;
+        font-weight: 950;
+      }
+
+      @media (max-width: 520px) {
+        .routine-manage-bar {
+          grid-template-columns: 1fr 1fr;
+        }
+
+        .routine-manage-bar button {
+          min-height: 47px;
+        }
+
+        .routine-task-actions button {
+          min-height: 34px;
+          font-size: 8px;
+        }
+
+        .lf-routine-editor {
+          padding: 8px;
+        }
+
+        .lf-routine-editor-card {
+          width: 100%;
+          max-height: 92dvh;
+          border-radius: 22px 22px 14px 14px;
+        }
+
+        .lf-routine-editor-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .lf-routine-editor-grid label.wide {
+          grid-column: auto;
+        }
+
+        .lf-routine-editor-grid input,
+        .lf-routine-editor-grid textarea {
+          font-size: 16px;
+        }
+      }
+    `;
+
+    document.head.appendChild(style);
+  }
+
+  loadCustomRoutines();
+
   // =====================================================
   // ESTADO DE HOJE
   // =====================================================
@@ -2625,7 +3300,38 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
 
-    list.innerHTML = "";
+    list.innerHTML = `
+      <div class="routine-manage-bar">
+        <button
+          class="routine-add-button"
+          id="routineAddTask"
+          type="button"
+        >
+          ＋ Nova atividade
+        </button>
+
+        <button
+          id="routineRestoreDefault"
+          type="button"
+        >
+          ↻ Restaurar padrão
+        </button>
+      </div>
+    `;
+
+    document
+      .getElementById("routineAddTask")
+      ?.addEventListener(
+        "click",
+        () => openRoutineEditor()
+      );
+
+    document
+      .getElementById("routineRestoreDefault")
+      ?.addEventListener(
+        "click",
+        restoreCurrentRoutine
+      );
 
 
     tasks.forEach(
@@ -2668,6 +3374,22 @@ document.addEventListener("DOMContentLoaded", () => {
               ${task.description}
             </div>
 
+            <div class="routine-task-actions">
+              <button
+                class="routine-edit-task"
+                type="button"
+              >
+                ✎ Editar
+              </button>
+
+              <button
+                class="routine-delete-task"
+                type="button"
+              >
+                🗑 Excluir
+              </button>
+            </div>
+
           </div>
 
           <button
@@ -2682,6 +3404,33 @@ document.addEventListener("DOMContentLoaded", () => {
           </button>
 
         `;
+
+
+        const editButton =
+          item.querySelector(
+            ".routine-edit-task"
+          );
+
+        const deleteButton =
+          item.querySelector(
+            ".routine-delete-task"
+          );
+
+        editButton?.addEventListener(
+          "click",
+          event => {
+            event.stopPropagation();
+            openRoutineEditor(index);
+          }
+        );
+
+        deleteButton?.addEventListener(
+          "click",
+          event => {
+            event.stopPropagation();
+            deleteRoutineTask(index);
+          }
+        );
 
 
         const button =
@@ -4340,7 +5089,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
   // =====================================================
-  // LIFEFLOW 3.1 — ACADEMIA PRO + METAS + GRÁFICOS
+  // LIFEFLOW 3.2 — ROTINA EDITÁVEL + ACADEMIA PRO
   // =====================================================
 
   const gymStorageKey = "lifeflow-gym-v26";
@@ -10327,6 +11076,7 @@ document.addEventListener("DOMContentLoaded", () => {
   setupSmartDrawer();
   injectOrganizedLayoutStyles();
   injectGymProStyles();
+  injectRoutineEditorStyles();
 
   // =====================================================
   // NAVEGAÇÃO
