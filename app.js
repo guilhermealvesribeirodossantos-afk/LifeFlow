@@ -1411,6 +1411,738 @@ document.addEventListener("DOMContentLoaded", () => {
     document.head.appendChild(style);
   }
 
+
+  // =====================================================
+  // LIFEFLOW 2.4 — SONO INTELIGENTE
+  // =====================================================
+
+  const sleepStorageKey = "lifeflow-sleep-v24";
+
+  let sleepHistory = {};
+
+  try {
+    const savedSleep =
+      localStorage.getItem(sleepStorageKey);
+
+    if (savedSleep) {
+      sleepHistory = JSON.parse(savedSleep) || {};
+    }
+  } catch (error) {
+    console.log("Erro ao carregar sono:", error);
+    sleepHistory = {};
+  }
+
+  function saveSleepHistory() {
+    localStorage.setItem(
+      sleepStorageKey,
+      JSON.stringify(sleepHistory)
+    );
+  }
+
+  function timeStringToMinutes(value) {
+    if (!value || !value.includes(":")) return null;
+
+    const [hours, minutes] =
+      value.split(":").map(Number);
+
+    if (
+      Number.isNaN(hours) ||
+      Number.isNaN(minutes)
+    ) return null;
+
+    return (hours * 60) + minutes;
+  }
+
+  function calculateSleepMinutes(bedtime, wakeTime) {
+    const bed =
+      timeStringToMinutes(bedtime);
+
+    const wake =
+      timeStringToMinutes(wakeTime);
+
+    if (bed === null || wake === null) {
+      return 0;
+    }
+
+    let difference = wake - bed;
+
+    if (difference <= 0) {
+      difference += 24 * 60;
+    }
+
+    return difference;
+  }
+
+  function formatSleepDuration(minutes) {
+    if (!minutes) return "—";
+
+    const hours =
+      Math.floor(minutes / 60);
+
+    const mins =
+      minutes % 60;
+
+    return mins
+      ? `${hours}h ${mins}min`
+      : `${hours}h`;
+  }
+
+  function getSleepGoalMinutes() {
+    return 7 * 60;
+  }
+
+  function getSleepScore(minutes, quality) {
+    if (!minutes) return 0;
+
+    const goal = getSleepGoalMinutes();
+
+    const durationScore =
+      Math.min(100, Math.round((minutes / goal) * 100));
+
+    const qualityScores = {
+      ruim: 55,
+      regular: 72,
+      boa: 88,
+      excelente: 100
+    };
+
+    const qualityScore =
+      qualityScores[quality] || 72;
+
+    return Math.round(
+      (durationScore * 0.7) +
+      (qualityScore * 0.3)
+    );
+  }
+
+  function getSleepStatus(score) {
+    if (score >= 90) {
+      return {
+        label: "Excelente recuperação",
+        icon: "✨"
+      };
+    }
+
+    if (score >= 75) {
+      return {
+        label: "Boa recuperação",
+        icon: "🌙"
+      };
+    }
+
+    if (score >= 55) {
+      return {
+        label: "Recuperação moderada",
+        icon: "😴"
+      };
+    }
+
+    return {
+      label: "Sono abaixo da meta",
+      icon: "⚠️"
+    };
+  }
+
+  function getTodaySleep() {
+    return sleepHistory[todayKey] || null;
+  }
+
+  function saveTodaySleep(bedtime, wakeTime, quality) {
+    const minutes =
+      calculateSleepMinutes(
+        bedtime,
+        wakeTime
+      );
+
+    const score =
+      getSleepScore(minutes, quality);
+
+    sleepHistory[todayKey] = {
+      date: todayKey,
+      bedtime,
+      wakeTime,
+      quality,
+      minutes,
+      score,
+      dayType: workDay ? "Trabalho" : "Folga",
+      updatedAt: new Date().toISOString()
+    };
+
+    saveSleepHistory();
+
+    if (lifeHistory[todayKey]) {
+      lifeHistory[todayKey].sleepMinutes = minutes;
+      lifeHistory[todayKey].sleepScore = score;
+      saveHistory();
+    }
+  }
+
+  function getSleepRange(days = 7) {
+    const result = [];
+
+    for (let i = days - 1; i >= 0; i--) {
+      const date = new Date();
+      date.setHours(12, 0, 0, 0);
+      date.setDate(date.getDate() - i);
+
+      const key = getDateKey(date);
+      const saved = sleepHistory[key];
+
+      result.push({
+        key,
+        date,
+        hasData: Boolean(saved),
+        minutes: saved?.minutes || 0,
+        score: saved?.score || 0,
+        bedtime: saved?.bedtime || "",
+        wakeTime: saved?.wakeTime || "",
+        quality: saved?.quality || ""
+      });
+    }
+
+    return result;
+  }
+
+  function averageSleepMinutes(items) {
+    const registered =
+      items.filter(item => item.hasData);
+
+    if (!registered.length) return 0;
+
+    return Math.round(
+      registered.reduce(
+        (sum, item) => sum + item.minutes,
+        0
+      ) / registered.length
+    );
+  }
+
+  function averageSleepScore(items) {
+    const registered =
+      items.filter(item => item.hasData);
+
+    if (!registered.length) return 0;
+
+    return Math.round(
+      registered.reduce(
+        (sum, item) => sum + item.score,
+        0
+      ) / registered.length
+    );
+  }
+
+  function renderSleepPanel() {
+    const progressScreen =
+      document.getElementById("progressScreen");
+
+    if (!progressScreen) return;
+
+    let panel =
+      document.getElementById("sleepPanel");
+
+    if (!panel) {
+      panel = document.createElement("section");
+      panel.id = "sleepPanel";
+      panel.className = "sleep-panel";
+
+      const historyPanel =
+        document.getElementById("historyProgressPanel");
+
+      if (historyPanel && historyPanel.parentNode) {
+        historyPanel.parentNode.insertBefore(
+          panel,
+          historyPanel.nextSibling
+        );
+      } else {
+        progressScreen.appendChild(panel);
+      }
+    }
+
+    const todaySleep =
+      getTodaySleep();
+
+    const week =
+      getSleepRange(7);
+
+    const averageMinutes =
+      averageSleepMinutes(week);
+
+    const averageScore =
+      averageSleepScore(week);
+
+    const registeredDays =
+      week.filter(item => item.hasData).length;
+
+    const goalMinutes =
+      getSleepGoalMinutes();
+
+    const goalHours =
+      formatSleepDuration(goalMinutes);
+
+    const bedtime =
+      todaySleep?.bedtime || "22:30";
+
+    const wakeTime =
+      todaySleep?.wakeTime || "05:30";
+
+    const quality =
+      todaySleep?.quality || "boa";
+
+    const todayStatus =
+      getSleepStatus(todaySleep?.score || 0);
+
+    panel.innerHTML = `
+      <div class="sleep-card">
+        <div class="sleep-heading">
+          <div>
+            <span class="sleep-kicker">SONO INTELIGENTE</span>
+            <h3>Recuperação diária</h3>
+          </div>
+
+          <span class="sleep-badge">
+            🌙 Meta ${goalHours}
+          </span>
+        </div>
+
+        <div class="sleep-today-grid">
+          <div class="sleep-score-box">
+            <span>HOJE</span>
+            <strong>
+              ${todaySleep ? formatSleepDuration(todaySleep.minutes) : "—"}
+            </strong>
+            <small>
+              ${todaySleep ? `${todayStatus.icon} ${todayStatus.label}` : "Registre seu sono"}
+            </small>
+          </div>
+
+          <div class="sleep-score-box">
+            <span>SCORE</span>
+            <strong>
+              ${todaySleep ? todaySleep.score : 0}
+            </strong>
+            <small>de 100</small>
+          </div>
+        </div>
+
+        <form id="sleepForm" class="sleep-form">
+          <label>
+            <span>Hora que dormiu</span>
+            <input
+              id="sleepBedtime"
+              type="time"
+              value="${bedtime}"
+              required
+            >
+          </label>
+
+          <label>
+            <span>Hora que acordou</span>
+            <input
+              id="sleepWakeTime"
+              type="time"
+              value="${wakeTime}"
+              required
+            >
+          </label>
+
+          <label class="sleep-quality-label">
+            <span>Qualidade do sono</span>
+            <select id="sleepQuality">
+              <option value="ruim" ${quality === "ruim" ? "selected" : ""}>Ruim</option>
+              <option value="regular" ${quality === "regular" ? "selected" : ""}>Regular</option>
+              <option value="boa" ${quality === "boa" ? "selected" : ""}>Boa</option>
+              <option value="excelente" ${quality === "excelente" ? "selected" : ""}>Excelente</option>
+            </select>
+          </label>
+
+          <button
+            class="sleep-save-button"
+            type="submit"
+          >
+            Salvar sono de hoje
+          </button>
+        </form>
+
+        <div class="sleep-week-heading">
+          <div>
+            <span class="sleep-kicker">ÚLTIMOS 7 DIAS</span>
+            <h4>Histórico de sono</h4>
+          </div>
+          <span>${registeredDays}/7 registrados</span>
+        </div>
+
+        <div class="sleep-chart">
+          ${week.map(item => {
+            const day =
+              item.date
+                .toLocaleDateString(
+                  "pt-BR",
+                  { weekday: "short" }
+                )
+                .replace(".", "")
+                .slice(0, 3);
+
+            const percentage =
+              item.hasData
+                ? Math.max(
+                    8,
+                    Math.min(
+                      100,
+                      Math.round(
+                        (item.minutes / goalMinutes) * 100
+                      )
+                    )
+                  )
+                : 4;
+
+            return `
+              <div class="sleep-chart-column">
+                <div class="sleep-chart-track">
+                  <div
+                    class="sleep-chart-fill ${item.minutes >= goalMinutes ? "goal" : ""}"
+                    style="height:${percentage}%"
+                    title="${item.hasData ? formatSleepDuration(item.minutes) : "Sem registro"}"
+                  ></div>
+                </div>
+                <strong>
+                  ${item.hasData ? formatSleepDuration(item.minutes) : "—"}
+                </strong>
+                <span>${day}</span>
+              </div>
+            `;
+          }).join("")}
+        </div>
+
+        <div class="sleep-week-metrics">
+          <div>
+            <span>Média</span>
+            <strong>${formatSleepDuration(averageMinutes)}</strong>
+          </div>
+          <div>
+            <span>Score médio</span>
+            <strong>${averageScore || "—"}</strong>
+          </div>
+          <div>
+            <span>Meta</span>
+            <strong>${goalHours}</strong>
+          </div>
+        </div>
+
+        <p class="sleep-note">
+          Seu horário planejado continua sendo 22:30–05:30.
+          Registre o horário real para o LifeFlow acompanhar sua recuperação.
+        </p>
+      </div>
+    `;
+
+    const form =
+      document.getElementById("sleepForm");
+
+    if (form) {
+      form.addEventListener(
+        "submit",
+        event => {
+          event.preventDefault();
+
+          const bedtimeValue =
+            document.getElementById("sleepBedtime")?.value;
+
+          const wakeValue =
+            document.getElementById("sleepWakeTime")?.value;
+
+          const qualityValue =
+            document.getElementById("sleepQuality")?.value;
+
+          if (!bedtimeValue || !wakeValue) {
+            return;
+          }
+
+          saveTodaySleep(
+            bedtimeValue,
+            wakeValue,
+            qualityValue || "regular"
+          );
+
+          renderSleepPanel();
+          renderHistoryProgressPanel();
+        }
+      );
+    }
+  }
+
+  function injectSleepStyles() {
+    if (
+      document.getElementById(
+        "lifeflowSleepStyles"
+      )
+    ) return;
+
+    const style =
+      document.createElement("style");
+
+    style.id = "lifeflowSleepStyles";
+
+    style.textContent = `
+      .sleep-panel {
+        margin: 14px 0;
+      }
+
+      .sleep-card {
+        border: 1px solid rgba(255,255,255,.085);
+        border-radius: 24px;
+        padding: 18px;
+        background:
+          radial-gradient(circle at 92% 0%, rgba(129,107,255,.10), transparent 30%),
+          linear-gradient(145deg, rgba(20,20,22,.98), rgba(7,7,8,.98));
+        box-shadow: 0 22px 60px rgba(0,0,0,.40);
+      }
+
+      .sleep-heading,
+      .sleep-week-heading {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 12px;
+      }
+
+      .sleep-kicker {
+        display: block;
+        color: #7d7d86;
+        font-size: 9px;
+        font-weight: 950;
+        letter-spacing: 1.1px;
+      }
+
+      .sleep-heading h3,
+      .sleep-week-heading h4 {
+        margin: 5px 0 0;
+        color: #f2f2f4;
+      }
+
+      .sleep-heading h3 {
+        font-size: 18px;
+      }
+
+      .sleep-week-heading h4 {
+        font-size: 15px;
+      }
+
+      .sleep-badge {
+        border: 1px solid rgba(145,124,255,.20);
+        border-radius: 999px;
+        background: rgba(145,124,255,.07);
+        color: #b8aaff;
+        padding: 7px 10px;
+        font-size: 9px;
+        font-weight: 900;
+      }
+
+      .sleep-today-grid {
+        display: grid;
+        grid-template-columns: 1.4fr .8fr;
+        gap: 9px;
+        margin-top: 16px;
+      }
+
+      .sleep-score-box {
+        border: 1px solid rgba(255,255,255,.06);
+        border-radius: 17px;
+        padding: 13px;
+        background: rgba(255,255,255,.025);
+      }
+
+      .sleep-score-box span,
+      .sleep-form label > span,
+      .sleep-week-metrics span {
+        display: block;
+        color: #73737b;
+        font-size: 8px;
+        font-weight: 900;
+        letter-spacing: .5px;
+        text-transform: uppercase;
+      }
+
+      .sleep-score-box strong {
+        display: block;
+        margin-top: 5px;
+        color: #f1f1f3;
+        font-size: 22px;
+      }
+
+      .sleep-score-box small {
+        display: block;
+        margin-top: 3px;
+        color: #8b8b93;
+        font-size: 8px;
+      }
+
+      .sleep-form {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 9px;
+        margin-top: 12px;
+      }
+
+      .sleep-form label {
+        display: block;
+      }
+
+      .sleep-form input,
+      .sleep-form select {
+        box-sizing: border-box;
+        width: 100%;
+        margin-top: 6px;
+        border: 1px solid rgba(255,255,255,.08);
+        border-radius: 13px;
+        outline: none;
+        background: #0d0d0f;
+        color: #e8e8eb;
+        padding: 11px;
+        font: inherit;
+        font-size: 11px;
+      }
+
+      .sleep-quality-label {
+        grid-column: 1 / -1;
+      }
+
+      .sleep-save-button {
+        grid-column: 1 / -1;
+        border: 1px solid rgba(145,124,255,.22);
+        border-radius: 14px;
+        background:
+          linear-gradient(135deg, rgba(129,107,255,.22), rgba(94,78,185,.15));
+        color: #dcd6ff;
+        padding: 12px;
+        font-weight: 900;
+        font-size: 10px;
+        cursor: pointer;
+      }
+
+      .sleep-week-heading {
+        align-items: center;
+        margin-top: 22px;
+      }
+
+      .sleep-week-heading > span {
+        color: #777780;
+        font-size: 9px;
+        font-weight: 850;
+      }
+
+      .sleep-chart {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 6px;
+        height: 180px;
+        margin-top: 15px;
+      }
+
+      .sleep-chart-column {
+        min-width: 0;
+        display: grid;
+        grid-template-rows: 1fr auto auto;
+        gap: 5px;
+        text-align: center;
+      }
+
+      .sleep-chart-track {
+        position: relative;
+        min-height: 112px;
+        overflow: hidden;
+        border-radius: 10px;
+        background: rgba(255,255,255,.035);
+      }
+
+      .sleep-chart-fill {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        border-radius: 10px;
+        background:
+          linear-gradient(180deg, #9c8cff, #5e4eb9);
+        transition: height .35s ease;
+      }
+
+      .sleep-chart-fill.goal {
+        background:
+          linear-gradient(180deg, #75efb5, #42c982);
+      }
+
+      .sleep-chart-column strong {
+        color: #b8b8bf;
+        font-size: 8px;
+        white-space: nowrap;
+      }
+
+      .sleep-chart-column span {
+        color: #66666e;
+        font-size: 8px;
+        font-weight: 850;
+        text-transform: uppercase;
+      }
+
+      .sleep-week-metrics {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+        margin-top: 15px;
+      }
+
+      .sleep-week-metrics > div {
+        border: 1px solid rgba(255,255,255,.06);
+        border-radius: 14px;
+        padding: 10px;
+        background: rgba(255,255,255,.022);
+      }
+
+      .sleep-week-metrics strong {
+        display: block;
+        margin-top: 4px;
+        color: #ededf0;
+        font-size: 13px;
+      }
+
+      .sleep-note {
+        margin: 13px 0 0;
+        color: #7c7c84;
+        font-size: 9px;
+        line-height: 1.55;
+      }
+
+      @media (max-width: 520px) {
+        .sleep-card {
+          padding: 15px;
+        }
+
+        .sleep-today-grid {
+          grid-template-columns: 1fr 1fr;
+        }
+
+        .sleep-form {
+          grid-template-columns: 1fr;
+        }
+
+        .sleep-quality-label,
+        .sleep-save-button {
+          grid-column: auto;
+        }
+
+        .sleep-chart {
+          gap: 4px;
+          height: 170px;
+        }
+
+        .sleep-week-metrics {
+          grid-template-columns: 1fr;
+        }
+      }
+    `;
+
+    document.head.appendChild(style);
+  }
+
   // =====================================================
   // HOME
   // =====================================================
@@ -2614,6 +3346,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     renderEvolutionPanel();
     renderHistoryProgressPanel();
+    renderSleepPanel();
   }
 
 
@@ -3830,6 +4563,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   injectEvolutionStyles();
   injectHistoryStyles();
+  injectSleepStyles();
 
   syncDailyEvolution();
   syncTodayHistory();
