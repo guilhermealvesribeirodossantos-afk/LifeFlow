@@ -460,8 +460,535 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
 
+
   // =====================================================
-  // LIFEFLOW 3.5 — HUB COMPLETO DE EVOLUÇÃO
+  // LIFEFLOW 4.0 — LIFE HUB COMPLETO
+  // PMMG/ESTUDOS PRESERVADOS SEM ALTERAÇÕES
+  // =====================================================
+
+  const lifeHubStorageKey = "lifeflow-life-hub-v40";
+
+  let lifeHub = {
+    sleep: [],
+    meals: [],
+    agenda: [],
+    care: [],
+    motorcycle: {
+      odometer: 0,
+      fuel: [],
+      maintenance: []
+    },
+    family: [],
+    exerciseHistory: {},
+    settings: {
+      name: "",
+      compactHome: true
+    }
+  };
+
+  try {
+    const saved = JSON.parse(localStorage.getItem(lifeHubStorageKey) || "null");
+    if (saved) {
+      lifeHub = {
+        ...lifeHub,
+        ...saved,
+        motorcycle: {
+          ...lifeHub.motorcycle,
+          ...(saved.motorcycle || {})
+        },
+        settings: {
+          ...lifeHub.settings,
+          ...(saved.settings || {})
+        }
+      };
+    }
+  } catch (error) {
+    console.log("Erro ao carregar Life Hub:", error);
+  }
+
+  function saveLifeHub() {
+    localStorage.setItem(lifeHubStorageKey, JSON.stringify(lifeHub));
+  }
+
+  function lf40Esc(value) {
+    return String(value ?? "")
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;");
+  }
+
+  function lf40DateLabel(key) {
+    try {
+      return dateKeyToDate(key).toLocaleDateString("pt-BR", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric"
+      });
+    } catch {
+      return key;
+    }
+  }
+
+  function lf40Modal(title, fields, onSave, saveText = "Salvar") {
+    let modal = document.getElementById("lf40Modal");
+
+    if (!modal) {
+      modal = document.createElement("div");
+      modal.id = "lf40Modal";
+      modal.className = "lf40-modal";
+      document.body.appendChild(modal);
+    }
+
+    modal.innerHTML = `
+      <div class="lf40-modal-card">
+        <div class="lf40-modal-head">
+          <div>
+            <span>LIFEFLOW</span>
+            <h3>${lf40Esc(title)}</h3>
+          </div>
+          <button id="lf40ModalClose" type="button">×</button>
+        </div>
+        <div class="lf40-form">
+          ${fields.map(field => `
+            <label class="${field.wide ? "wide" : ""}">
+              <span>${lf40Esc(field.label)}</span>
+              ${
+                field.type === "textarea"
+                  ? `<textarea id="${field.id}" rows="3" placeholder="${lf40Esc(field.placeholder || "")}">${lf40Esc(field.value || "")}</textarea>`
+                  : `<input id="${field.id}" type="${field.type || "text"}" value="${lf40Esc(field.value || "")}" placeholder="${lf40Esc(field.placeholder || "")}" ${field.step ? `step="${field.step}"` : ""}>`
+              }
+            </label>
+          `).join("")}
+        </div>
+        <button id="lf40ModalSave" class="lf40-primary" type="button">${lf40Esc(saveText)}</button>
+      </div>
+    `;
+
+    modal.classList.add("open");
+
+    const close = () => modal.classList.remove("open");
+    document.getElementById("lf40ModalClose")?.addEventListener("click", close);
+
+    document.getElementById("lf40ModalSave")?.addEventListener("click", () => {
+      const values = {};
+      fields.forEach(field => {
+        values[field.id] = document.getElementById(field.id)?.value ?? "";
+      });
+      onSave(values, close);
+    });
+
+    modal.onclick = event => {
+      if (event.target === modal) close();
+    };
+  }
+
+  function showLifeModule(title, subtitle, content, afterRender) {
+    showScreen("gymScreen");
+    clearNav();
+
+    const screen = document.getElementById("gymScreen");
+    if (!screen) return;
+
+    screen.innerHTML = `
+      <div class="lf-detail-header">
+        <button type="button" class="lf-back-btn" id="lf40Back">‹</button>
+        <div>
+          <h2>${lf40Esc(title)}</h2>
+          <span>${lf40Esc(subtitle)}</span>
+        </div>
+        <button type="button" class="lf-more-btn" id="lf40Menu">☰</button>
+      </div>
+      <div class="lf40-module">${content}</div>
+    `;
+
+    document.getElementById("lf40Back")?.addEventListener("click", showHome);
+    document.getElementById("lf40Menu")?.addEventListener("click", () => window.openLifeFlowDrawer?.());
+    afterRender?.();
+    window.scrollTo(0, 0);
+  }
+
+  // ---------- SONO ----------
+  function showLifeSleep() {
+    const entries = [...lifeHub.sleep].sort((a,b) => b.date.localeCompare(a.date));
+    const last7 = entries.slice(0, 7);
+    const avg = last7.length
+      ? Math.round(last7.reduce((s,x) => s + Number(x.hours || 0), 0) / last7.length * 10) / 10
+      : 0;
+
+    showLifeModule("Sono Inteligente", "Histórico e consistência", `
+      <div class="lf40-actions">
+        <button id="lf40AddSleep">＋ Registrar sono</button>
+      </div>
+      <div class="lf40-kpis">
+        <article><span>MÉDIA</span><strong>${avg || "—"}${avg ? "h" : ""}</strong><small>últimos registros</small></article>
+        <article><span>REGISTROS</span><strong>${entries.length}</strong><small>no histórico</small></article>
+      </div>
+      <section class="lf40-card">
+        <span class="lf40-kicker">ÚLTIMOS DIAS</span>
+        <div class="lf40-bars">
+          ${last7.slice().reverse().map(x => `
+            <div><i style="height:${Math.min(100, Math.max(8, Number(x.hours || 0) / 10 * 100))}%"></i><b>${Number(x.hours || 0)}h</b><span>${lf40Esc(x.date.slice(5))}</span></div>
+          `).join("") || `<p class="lf40-empty">Registre seu sono para gerar o gráfico.</p>`}
+        </div>
+      </section>
+      <div class="lf40-list">
+        ${entries.map((x,i) => `<article><div><strong>${lf40DateLabel(x.date)}</strong><span>${lf40Esc(x.quality || "Sem avaliação")}</span></div><b>${Number(x.hours || 0)}h</b><button data-del-sleep="${i}">×</button></article>`).join("")}
+      </div>
+    `, () => {
+      document.getElementById("lf40AddSleep")?.addEventListener("click", () => {
+        lf40Modal("Registrar sono", [
+          {id:"sdate", label:"Data", type:"date", value:todayKey},
+          {id:"shours", label:"Horas dormidas", type:"number", step:"0.1", placeholder:"7.5"},
+          {id:"squality", label:"Qualidade", placeholder:"Boa, ótima, cansado..."}
+        ], (v, close) => {
+          if (!v.sdate || !Number(v.shours)) return showSiteMessage("Informe data e horas.", "warning");
+          lifeHub.sleep.push({date:v.sdate, hours:Number(v.shours), quality:v.squality});
+          saveLifeHub(); close(); showSiteMessage("Sono registrado.", "success"); showLifeSleep();
+        });
+      });
+      document.querySelectorAll("[data-del-sleep]").forEach(btn => btn.onclick = () => {
+        const sorted = [...lifeHub.sleep].sort((a,b)=>b.date.localeCompare(a.date));
+        const item = sorted[Number(btn.dataset.delSleep)];
+        lifeHub.sleep = lifeHub.sleep.filter(x => x !== item);
+        saveLifeHub(); showLifeSleep();
+      });
+    });
+  }
+
+  // ---------- ALIMENTAÇÃO ----------
+  function showLifeFood() {
+    const todayMeals = lifeHub.meals.filter(x => x.date === todayKey);
+    showLifeModule("Alimentação", "Refeições e organização diária", `
+      <div class="lf40-actions"><button id="lf40AddMeal">＋ Nova refeição</button></div>
+      <div class="lf40-kpis">
+        <article><span>HOJE</span><strong>${todayMeals.length}</strong><small>refeições</small></article>
+        <article><span>TOTAL</span><strong>${lifeHub.meals.length}</strong><small>registros</small></article>
+      </div>
+      <div class="lf40-list">
+        ${[...lifeHub.meals].sort((a,b)=>(b.date+b.time).localeCompare(a.date+a.time)).map((x,i)=>`
+          <article><div><strong>${lf40Esc(x.name)}</strong><span>${lf40Esc(x.date)} • ${lf40Esc(x.time)}${x.notes ? " • "+lf40Esc(x.notes) : ""}</span></div><b>🥘</b><button data-del-meal="${i}">×</button></article>
+        `).join("") || `<p class="lf40-empty">Nenhuma refeição registrada.</p>`}
+      </div>
+    `, () => {
+      document.getElementById("lf40AddMeal")?.addEventListener("click", () => lf40Modal("Nova refeição", [
+        {id:"mdate",label:"Data",type:"date",value:todayKey},
+        {id:"mtime",label:"Horário",type:"time",value:"12:00"},
+        {id:"mname",label:"Refeição",placeholder:"Almoço"},
+        {id:"mnotes",label:"Observações",type:"textarea",wide:true,placeholder:"Marmita, alimentos, observações..."}
+      ], (v,close)=>{
+        if(!v.mname) return showSiteMessage("Informe a refeição.","warning");
+        lifeHub.meals.push({date:v.mdate,time:v.mtime,name:v.mname,notes:v.mnotes});
+        saveLifeHub(); close(); showLifeFood();
+      }));
+      document.querySelectorAll("[data-del-meal]").forEach(btn=>btn.onclick=()=>{
+        const sorted=[...lifeHub.meals].sort((a,b)=>(b.date+b.time).localeCompare(a.date+a.time));
+        const item=sorted[Number(btn.dataset.delMeal)];
+        lifeHub.meals=lifeHub.meals.filter(x=>x!==item); saveLifeHub(); showLifeFood();
+      });
+    });
+  }
+
+  // ---------- AGENDA ----------
+  function showLifeAgenda() {
+    const sorted=[...lifeHub.agenda].sort((a,b)=>(a.date+a.time).localeCompare(b.date+b.time));
+    showLifeModule("Agenda", "Compromissos e planejamento", `
+      <div class="lf40-actions"><button id="lf40AddAgenda">＋ Novo compromisso</button></div>
+      <div class="lf40-list">
+        ${sorted.map((x,i)=>`<article class="${x.done?"done":""}"><div><strong>${lf40Esc(x.title)}</strong><span>${lf40Esc(x.date)} • ${lf40Esc(x.time)}${x.repeat?" • "+lf40Esc(x.repeat):""}</span></div><button data-done-agenda="${i}">${x.done?"✓":"○"}</button><button data-del-agenda="${i}">×</button></article>`).join("") || `<p class="lf40-empty">Sua agenda está vazia.</p>`}
+      </div>
+    `,()=>{
+      document.getElementById("lf40AddAgenda")?.addEventListener("click",()=>lf40Modal("Novo compromisso",[
+        {id:"adate",label:"Data",type:"date",value:todayKey},
+        {id:"atime",label:"Horário",type:"time",value:"08:00"},
+        {id:"atitle",label:"Compromisso",wide:true},
+        {id:"arepeat",label:"Recorrência",placeholder:"Ex.: semanal",wide:true}
+      ],(v,close)=>{
+        if(!v.atitle)return showSiteMessage("Informe o compromisso.","warning");
+        lifeHub.agenda.push({date:v.adate,time:v.atime,title:v.atitle,repeat:v.arepeat,done:false});
+        saveLifeHub();close();showLifeAgenda();
+      }));
+      document.querySelectorAll("[data-done-agenda]").forEach(btn=>btn.onclick=()=>{
+        const item=sorted[Number(btn.dataset.doneAgenda)]; item.done=!item.done; saveLifeHub();showLifeAgenda();
+      });
+      document.querySelectorAll("[data-del-agenda]").forEach(btn=>btn.onclick=()=>{
+        const item=sorted[Number(btn.dataset.delAgenda)]; lifeHub.agenda=lifeHub.agenda.filter(x=>x!==item);saveLifeHub();showLifeAgenda();
+      });
+    });
+  }
+
+  // ---------- CUIDADOS ----------
+  function showLifeCare() {
+    showLifeModule("Cuidados", "Hábitos e autocuidado", `
+      <div class="lf40-actions"><button id="lf40AddCare">＋ Novo cuidado</button></div>
+      <div class="lf40-list">
+        ${lifeHub.care.map((x,i)=>`<article class="${x.doneDate===todayKey?"done":""}"><div><strong>${lf40Esc(x.name)}</strong><span>${lf40Esc(x.frequency || "Quando necessário")}</span></div><button data-done-care="${i}">${x.doneDate===todayKey?"✓":"○"}</button><button data-del-care="${i}">×</button></article>`).join("") || `<p class="lf40-empty">Adicione seus cuidados pessoais.</p>`}
+      </div>
+    `,()=>{
+      document.getElementById("lf40AddCare")?.addEventListener("click",()=>lf40Modal("Novo cuidado",[
+        {id:"cname",label:"Cuidado",placeholder:"Ex.: Skincare noturno"},
+        {id:"cfreq",label:"Frequência",placeholder:"Ex.: Todos os dias"}
+      ],(v,close)=>{
+        if(!v.cname)return showSiteMessage("Informe o cuidado.","warning");
+        lifeHub.care.push({name:v.cname,frequency:v.cfreq,doneDate:""});saveLifeHub();close();showLifeCare();
+      }));
+      document.querySelectorAll("[data-done-care]").forEach(btn=>btn.onclick=()=>{
+        const x=lifeHub.care[Number(btn.dataset.doneCare)];x.doneDate=x.doneDate===todayKey?"":todayKey;saveLifeHub();showLifeCare();
+      });
+      document.querySelectorAll("[data-del-care]").forEach(btn=>btn.onclick=()=>{
+        lifeHub.care.splice(Number(btn.dataset.delCare),1);saveLifeHub();showLifeCare();
+      });
+    });
+  }
+
+  // ---------- MOTO ----------
+  function showLifeMotorcycle() {
+    const fuel=[...lifeHub.motorcycle.fuel].sort((a,b)=>b.date.localeCompare(a.date));
+    const maintenance=[...lifeHub.motorcycle.maintenance].sort((a,b)=>b.date.localeCompare(a.date));
+    showLifeModule("Moto", "Quilometragem, combustível e manutenção", `
+      <div class="lf40-actions two">
+        <button id="lf40AddFuel">＋ Abastecimento</button>
+        <button id="lf40AddMaintenance">＋ Manutenção</button>
+      </div>
+      <div class="lf40-kpis">
+        <article><span>ODÔMETRO</span><strong>${Number(lifeHub.motorcycle.odometer||0).toLocaleString("pt-BR")}</strong><small>km</small></article>
+        <article><span>ABASTEC.</span><strong>${fuel.length}</strong><small>registros</small></article>
+      </div>
+      <section class="lf40-card"><span class="lf40-kicker">MANUTENÇÕES</span>
+        <div class="lf40-list compact">${maintenance.map(x=>`<article><div><strong>${lf40Esc(x.service)}</strong><span>${lf40Esc(x.date)} • ${Number(x.km||0).toLocaleString("pt-BR")} km</span></div><b>🔧</b></article>`).join("") || `<p class="lf40-empty">Sem manutenções registradas.</p>`}</div>
+      </section>
+      <section class="lf40-card"><span class="lf40-kicker">ABASTECIMENTOS</span>
+        <div class="lf40-list compact">${fuel.map(x=>`<article><div><strong>${Number(x.liters||0).toLocaleString("pt-BR")} L</strong><span>${lf40Esc(x.date)} • ${Number(x.km||0).toLocaleString("pt-BR")} km</span></div><b>⛽</b></article>`).join("") || `<p class="lf40-empty">Sem abastecimentos.</p>`}</div>
+      </section>
+    `,()=>{
+      document.getElementById("lf40AddFuel")?.addEventListener("click",()=>lf40Modal("Registrar abastecimento",[
+        {id:"fdate",label:"Data",type:"date",value:todayKey},
+        {id:"fkm",label:"Odômetro (km)",type:"number",value:lifeHub.motorcycle.odometer||""},
+        {id:"fliters",label:"Litros",type:"number",step:"0.01"},
+        {id:"fvalue",label:"Valor",type:"number",step:"0.01"}
+      ],(v,close)=>{
+        lifeHub.motorcycle.odometer=Math.max(Number(lifeHub.motorcycle.odometer||0),Number(v.fkm||0));
+        lifeHub.motorcycle.fuel.push({date:v.fdate,km:Number(v.fkm||0),liters:Number(v.fliters||0),value:Number(v.fvalue||0)});
+        saveLifeHub();close();showLifeMotorcycle();
+      }));
+      document.getElementById("lf40AddMaintenance")?.addEventListener("click",()=>lf40Modal("Registrar manutenção",[
+        {id:"mtdate",label:"Data",type:"date",value:todayKey},
+        {id:"mtkm",label:"Odômetro (km)",type:"number",value:lifeHub.motorcycle.odometer||""},
+        {id:"mtservice",label:"Serviço",wide:true,placeholder:"Ex.: Troca de óleo"}
+      ],(v,close)=>{
+        if(!v.mtservice)return showSiteMessage("Informe o serviço.","warning");
+        lifeHub.motorcycle.odometer=Math.max(Number(lifeHub.motorcycle.odometer||0),Number(v.mtkm||0));
+        lifeHub.motorcycle.maintenance.push({date:v.mtdate,km:Number(v.mtkm||0),service:v.mtservice});
+        saveLifeHub();close();showLifeMotorcycle();
+      }));
+    });
+  }
+
+  // ---------- FAMÍLIA ----------
+  function showLifeFamily() {
+    const sorted=[...lifeHub.family].sort((a,b)=>(a.date+a.time).localeCompare(b.date+b.time));
+    showLifeModule("Família", "Compromissos importantes", `
+      <div class="lf40-actions"><button id="lf40AddFamily">＋ Novo compromisso</button></div>
+      <div class="lf40-list">
+        ${sorted.map((x,i)=>`<article><div><strong>${lf40Esc(x.title)}</strong><span>${lf40Esc(x.date)} • ${lf40Esc(x.time)}${x.notes?" • "+lf40Esc(x.notes):""}</span></div><b>👧</b><button data-del-family="${i}">×</button></article>`).join("") || `<p class="lf40-empty">Nenhum compromisso familiar registrado.</p>`}
+      </div>
+    `,()=>{
+      document.getElementById("lf40AddFamily")?.addEventListener("click",()=>lf40Modal("Compromisso familiar",[
+        {id:"fmdate",label:"Data",type:"date",value:todayKey},
+        {id:"fmtime",label:"Horário",type:"time",value:"16:00"},
+        {id:"fmtitle",label:"Compromisso",wide:true},
+        {id:"fmnotes",label:"Observações",type:"textarea",wide:true}
+      ],(v,close)=>{
+        if(!v.fmtitle)return showSiteMessage("Informe o compromisso.","warning");
+        lifeHub.family.push({date:v.fmdate,time:v.fmtime,title:v.fmtitle,notes:v.fmnotes});saveLifeHub();close();showLifeFamily();
+      }));
+      document.querySelectorAll("[data-del-family]").forEach(btn=>btn.onclick=()=>{
+        const item=sorted[Number(btn.dataset.delFamily)];lifeHub.family=lifeHub.family.filter(x=>x!==item);saveLifeHub();showLifeFamily();
+      });
+    });
+  }
+
+  // ---------- PERFIL / BACKUP ----------
+  function downloadLifeFlowBackup() {
+    const payload = {
+      version: "4.0",
+      exportedAt: new Date().toISOString(),
+      lifeHub,
+      gymPrograms,
+      gymAnalytics
+    };
+
+    const blob = new Blob([JSON.stringify(payload, null, 2)], {type:"application/json"});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `lifeflow-backup-${todayKey}.json`;
+    a.click();
+    setTimeout(()=>URL.revokeObjectURL(url),1000);
+    showSiteMessage("Backup gerado.", "success");
+  }
+
+  function showLifeSettings() {
+    showLifeModule("Perfil e dados", "Preferências e segurança dos seus dados", `
+      <section class="lf40-card">
+        <span class="lf40-kicker">PERFIL</span>
+        <div class="lf40-settings-row"><span>Nome no LifeFlow</span><strong>${lf40Esc(lifeHub.settings.name || "Não definido")}</strong><button id="lf40EditProfile">Editar</button></div>
+      </section>
+      <section class="lf40-card">
+        <span class="lf40-kicker">BACKUP</span>
+        <p class="lf40-copy">Exporte seus dados do LifeFlow em um arquivo JSON para guardar uma cópia.</p>
+        <button id="lf40Backup" class="lf40-primary">Gerar backup</button>
+      </section>
+      <section class="lf40-card">
+        <span class="lf40-kicker">LOGIN EXCLUSIVO</span>
+        <p class="lf40-copy">Estrutura reservada para uma etapa futura. Nesta versão seus dados continuam salvos localmente no navegador.</p>
+      </section>
+    `,()=>{
+      document.getElementById("lf40EditProfile")?.addEventListener("click",()=>lf40Modal("Editar perfil",[
+        {id:"pname",label:"Nome",value:lifeHub.settings.name||"",wide:true}
+      ],(v,close)=>{
+        lifeHub.settings.name=v.pname.trim();saveLifeHub();close();showLifeSettings();
+      }));
+      document.getElementById("lf40Backup")?.addEventListener("click",downloadLifeFlowBackup);
+    });
+  }
+
+  // ---------- ACADEMIA: HISTÓRICO POR EXERCÍCIO ----------
+  function recordExercisePerformance(exerciseId, completedSets) {
+    const exercise = getGymExerciseById(exerciseId);
+    if (!exercise) return;
+
+    if (!lifeHub.exerciseHistory[exerciseId]) {
+      lifeHub.exerciseHistory[exerciseId] = [];
+    }
+
+    const list = lifeHub.exerciseHistory[exerciseId];
+    let entry = list.find(x => x.date === todayKey);
+
+    if (!entry) {
+      entry = {date:todayKey, load:Number(exercise.load||0), sets:0, reps:exercise.reps||""};
+      list.push(entry);
+    }
+
+    entry.load = Number(exercise.load || 0);
+    entry.sets = Math.max(Number(entry.sets||0), Number(completedSets||0));
+    entry.reps = exercise.reps || "";
+    saveLifeHub();
+  }
+
+  function renderExercisePerformanceHtml(exerciseId) {
+    const history = [...(lifeHub.exerciseHistory[exerciseId] || [])].sort((a,b)=>a.date.localeCompare(b.date));
+    if (!history.length) return `<div class="lf40-empty">Conclua séries para criar o histórico deste exercício.</div>`;
+
+    const maxLoad = Math.max(1, ...history.map(x=>Number(x.load||0)));
+
+    return `
+      <section class="lf40-card lf40-exercise-progress">
+        <span class="lf40-kicker">EVOLUÇÃO DE CARGA</span>
+        <div class="lf40-bars">
+          ${history.slice(-7).map(x=>`<div><i style="height:${Math.max(8,Number(x.load||0)/maxLoad*100)}%"></i><b>${Number(x.load||0)}kg</b><span>${x.date.slice(5)}</span></div>`).join("")}
+        </div>
+        <div class="lf40-record">
+          <span>RECORDE PESSOAL</span>
+          <strong>${Math.max(...history.map(x=>Number(x.load||0)))} kg</strong>
+        </div>
+      </section>
+    `;
+  }
+
+  // Replace placeholder drawer actions with real modules, without touching Study/PMMG.
+  function wireLifeHubDrawer() {
+    document.querySelectorAll("[data-life-area]").forEach(button => {
+      const area = button.dataset.lifeArea;
+      if (!["food","family","motorcycle","care"].includes(area)) return;
+
+      button.replaceWith(button.cloneNode(true));
+    });
+
+    const map = {
+      food: showLifeFood,
+      family: showLifeFamily,
+      motorcycle: showLifeMotorcycle,
+      care: showLifeCare
+    };
+
+    document.querySelectorAll("[data-life-area]").forEach(button => {
+      const fn = map[button.dataset.lifeArea];
+      if (!fn) return;
+      button.addEventListener("click", () => {
+        fn();
+        window.closeLifeFlowDrawer?.();
+      });
+    });
+
+    const nav = document.querySelector("#lifeflowDrawer .lf-drawer-nav");
+    if (!nav || document.getElementById("lf40ExtraDrawer")) return;
+
+    const extra = document.createElement("div");
+    extra.id = "lf40ExtraDrawer";
+    extra.className = "lf-drawer-group";
+    extra.innerHTML = `
+      <button class="lf-drawer-item" id="lf40SleepDrawer"><span>☾</span><strong>Sono Inteligente</strong><b>›</b></button>
+      <button class="lf-drawer-item" id="lf40AgendaDrawer"><span>▣</span><strong>Agenda</strong><b>›</b></button>
+      <button class="lf-drawer-item" id="lf40ProfileDrawer"><span>⚙</span><strong>Perfil e dados</strong><b>›</b></button>
+    `;
+    nav.appendChild(extra);
+
+    document.getElementById("lf40SleepDrawer")?.addEventListener("click",()=>{showLifeSleep();window.closeLifeFlowDrawer?.();});
+    document.getElementById("lf40AgendaDrawer")?.addEventListener("click",()=>{showLifeAgenda();window.closeLifeFlowDrawer?.();});
+    document.getElementById("lf40ProfileDrawer")?.addEventListener("click",()=>{showLifeSettings();window.closeLifeFlowDrawer?.();});
+  }
+
+  function injectLifeFlow40Styles() {
+    if (document.getElementById("lifeflow40Styles")) return;
+    const style = document.createElement("style");
+    style.id = "lifeflow40Styles";
+    style.textContent = `
+      .lf40-module{display:grid;gap:10px;padding-bottom:100px}
+      .lf40-actions{display:grid;grid-template-columns:1fr;gap:8px}
+      .lf40-actions.two{grid-template-columns:1fr 1fr}
+      .lf40-actions button,.lf40-primary{min-height:46px;border:1px solid rgba(100,231,155,.17);border-radius:13px;background:rgba(100,231,155,.065);color:#76e9aa;font:inherit;font-size:9px;font-weight:950}
+      .lf40-kpis{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+      .lf40-kpis article,.lf40-card{border:1px solid rgba(255,255,255,.065);border-radius:16px;background:#0e0f11;padding:13px}
+      .lf40-kpis span,.lf40-kicker{display:block;color:#6c7075;font-size:7px;font-weight:950;letter-spacing:.8px}
+      .lf40-kpis strong{display:block;margin-top:4px;color:#eceeef;font-size:22px}
+      .lf40-kpis small{display:block;margin-top:2px;color:#62666b;font-size:7px}
+      .lf40-list{display:grid;gap:7px}
+      .lf40-list.compact{margin-top:9px}
+      .lf40-list article{display:grid;grid-template-columns:1fr auto auto;align-items:center;gap:8px;min-height:58px;padding:10px;border:1px solid rgba(255,255,255,.055);border-radius:13px;background:#0e0f11}
+      .lf40-list article.done{opacity:.55}
+      .lf40-list strong{display:block;color:#e2e4e5;font-size:10px}
+      .lf40-list span{display:block;margin-top:3px;color:#666a6f;font-size:7px}
+      .lf40-list article>b{color:#83eab1;font-size:9px}
+      .lf40-list article>button{width:31px;height:31px;border:1px solid rgba(255,255,255,.06);border-radius:9px;background:#141617;color:#8b8f93}
+      .lf40-empty{grid-column:1/-1;margin:0;padding:25px 12px;color:#666a6f;font-size:8px;text-align:center}
+      .lf40-bars{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;height:145px;margin-top:12px}
+      .lf40-bars>div{display:grid;grid-template-rows:1fr auto auto;gap:4px;text-align:center}
+      .lf40-bars>div:before{content:"";grid-row:1;grid-column:1;display:block;border-radius:8px;background:rgba(255,255,255,.025)}
+      .lf40-bars i{grid-row:1;grid-column:1;align-self:end;display:block;min-height:5px;border-radius:8px;background:linear-gradient(180deg,#75eaaa,#2d8f61)}
+      .lf40-bars b{color:#aeb1b4;font-size:7px}.lf40-bars span{color:#5f6368;font-size:6px}
+      .lf40-copy{color:#73777c;font-size:9px;line-height:1.6}
+      .lf40-settings-row{display:grid;grid-template-columns:1fr auto auto;gap:8px;align-items:center;margin-top:10px}
+      .lf40-settings-row span{color:#73777c;font-size:8px}.lf40-settings-row strong{color:#e3e5e6;font-size:10px}.lf40-settings-row button{border:1px solid rgba(255,255,255,.07);border-radius:9px;background:#151718;color:#9ebfff;padding:8px;font-size:8px}
+      .lf40-modal{position:fixed;inset:0;z-index:15000;display:grid;place-items:end center;padding:8px;background:rgba(0,0,0,.72);backdrop-filter:blur(8px);opacity:0;visibility:hidden;transition:.2s}
+      .lf40-modal.open{opacity:1;visibility:visible}
+      .lf40-modal-card{box-sizing:border-box;width:min(100%,520px);max-height:92dvh;overflow:auto;padding:16px;border:1px solid rgba(255,255,255,.09);border-radius:22px 22px 14px 14px;background:#0d0f10}
+      .lf40-modal-head{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;margin-bottom:12px}
+      .lf40-modal-head span{color:#75eaaa;font-size:8px;font-weight:950}.lf40-modal-head h3{margin:4px 0 0;color:#eee;font-size:18px}
+      .lf40-modal-head button{width:42px;height:42px;border:1px solid rgba(255,255,255,.07);border-radius:12px;background:#141617;color:#ccc;font-size:22px}
+      .lf40-form{display:grid;grid-template-columns:1fr 1fr;gap:9px}.lf40-form label.wide{grid-column:1/-1}
+      .lf40-form span{display:block;color:#72767a;font-size:7px;font-weight:900;text-transform:uppercase}
+      .lf40-form input,.lf40-form textarea{box-sizing:border-box;width:100%;margin-top:5px;padding:11px;border:1px solid rgba(255,255,255,.08);border-radius:12px;outline:0;background:#121415;color:#eee;font:inherit;font-size:16px}
+      .lf40-form textarea{resize:vertical}
+      .lf40-record{display:flex;justify-content:space-between;align-items:center;margin-top:10px;padding-top:10px;border-top:1px solid rgba(255,255,255,.05)}
+      .lf40-record span{color:#686c71;font-size:7px;font-weight:900}.lf40-record strong{color:#75eaaa;font-size:14px}
+      @media(max-width:520px){.lf40-form{grid-template-columns:1fr}.lf40-form label.wide{grid-column:auto}.lf40-actions.two{grid-template-columns:1fr 1fr}}
+    `;
+    document.head.appendChild(style);
+  }
+
+  // =====================================================
+  // LIFEFLOW 4.0 — LIFE HUB COMPLETO
   // =====================================================
 
   let gymStatsStandalone = false;
@@ -7808,6 +8335,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (progress[exerciseId] > 0) {
       registerGymSet();
+      recordExercisePerformance(exerciseId, progress[exerciseId]);
       startRestTimer(exercise.rest || 60);
       checkPerfectGymDay();
     }
@@ -12388,6 +12916,8 @@ document.addEventListener("DOMContentLoaded", () => {
         <div><span>DESCANSO</span><strong>${exercise.rest}s</strong></div>
       </section>
 
+      ${renderExercisePerformanceHtml(exercise.id)}
+
       <button
         id="lfEditExerciseButton"
         class="lf-edit-exercise-button"
@@ -13342,6 +13872,8 @@ document.addEventListener("DOMContentLoaded", () => {
   addLifeAreasToDrawer();
   addGymEvolutionToDrawer();
   injectLifeFlow34Styles();
+  injectLifeFlow40Styles();
+  wireLifeHubDrawer();
 
   // =====================================================
   // NAVEGAÇÃO
