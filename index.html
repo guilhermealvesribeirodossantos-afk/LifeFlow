@@ -57,15 +57,13 @@
 
 
     <!-- =========================
-         TELA PRINCIPAL
+         HOME
     ========================== -->
 
     <main
       id="homeScreen"
       class="app-main"
     >
-
-      <!-- SAUDAÇÃO -->
 
       <section class="welcome-section">
 
@@ -378,7 +376,7 @@
       </section>
 
 
-      <!-- PMMG -->
+      <!-- RESUMO PMMG -->
 
       <section
         id="pmmgSection"
@@ -398,7 +396,7 @@
             </span>
 
             <h3>
-              Missão de estudos
+              Preparação para Soldado
             </h3>
 
             <p id="studyText">
@@ -410,71 +408,39 @@
         </div>
 
 
-        <div class="subjects">
+        <div class="pmmg-home-progress">
 
-          <div class="subject-item">
+          <div class="pmmg-home-progress-head">
 
-            <span class="subject-number">
-              01
+            <span>
+              Progresso geral
             </span>
 
-            <div>
-
-              <strong>
-                Português
-              </strong>
-
-              <small>
-                Interpretação e gramática
-              </small>
-
-            </div>
+            <strong id="pmmgHomeProgressText">
+              0%
+            </strong>
 
           </div>
 
+          <div class="pmmg-progress-track">
 
-          <div class="subject-item">
-
-            <span class="subject-number">
-              02
-            </span>
-
-            <div>
-
-              <strong>
-                Matemática
-              </strong>
-
-              <small>
-                Base e raciocínio
-              </small>
-
-            </div>
-
-          </div>
-
-
-          <div class="subject-item">
-
-            <span class="subject-number">
-              03
-            </span>
-
-            <div>
-
-              <strong>
-                Direito
-              </strong>
-
-              <small>
-                Fundamentos
-              </small>
-
-            </div>
+            <div
+              id="pmmgHomeProgressBar"
+              class="pmmg-progress-bar"
+            ></div>
 
           </div>
 
         </div>
+
+
+        <button
+          id="openPMMGButton"
+          class="main-action-button"
+          type="button"
+        >
+          Abrir Central PMMG
+        </button>
 
       </section>
 
@@ -588,8 +554,6 @@
       </section>
 
 
-      <!-- NAVEGAÇÃO DO MÊS -->
-
       <section class="calendar-toolbar card">
 
         <button
@@ -625,8 +589,6 @@
       </section>
 
 
-      <!-- LEGENDA -->
-
       <div class="calendar-legend">
 
         <span>
@@ -647,8 +609,6 @@
       </div>
 
 
-      <!-- DIAS DA SEMANA -->
-
       <div class="calendar-weekdays">
 
         <span>DOM</span>
@@ -662,15 +622,11 @@
       </div>
 
 
-      <!-- CALENDÁRIO -->
-
       <div
         id="calendarGrid"
         class="calendar-grid"
       ></div>
 
-
-      <!-- DIA SELECIONADO -->
 
       <section class="agenda-details card">
 
@@ -710,8 +666,6 @@
       </section>
 
 
-      <!-- PRÓXIMOS DIAS -->
-
       <section class="next-days-section">
 
         <div class="section-heading">
@@ -735,6 +689,205 @@
           id="nextDaysList"
           class="next-days-list"
         ></div>
+
+      </section>
+
+    </main>
+
+
+    <!-- =========================
+         CENTRAL PMMG
+    ========================== -->
+
+    <main
+      id="pmmgScreen"
+      class="app-main screen hidden"
+    >
+
+      <section class="screen-title">
+
+        <span class="section-label">
+          MISSÃO PMMG
+        </span>
+
+        <h2>
+          Central de Estudos
+        </h2>
+
+        <p>
+          Evolução organizada do básico até a prova.
+        </p>
+
+      </section>
+
+
+      <!-- RESUMO GERAL -->
+
+      <section class="pmmg-dashboard card">
+
+        <div class="pmmg-dashboard-top">
+
+          <div>
+
+            <span class="section-label">
+              PROGRESSO GERAL
+            </span>
+
+            <h3>
+              Preparação PMMG
+            </h3>
+
+          </div>
+
+          <div class="pmmg-big-progress">
+            <strong id="pmmgOverallPercent">
+              0%
+            </strong>
+
+            <span>
+              concluído
+            </span>
+          </div>
+
+        </div>
+
+
+        <div class="pmmg-progress-track">
+
+          <div
+            id="pmmgOverallBar"
+            class="pmmg-progress-bar"
+          ></div>
+
+        </div>
+
+
+        <div class="pmmg-stats-grid">
+
+          <div>
+
+            <span>
+              Matérias
+            </span>
+
+            <strong id="pmmgSubjectsCount">
+              6
+            </strong>
+
+          </div>
+
+          <div>
+
+            <span>
+              Concluídas
+            </span>
+
+            <strong id="pmmgCompletedCount">
+              0
+            </strong>
+
+          </div>
+
+          <div>
+
+            <span>
+              Meta
+            </span>
+
+            <strong>
+              70%
+            </strong>
+
+          </div>
+
+        </div>
+
+      </section>
+
+
+      <!-- MISSÃO DE HOJE -->
+
+      <section class="pmmg-today-card card">
+
+        <div class="card-header">
+
+          <div>
+
+            <span class="section-label">
+              MISSÃO DE HOJE
+            </span>
+
+            <h3 id="pmmgTodaySubject">
+              Português
+            </h3>
+
+          </div>
+
+          <span class="mission-icon">
+            🎯
+          </span>
+
+        </div>
+
+        <p id="pmmgTodayDescription">
+          Continue avançando pela matéria principal.
+        </p>
+
+        <button
+          id="continueStudyButton"
+          class="main-action-button"
+          type="button"
+        >
+          Continuar estudando
+        </button>
+
+      </section>
+
+
+      <!-- MATÉRIAS -->
+
+      <section class="pmmg-subjects-section">
+
+        <div class="section-heading">
+
+          <div>
+
+            <span class="section-label">
+              MATÉRIAS
+            </span>
+
+            <h3>
+              Seu caminho de estudos
+            </h3>
+
+          </div>
+
+        </div>
+
+
+        <div
+          id="pmmgSubjectsList"
+          class="pmmg-subjects-list"
+        ></div>
+
+      </section>
+
+
+      <!-- COMO FUNCIONA -->
+
+      <section class="study-rule-card card">
+
+        <span class="section-label">
+          REGRA DE PROGRESSÃO
+        </span>
+
+        <h3>
+          Mínimo de 70%
+        </h3>
+
+        <p>
+          Cada matéria terá aulas, questões e prova. Ao atingir pelo menos 70%, a próxima etapa poderá ser liberada.
+        </p>
 
       </section>
 
