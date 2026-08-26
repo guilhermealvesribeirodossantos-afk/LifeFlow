@@ -4340,7 +4340,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
   // =====================================================
-  // LIFEFLOW 2.9 — MENU LATERAL + ACADEMIA EM PASTAS
+  // LIFEFLOW 3.1 — ACADEMIA PRO + METAS + GRÁFICOS
   // =====================================================
 
   const gymStorageKey = "lifeflow-gym-v26";
@@ -4424,6 +4424,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     workoutStartedAt = Date.now();
     saveTodayGym({ started: true });
+    markGymTrainingDay();
 
     clearInterval(workoutTimerInterval);
     workoutTimerInterval = setInterval(
@@ -4793,7 +4794,9 @@ document.addEventListener("DOMContentLoaded", () => {
     saveGymExerciseProgress(progress);
 
     if (progress[exerciseId] > 0) {
+      registerGymSet();
       startRestTimer(exercise.rest || 60);
+      checkPerfectGymDay();
     }
 
     renderGymPanel();
@@ -7571,6 +7574,1219 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
 
+
+  // =====================================================
+  // LIFEFLOW 3.1 — ACADEMIA PRO / METAS + GRÁFICOS + EDIÇÃO
+  // =====================================================
+
+  const gymAnalyticsStorageKey = "lifeflow-gym-analytics-v31";
+
+  let gymAnalytics = {
+    weeklyGoal: 4,
+    trainingDays: [],
+    perfectDays: [],
+    setsByDay: {},
+    weightEntries: []
+  };
+
+  try {
+    const savedGymAnalytics =
+      localStorage.getItem(gymAnalyticsStorageKey);
+
+    if (savedGymAnalytics) {
+      gymAnalytics = {
+        ...gymAnalytics,
+        ...JSON.parse(savedGymAnalytics)
+      };
+    }
+  } catch (error) {
+    console.log("Erro ao carregar evolução da academia:", error);
+  }
+
+  if (!Array.isArray(gymAnalytics.trainingDays)) gymAnalytics.trainingDays = [];
+  if (!Array.isArray(gymAnalytics.perfectDays)) gymAnalytics.perfectDays = [];
+  if (!Array.isArray(gymAnalytics.weightEntries)) gymAnalytics.weightEntries = [];
+  if (!gymAnalytics.setsByDay || typeof gymAnalytics.setsByDay !== "object") {
+    gymAnalytics.setsByDay = {};
+  }
+
+  function saveGymAnalytics() {
+    localStorage.setItem(
+      gymAnalyticsStorageKey,
+      JSON.stringify(gymAnalytics)
+    );
+  }
+
+  function markGymTrainingDay() {
+    if (!gymAnalytics.trainingDays.includes(todayKey)) {
+      gymAnalytics.trainingDays.push(todayKey);
+      gymAnalytics.trainingDays.sort();
+      saveGymAnalytics();
+      showSiteMessage("Treino de hoje registrado no seu progresso.", "success");
+    }
+  }
+
+  function registerGymSet() {
+    markGymTrainingDay();
+
+    gymAnalytics.setsByDay[todayKey] =
+      Number(gymAnalytics.setsByDay[todayKey] || 0) + 1;
+
+    saveGymAnalytics();
+  }
+
+  function checkPerfectGymDay() {
+    const plan = getActiveGymPlan();
+    if (!plan?.exercises?.length) return;
+
+    const progress = getGymSessionProgress();
+
+    const complete =
+      plan.exercises.every(exercise =>
+        Number(progress[exercise.id] || 0) >= Number(exercise.sets || 0)
+      );
+
+    if (
+      complete &&
+      !gymAnalytics.perfectDays.includes(todayKey)
+    ) {
+      gymAnalytics.perfectDays.push(todayKey);
+      gymAnalytics.perfectDays.sort();
+      saveGymAnalytics();
+
+      showSiteMessage(
+        `Meta batida: ${plan.name} concluído 100%!`,
+        "success"
+      );
+    }
+  }
+
+  function getGymDateRange(days = 7, offset = 0) {
+    const list = [];
+
+    for (let i = days - 1; i >= 0; i--) {
+      const date = new Date();
+      date.setHours(12, 0, 0, 0);
+      date.setDate(date.getDate() - i - offset);
+
+      const key = getDateKey(date);
+
+      list.push({
+        key,
+        date,
+        trained: gymAnalytics.trainingDays.includes(key),
+        perfect: gymAnalytics.perfectDays.includes(key),
+        sets: Number(gymAnalytics.setsByDay[key] || 0)
+      });
+    }
+
+    return list;
+  }
+
+  function getGymWeekCount(offset = 0) {
+    return getGymDateRange(7, offset)
+      .filter(item => item.trained).length;
+  }
+
+  function getGymTrainingStreak() {
+    const days =
+      [...new Set(gymAnalytics.trainingDays)].sort();
+
+    if (!days.length) return 0;
+
+    let streak = 0;
+    let cursor = startOfDay(new Date());
+
+    const todayValue = getDateKey(cursor);
+    const yesterday = new Date(cursor);
+    yesterday.setDate(yesterday.getDate() - 1);
+
+    const last = days[days.length - 1];
+
+    if (
+      last !== todayValue &&
+      last !== getDateKey(yesterday)
+    ) {
+      return 0;
+    }
+
+    if (last !== todayValue) {
+      cursor = yesterday;
+    }
+
+    while (
+      gymAnalytics.trainingDays.includes(
+        getDateKey(cursor)
+      )
+    ) {
+      streak++;
+      cursor.setDate(cursor.getDate() - 1);
+    }
+
+    return streak;
+  }
+
+  function getTotalGymSets() {
+    return Object.values(gymAnalytics.setsByDay)
+      .reduce((sum, value) => sum + Number(value || 0), 0);
+  }
+
+  function getLatestWeightEntry() {
+    return gymAnalytics.weightEntries
+      .slice()
+      .sort((a, b) => a.date.localeCompare(b.date))
+      .at(-1) || null;
+  }
+
+  function getWeightGoalData() {
+    const entries =
+      gymAnalytics.weightEntries
+        .slice()
+        .sort((a, b) => a.date.localeCompare(b.date));
+
+    const latest = entries.at(-1) || null;
+    const first = entries[0] || null;
+
+    const target =
+      Number(
+        localStorage.getItem("lifeflow-gym-weight-target-v31") || 0
+      );
+
+    let progress = 0;
+
+    if (
+      first &&
+      latest &&
+      target > 0 &&
+      first.weight !== target
+    ) {
+      const totalDistance =
+        Math.abs(first.weight - target);
+
+      const moved =
+        totalDistance -
+        Math.abs(latest.weight - target);
+
+      progress =
+        Math.max(
+          0,
+          Math.min(
+            100,
+            Math.round((moved / totalDistance) * 100)
+          )
+        );
+    }
+
+    return {
+      first,
+      latest,
+      target,
+      progress,
+      entries
+    };
+  }
+
+  function weightChartSvg(entries) {
+    const data = entries.slice(-10);
+
+    if (data.length < 2) {
+      return `
+        <div class="lf-gym-chart-empty">
+          Registre seu peso em pelo menos 2 dias para gerar o gráfico.
+        </div>
+      `;
+    }
+
+    const values = data.map(item => Number(item.weight));
+    const min = Math.min(...values);
+    const max = Math.max(...values);
+    const range = Math.max(1, max - min);
+
+    const points = data.map((item, index) => {
+      const x =
+        data.length === 1
+          ? 50
+          : (index / (data.length - 1)) * 100;
+
+      const y =
+        90 - ((Number(item.weight) - min) / range) * 70;
+
+      return `${x.toFixed(2)},${y.toFixed(2)}`;
+    }).join(" ");
+
+    return `
+      <svg
+        class="lf-weight-chart-svg"
+        viewBox="0 0 100 100"
+        preserveAspectRatio="none"
+        aria-label="Gráfico de evolução do peso"
+      >
+        <polyline
+          points="${points}"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2.5"
+          vector-effect="non-scaling-stroke"
+        ></polyline>
+      </svg>
+    `;
+  }
+
+  function ensureGymProModal() {
+    if (document.getElementById("lfGymProModal")) return;
+
+    const modal = document.createElement("div");
+    modal.id = "lfGymProModal";
+    modal.className = "lf-gym-pro-modal";
+
+    modal.innerHTML = `
+      <div class="lf-gym-pro-modal-card">
+        <div class="lf-gym-pro-modal-head">
+          <div>
+            <span id="lfGymProModalKicker">ACADEMIA</span>
+            <h3 id="lfGymProModalTitle">Editar</h3>
+          </div>
+          <button id="lfGymProModalClose" type="button">×</button>
+        </div>
+
+        <div id="lfGymProModalBody"></div>
+      </div>
+    `;
+
+    document.body.appendChild(modal);
+
+    const close = () => modal.classList.remove("open");
+
+    document
+      .getElementById("lfGymProModalClose")
+      ?.addEventListener("click", close);
+
+    modal.addEventListener("click", event => {
+      if (event.target === modal) close();
+    });
+  }
+
+  function openGymGoalsModal() {
+    ensureGymProModal();
+
+    const modal = document.getElementById("lfGymProModal");
+    const title = document.getElementById("lfGymProModalTitle");
+    const kicker = document.getElementById("lfGymProModalKicker");
+    const body = document.getElementById("lfGymProModalBody");
+
+    if (!modal || !title || !body || !kicker) return;
+
+    const weight = getWeightGoalData();
+
+    kicker.textContent = "METAS";
+    title.textContent = "Metas da Academia";
+
+    body.innerHTML = `
+      <div class="lf-pro-form-grid">
+        <label>
+          <span>Treinos por semana</span>
+          <input
+            id="lfGymWeeklyGoalInput"
+            type="number"
+            min="1"
+            max="7"
+            value="${Number(gymAnalytics.weeklyGoal || 4)}"
+          >
+        </label>
+
+        <label>
+          <span>Peso atual (kg)</span>
+          <input
+            id="lfGymCurrentWeightInput"
+            type="number"
+            min="1"
+            step="0.1"
+            value="${weight.latest?.weight || ""}"
+            placeholder="Ex.: 78,5"
+          >
+        </label>
+
+        <label>
+          <span>Meta de peso (kg)</span>
+          <input
+            id="lfGymTargetWeightInput"
+            type="number"
+            min="1"
+            step="0.1"
+            value="${weight.target || ""}"
+            placeholder="Você escolhe sua meta"
+          >
+        </label>
+      </div>
+
+      <button
+        id="lfGymSaveGoals"
+        class="lf-pro-primary"
+        type="button"
+      >
+        Salvar metas
+      </button>
+
+      <p class="lf-pro-helper">
+        A meta de peso é definida por você. O LifeFlow apenas registra e mostra sua evolução.
+      </p>
+    `;
+
+    modal.classList.add("open");
+
+    document
+      .getElementById("lfGymSaveGoals")
+      ?.addEventListener("click", () => {
+        const weekly =
+          Math.max(
+            1,
+            Math.min(
+              7,
+              Number(
+                document.getElementById("lfGymWeeklyGoalInput")?.value
+              ) || 4
+            )
+          );
+
+        const currentWeight =
+          Number(
+            document.getElementById("lfGymCurrentWeightInput")?.value
+          );
+
+        const target =
+          Number(
+            document.getElementById("lfGymTargetWeightInput")?.value
+          );
+
+        gymAnalytics.weeklyGoal = weekly;
+
+        if (currentWeight > 0) {
+          const todayEntryIndex =
+            gymAnalytics.weightEntries.findIndex(
+              item => item.date === todayKey
+            );
+
+          const entry = {
+            date: todayKey,
+            weight: Math.round(currentWeight * 10) / 10
+          };
+
+          if (todayEntryIndex >= 0) {
+            gymAnalytics.weightEntries[todayEntryIndex] = entry;
+          } else {
+            gymAnalytics.weightEntries.push(entry);
+          }
+        }
+
+        if (target > 0) {
+          localStorage.setItem(
+            "lifeflow-gym-weight-target-v31",
+            String(Math.round(target * 10) / 10)
+          );
+        } else {
+          localStorage.removeItem(
+            "lifeflow-gym-weight-target-v31"
+          );
+        }
+
+        saveGymAnalytics();
+
+        modal.classList.remove("open");
+
+        showSiteMessage("Metas atualizadas com sucesso.", "success");
+
+        if (gymFolderView === "root") {
+          renderGymFolderRoot();
+        }
+      });
+  }
+
+  function openExerciseEditor(exerciseId) {
+    const exercise = getGymExerciseById(exerciseId);
+    if (!exercise) return;
+
+    ensureGymProModal();
+
+    const modal = document.getElementById("lfGymProModal");
+    const title = document.getElementById("lfGymProModalTitle");
+    const kicker = document.getElementById("lfGymProModalKicker");
+    const body = document.getElementById("lfGymProModalBody");
+
+    if (!modal || !title || !body || !kicker) return;
+
+    kicker.textContent = "EXERCÍCIO";
+    title.textContent = "Editar exercício";
+
+    body.innerHTML = `
+      <div class="lf-pro-form-grid">
+        <label class="wide">
+          <span>Nome</span>
+          <input id="lfEditExerciseName" type="text" value="${escapeGymHtml(exercise.name)}">
+        </label>
+
+        <label>
+          <span>Séries</span>
+          <input id="lfEditExerciseSets" type="number" min="1" value="${Number(exercise.sets || 3)}">
+        </label>
+
+        <label>
+          <span>Repetições</span>
+          <input id="lfEditExerciseReps" type="text" value="${escapeGymHtml(exercise.reps || "8–12")}">
+        </label>
+
+        <label>
+          <span>Carga (kg)</span>
+          <input id="lfEditExerciseLoad" type="number" min="0" step="0.5" value="${Number(exercise.load || 0)}">
+        </label>
+
+        <label>
+          <span>Descanso (s)</span>
+          <input id="lfEditExerciseRest" type="number" min="15" step="15" value="${Number(exercise.rest || 60)}">
+        </label>
+
+        <label class="wide">
+          <span>Foto / link</span>
+          <input id="lfEditExerciseImage" type="url" value="${escapeGymHtml(exercise.image || "")}">
+        </label>
+
+        <label class="wide">
+          <span>Postura</span>
+          <textarea id="lfEditExercisePosture" rows="3">${escapeGymHtml(exercise.posture || "")}</textarea>
+        </label>
+
+        <label class="wide">
+          <span>Como executar</span>
+          <textarea id="lfEditExerciseExecution" rows="3">${escapeGymHtml(exercise.execution || "")}</textarea>
+        </label>
+
+        <label class="wide">
+          <span>Erros a evitar</span>
+          <textarea id="lfEditExerciseMistakes" rows="3">${escapeGymHtml(exercise.mistakes || "")}</textarea>
+        </label>
+      </div>
+
+      <button
+        id="lfSaveExerciseEdit"
+        class="lf-pro-primary"
+        type="button"
+      >
+        Salvar alterações
+      </button>
+    `;
+
+    modal.classList.add("open");
+
+    document
+      .getElementById("lfSaveExerciseEdit")
+      ?.addEventListener("click", () => {
+        const name =
+          document.getElementById("lfEditExerciseName")?.value.trim();
+
+        if (!name) {
+          showSiteMessage("Informe o nome do exercício.", "warning");
+          return;
+        }
+
+        exercise.name = name;
+        exercise.sets =
+          Math.max(
+            1,
+            Number(
+              document.getElementById("lfEditExerciseSets")?.value
+            ) || 3
+          );
+
+        exercise.reps =
+          document.getElementById("lfEditExerciseReps")?.value.trim() ||
+          "8–12";
+
+        exercise.load =
+          Math.max(
+            0,
+            Number(
+              document.getElementById("lfEditExerciseLoad")?.value
+            ) || 0
+          );
+
+        exercise.rest =
+          Math.max(
+            15,
+            Number(
+              document.getElementById("lfEditExerciseRest")?.value
+            ) || 60
+          );
+
+        exercise.image =
+          document.getElementById("lfEditExerciseImage")?.value.trim() || "";
+
+        exercise.posture =
+          document.getElementById("lfEditExercisePosture")?.value.trim() || "";
+
+        exercise.execution =
+          document.getElementById("lfEditExerciseExecution")?.value.trim() || "";
+
+        exercise.mistakes =
+          document.getElementById("lfEditExerciseMistakes")?.value.trim() || "";
+
+        saveGymPrograms();
+
+        modal.classList.remove("open");
+
+        showSiteMessage("Exercício atualizado.", "success");
+
+        gymOpenExerciseId = exercise.id;
+        gymFolderView = "exercise";
+        renderGymOrganizedPanel();
+      });
+  }
+
+  function renderGymProDashboardHtml() {
+    const week = getGymDateRange(7);
+    const currentWeek = getGymWeekCount();
+    const previousWeek = getGymWeekCount(7);
+    const weeklyGoal = Number(gymAnalytics.weeklyGoal || 4);
+    const goalProgress =
+      Math.min(
+        100,
+        Math.round((currentWeek / weeklyGoal) * 100)
+      );
+
+    const comparison =
+      currentWeek - previousWeek;
+
+    const streak = getGymTrainingStreak();
+    const totalSets = getTotalGymSets();
+    const perfectDays = gymAnalytics.perfectDays.length;
+    const weight = getWeightGoalData();
+
+    return `
+      <section class="lf-gym-pro-dashboard">
+        <div class="lf-pro-dashboard-head">
+          <div>
+            <span>SEU PROGRESSO</span>
+            <h3>Academia em números</h3>
+          </div>
+
+          <button
+            id="lfGymGoalsButton"
+            type="button"
+          >
+            ⚙ Metas
+          </button>
+        </div>
+
+        <div class="lf-pro-hero-grid">
+          <div class="lf-pro-goal-card">
+            <div class="lf-pro-goal-top">
+              <div>
+                <span>META SEMANAL</span>
+                <strong>${currentWeek}/${weeklyGoal}</strong>
+                <small>treinos concluídos</small>
+              </div>
+              <b>${goalProgress}%</b>
+            </div>
+
+            <div class="lf-pro-track">
+              <i style="width:${goalProgress}%"></i>
+            </div>
+
+            <p>
+              ${
+                goalProgress >= 100
+                  ? "🏆 Meta semanal batida!"
+                  : `${Math.max(0, weeklyGoal - currentWeek)} treino(s) para bater a meta.`
+              }
+            </p>
+          </div>
+
+          <div class="lf-pro-mini-card">
+            <span>🔥 SEQUÊNCIA</span>
+            <strong>${streak}</strong>
+            <small>dias seguidos</small>
+          </div>
+        </div>
+
+        <div class="lf-pro-week-chart">
+          ${week.map(item => {
+            const label =
+              item.date
+                .toLocaleDateString(
+                  "pt-BR",
+                  { weekday: "short" }
+                )
+                .replace(".", "")
+                .slice(0, 3);
+
+            const height =
+              item.trained
+                ? Math.min(100, 32 + (item.sets * 6))
+                : 7;
+
+            return `
+              <div>
+                <div class="lf-pro-day-track">
+                  <i
+                    class="${item.perfect ? "perfect" : item.trained ? "trained" : ""}"
+                    style="height:${height}%"
+                  ></i>
+                </div>
+                <strong>${item.sets || "—"}</strong>
+                <span>${label}</span>
+              </div>
+            `;
+          }).join("")}
+        </div>
+
+        <div class="lf-pro-stats-grid">
+          <div>
+            <span>Treinos totais</span>
+            <strong>${gymAnalytics.trainingDays.length}</strong>
+          </div>
+          <div>
+            <span>Séries feitas</span>
+            <strong>${totalSets}</strong>
+          </div>
+          <div>
+            <span>Treinos 100%</span>
+            <strong>${perfectDays}</strong>
+          </div>
+          <div>
+            <span>Vs. semana passada</span>
+            <strong>${comparison > 0 ? "+" : ""}${comparison}</strong>
+          </div>
+        </div>
+
+        <div class="lf-weight-progress-card">
+          <div class="lf-weight-head">
+            <div>
+              <span>EVOLUÇÃO DE PESO</span>
+              <strong>
+                ${weight.latest ? `${Number(weight.latest.weight).toLocaleString("pt-BR")} kg` : "Sem registro"}
+              </strong>
+              <small>
+                ${
+                  weight.target
+                    ? `Meta: ${Number(weight.target).toLocaleString("pt-BR")} kg`
+                    : "Defina uma meta se quiser acompanhar"
+                }
+              </small>
+            </div>
+
+            <b>${weight.target ? `${weight.progress}%` : "—"}</b>
+          </div>
+
+          <div class="lf-weight-chart">
+            ${weightChartSvg(weight.entries)}
+          </div>
+        </div>
+
+        <div class="lf-pro-achievements">
+          <span class="lf-kicker">METAS BATIDAS</span>
+
+          <div>
+            <article class="${gymAnalytics.trainingDays.length >= 1 ? "unlocked" : ""}">
+              <i>🏋️</i>
+              <strong>Primeiro treino</strong>
+              <small>Complete 1 treino</small>
+            </article>
+
+            <article class="${currentWeek >= weeklyGoal ? "unlocked" : ""}">
+              <i>🏆</i>
+              <strong>Meta semanal</strong>
+              <small>Bata sua meta de treinos</small>
+            </article>
+
+            <article class="${streak >= 3 ? "unlocked" : ""}">
+              <i>🔥</i>
+              <strong>Ritmo forte</strong>
+              <small>3 dias de sequência</small>
+            </article>
+
+            <article class="${perfectDays >= 5 ? "unlocked" : ""}">
+              <i>💎</i>
+              <strong>5 treinos perfeitos</strong>
+              <small>Finalize 5 treinos 100%</small>
+            </article>
+          </div>
+        </div>
+      </section>
+    `;
+  }
+
+  function injectGymProStyles() {
+    if (document.getElementById("lifeflowGymProStyles")) return;
+
+    ensureGymProModal();
+
+    const style = document.createElement("style");
+    style.id = "lifeflowGymProStyles";
+
+    style.textContent = `
+      .lf-gym-pro-dashboard {
+        display: grid;
+        gap: 11px;
+        margin: 12px 0 18px;
+      }
+
+      .lf-pro-dashboard-head,
+      .lf-pro-goal-top,
+      .lf-weight-head {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 10px;
+      }
+
+      .lf-pro-dashboard-head > div > span,
+      .lf-pro-goal-card span,
+      .lf-pro-mini-card span,
+      .lf-weight-head span {
+        display: block;
+        color: #6f7478;
+        font-size: 7px;
+        font-weight: 950;
+        letter-spacing: .8px;
+      }
+
+      .lf-pro-dashboard-head h3 {
+        margin: 4px 0 0;
+        color: #f0f1f1;
+        font-size: 17px;
+      }
+
+      .lf-pro-dashboard-head button {
+        min-height: 38px;
+        border: 1px solid rgba(100,231,155,.16);
+        border-radius: 11px;
+        background: rgba(100,231,155,.06);
+        color: #74eaaa;
+        padding: 0 11px;
+        font-size: 8px;
+        font-weight: 900;
+      }
+
+      .lf-pro-hero-grid {
+        display: grid;
+        grid-template-columns: 1.6fr .7fr;
+        gap: 9px;
+      }
+
+      .lf-pro-goal-card,
+      .lf-pro-mini-card,
+      .lf-weight-progress-card,
+      .lf-pro-achievements {
+        border: 1px solid rgba(255,255,255,.07);
+        border-radius: 17px;
+        background:
+          radial-gradient(circle at 90% 0%, rgba(100,231,155,.06), transparent 34%),
+          #0e0f11;
+      }
+
+      .lf-pro-goal-card {
+        padding: 13px;
+      }
+
+      .lf-pro-goal-card strong {
+        display: block;
+        margin-top: 4px;
+        color: #f2f2f3;
+        font-size: 24px;
+      }
+
+      .lf-pro-goal-card small,
+      .lf-pro-mini-card small,
+      .lf-weight-head small {
+        display: block;
+        margin-top: 2px;
+        color: #707479;
+        font-size: 8px;
+      }
+
+      .lf-pro-goal-top > b {
+        color: #72e8a8;
+        font-size: 15px;
+      }
+
+      .lf-pro-track {
+        height: 6px;
+        overflow: hidden;
+        margin-top: 10px;
+        border-radius: 999px;
+        background: rgba(255,255,255,.05);
+      }
+
+      .lf-pro-track i {
+        display: block;
+        height: 100%;
+        border-radius: inherit;
+        background: linear-gradient(90deg, #3fa976, #72e8a8);
+      }
+
+      .lf-pro-goal-card p {
+        margin: 8px 0 0;
+        color: #777b80;
+        font-size: 8px;
+      }
+
+      .lf-pro-mini-card {
+        display: grid;
+        align-content: center;
+        padding: 13px;
+        text-align: center;
+      }
+
+      .lf-pro-mini-card strong {
+        margin-top: 4px;
+        color: #f2f2f3;
+        font-size: 31px;
+      }
+
+      .lf-pro-week-chart {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 5px;
+        height: 150px;
+        padding: 12px 10px 8px;
+        border: 1px solid rgba(255,255,255,.07);
+        border-radius: 17px;
+        background: #0e0f11;
+      }
+
+      .lf-pro-week-chart > div {
+        min-width: 0;
+        display: grid;
+        grid-template-rows: 1fr auto auto;
+        gap: 4px;
+        text-align: center;
+      }
+
+      .lf-pro-day-track {
+        position: relative;
+        overflow: hidden;
+        min-height: 90px;
+        border-radius: 9px;
+        background: rgba(255,255,255,.035);
+      }
+
+      .lf-pro-day-track i {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        border-radius: 9px;
+        background: rgba(255,255,255,.07);
+      }
+
+      .lf-pro-day-track i.trained {
+        background: linear-gradient(180deg, #65dfa0, #2d8d61);
+      }
+
+      .lf-pro-day-track i.perfect {
+        background: linear-gradient(180deg, #e4c778, #b48a36);
+      }
+
+      .lf-pro-week-chart strong {
+        color: #a8abad;
+        font-size: 7px;
+      }
+
+      .lf-pro-week-chart span {
+        color: #666a6f;
+        font-size: 7px;
+        text-transform: uppercase;
+      }
+
+      .lf-pro-stats-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 7px;
+      }
+
+      .lf-pro-stats-grid > div {
+        min-width: 0;
+        padding: 9px;
+        border: 1px solid rgba(255,255,255,.06);
+        border-radius: 13px;
+        background: rgba(255,255,255,.018);
+      }
+
+      .lf-pro-stats-grid span {
+        display: block;
+        color: #666a70;
+        font-size: 6px;
+        font-weight: 900;
+        text-transform: uppercase;
+      }
+
+      .lf-pro-stats-grid strong {
+        display: block;
+        margin-top: 3px;
+        color: #e4e5e6;
+        font-size: 13px;
+      }
+
+      .lf-weight-progress-card {
+        padding: 13px;
+      }
+
+      .lf-weight-head strong {
+        display: block;
+        margin-top: 4px;
+        color: #ededee;
+        font-size: 18px;
+      }
+
+      .lf-weight-head > b {
+        color: #72e8a8;
+        font-size: 15px;
+      }
+
+      .lf-weight-chart {
+        position: relative;
+        height: 105px;
+        margin-top: 10px;
+        overflow: hidden;
+        border-radius: 12px;
+        background:
+          linear-gradient(rgba(255,255,255,.025) 1px, transparent 1px);
+        background-size: 100% 25%;
+        color: #72e8a8;
+      }
+
+      .lf-weight-chart-svg {
+        width: 100%;
+        height: 100%;
+      }
+
+      .lf-gym-chart-empty {
+        height: 100%;
+        display: grid;
+        place-items: center;
+        padding: 12px;
+        color: #676b70;
+        font-size: 8px;
+        text-align: center;
+      }
+
+      .lf-pro-achievements {
+        padding: 13px;
+      }
+
+      .lf-pro-achievements > div {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 7px;
+        margin-top: 9px;
+      }
+
+      .lf-pro-achievements article {
+        padding: 10px;
+        border: 1px solid rgba(255,255,255,.05);
+        border-radius: 12px;
+        opacity: .42;
+        background: rgba(255,255,255,.015);
+      }
+
+      .lf-pro-achievements article.unlocked {
+        opacity: 1;
+        border-color: rgba(100,231,155,.13);
+        background: rgba(100,231,155,.035);
+      }
+
+      .lf-pro-achievements i {
+        font-style: normal;
+        font-size: 18px;
+      }
+
+      .lf-pro-achievements strong,
+      .lf-pro-achievements small {
+        display: block;
+      }
+
+      .lf-pro-achievements strong {
+        margin-top: 5px;
+        color: #dcddde;
+        font-size: 9px;
+      }
+
+      .lf-pro-achievements small {
+        margin-top: 2px;
+        color: #676b70;
+        font-size: 7px;
+      }
+
+      .lf-gym-pro-modal {
+        position: fixed;
+        inset: 0;
+        z-index: 12000;
+        display: grid;
+        place-items: end center;
+        padding: 16px;
+        box-sizing: border-box;
+        background: rgba(0,0,0,.72);
+        backdrop-filter: blur(8px);
+        opacity: 0;
+        visibility: hidden;
+        transition: .22s ease;
+      }
+
+      .lf-gym-pro-modal.open {
+        opacity: 1;
+        visibility: visible;
+      }
+
+      .lf-gym-pro-modal-card {
+        width: min(100%, 520px);
+        max-height: 88dvh;
+        overflow-y: auto;
+        border: 1px solid rgba(255,255,255,.09);
+        border-radius: 23px;
+        background: #0d0f10;
+        box-shadow: 0 28px 90px rgba(0,0,0,.65);
+        padding: 16px;
+      }
+
+      .lf-gym-pro-modal-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        margin-bottom: 13px;
+      }
+
+      .lf-gym-pro-modal-head span {
+        color: #72e8a8;
+        font-size: 8px;
+        font-weight: 950;
+        letter-spacing: 1px;
+      }
+
+      .lf-gym-pro-modal-head h3 {
+        margin: 3px 0 0;
+        color: #f0f0f1;
+        font-size: 18px;
+      }
+
+      .lf-gym-pro-modal-head button {
+        width: 42px;
+        height: 42px;
+        border: 1px solid rgba(255,255,255,.07);
+        border-radius: 12px;
+        background: #141617;
+        color: #c6c8c9;
+        font-size: 22px;
+      }
+
+      .lf-pro-form-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 9px;
+      }
+
+      .lf-pro-form-grid label.wide {
+        grid-column: 1 / -1;
+      }
+
+      .lf-pro-form-grid span {
+        display: block;
+        color: #72767a;
+        font-size: 7px;
+        font-weight: 900;
+        text-transform: uppercase;
+      }
+
+      .lf-pro-form-grid input,
+      .lf-pro-form-grid textarea {
+        box-sizing: border-box;
+        width: 100%;
+        margin-top: 5px;
+        border: 1px solid rgba(255,255,255,.08);
+        border-radius: 12px;
+        outline: none;
+        background: #121415;
+        color: #ededee;
+        padding: 11px;
+        font: inherit;
+        font-size: 12px;
+      }
+
+      .lf-pro-form-grid textarea {
+        resize: vertical;
+      }
+
+      .lf-pro-primary {
+        width: 100%;
+        min-height: 49px;
+        margin-top: 12px;
+        border: 1px solid rgba(100,231,155,.2);
+        border-radius: 13px;
+        background: rgba(100,231,155,.09);
+        color: #72e8a8;
+        font-size: 10px;
+        font-weight: 950;
+      }
+
+      .lf-pro-helper {
+        margin: 8px 2px 0;
+        color: #62666b;
+        font-size: 8px;
+        line-height: 1.5;
+      }
+
+      .lf-edit-exercise-button {
+        width: 100%;
+        min-height: 46px;
+        margin-top: 9px;
+        border: 1px solid rgba(106,167,255,.16);
+        border-radius: 12px;
+        background: rgba(106,167,255,.055);
+        color: #9ebfff;
+        font-size: 9px;
+        font-weight: 900;
+      }
+
+      @media (max-width: 520px) {
+        .lf-pro-hero-grid {
+          grid-template-columns: 1fr .65fr;
+        }
+
+        .lf-pro-stats-grid {
+          grid-template-columns: repeat(2, 1fr);
+        }
+
+        .lf-pro-week-chart {
+          gap: 4px;
+          height: 145px;
+        }
+
+        .lf-gym-pro-modal {
+          padding: 8px;
+        }
+
+        .lf-gym-pro-modal-card {
+          width: 100%;
+          max-height: 92dvh;
+          border-radius: 22px 22px 14px 14px;
+        }
+
+        .lf-pro-form-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .lf-pro-form-grid label.wide {
+          grid-column: auto;
+        }
+
+        .lf-pro-form-grid input,
+        .lf-pro-form-grid textarea {
+          font-size: 16px;
+        }
+      }
+    `;
+
+    document.head.appendChild(style);
+  }
+
   // =====================================================
   // LIFEFLOW 2.9 — SMART DRAWER + ACADEMIA EM PASTAS
   // Layout inspirado no mockup aprovado pelo usuário
@@ -7839,6 +9055,8 @@ document.addEventListener("DOMContentLoaded", () => {
         <button type="button" id="lfGymStatsTab">ESTATÍSTICAS</button>
       </div>
 
+      ${renderGymProDashboardHtml()}
+
       <section class="lf-folder-section">
         <span class="lf-kicker">PASTAS DE TREINOS</span>
 
@@ -7899,6 +9117,10 @@ document.addEventListener("DOMContentLoaded", () => {
     document
       .getElementById("lfGymCreatePlan")
       ?.addEventListener("click", createGymPlan);
+
+    document
+      .getElementById("lfGymGoalsButton")
+      ?.addEventListener("click", openGymGoalsModal);
 
     document
       .getElementById("gymStartWorkout")
@@ -8158,6 +9380,14 @@ document.addEventListener("DOMContentLoaded", () => {
         <div><span>DESCANSO</span><strong>${exercise.rest}s</strong></div>
       </section>
 
+      <button
+        id="lfEditExerciseButton"
+        class="lf-edit-exercise-button"
+        type="button"
+      >
+        ✎ Editar exercício
+      </button>
+
       <section class="lf-exercise-action">
         <button
           type="button"
@@ -8178,6 +9408,12 @@ document.addEventListener("DOMContentLoaded", () => {
       .getElementById("lfBackGymPlan")
       ?.addEventListener("click", () => {
         showGymPlan(plan.id);
+      });
+
+    document
+      .getElementById("lfEditExerciseButton")
+      ?.addEventListener("click", () => {
+        openExerciseEditor(exercise.id);
       });
 
     document
@@ -9090,6 +10326,7 @@ document.addEventListener("DOMContentLoaded", () => {
   setupGymHub();
   setupSmartDrawer();
   injectOrganizedLayoutStyles();
+  injectGymProStyles();
 
   // =====================================================
   // NAVEGAÇÃO
