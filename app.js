@@ -461,7 +461,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
   // =====================================================
-  // LIFEFLOW 3.4 — CENTRAL LATERAL + EVOLUÇÃO DE TREINO
+  // LIFEFLOW 3.5 — HUB COMPLETO DE EVOLUÇÃO
   // =====================================================
 
   let gymStatsStandalone = false;
@@ -749,6 +749,59 @@ document.addEventListener("DOMContentLoaded", () => {
     );
   }
 
+
+  function getGymExerciseRecords() {
+    const records = [];
+
+    gymPrograms.plans.forEach(plan => {
+      plan.exercises.forEach(exercise => {
+        records.push({
+          plan: plan.name,
+          name: exercise.name,
+          load: Number(exercise.load || 0),
+          sets: Number(exercise.sets || 0),
+          reps: exercise.reps || "—",
+          rest: Number(exercise.rest || 0)
+        });
+      });
+    });
+
+    return records
+      .sort((a, b) => b.load - a.load);
+  }
+
+  function getGymMonthlyTrainingDays() {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = now.getMonth();
+
+    return gymAnalytics.trainingDays.filter(key => {
+      const date = dateKeyToDate(key);
+
+      return (
+        date.getFullYear() === year &&
+        date.getMonth() === month
+      );
+    }).length;
+  }
+
+  function getGymRecentTrainingHistory(limit = 12) {
+    return [...gymAnalytics.trainingDays]
+      .sort()
+      .reverse()
+      .slice(0, limit)
+      .map(key => {
+        const date = dateKeyToDate(key);
+
+        return {
+          key,
+          date,
+          sets: Number(gymAnalytics.setsByDay[key] || 0),
+          perfect: gymAnalytics.perfectDays.includes(key)
+        };
+      });
+  }
+
   function renderGymEvolutionScreen() {
     const screen =
       document.getElementById(
@@ -792,20 +845,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const weight =
       getWeightGoalData();
 
-    const days =
-      week.map(item =>
-        item.date
-          .toLocaleDateString(
-            "pt-BR",
-            {
-              weekday:
-                "short"
-            }
-          )
-          .replace(".", "")
-          .slice(0, 3)
-      );
-
     const setValues =
       week.map(item =>
         item.sets || 0
@@ -816,6 +855,18 @@ document.addEventListener("DOMContentLoaded", () => {
         1,
         ...setValues
       );
+
+    const records =
+      getGymExerciseRecords();
+
+    const history =
+      getGymRecentTrainingHistory();
+
+    const monthlyDays =
+      getGymMonthlyTrainingDays();
+
+    const perfectDays =
+      gymAnalytics.perfectDays.length;
 
     screen.innerHTML = `
       <div class="lf-detail-header">
@@ -828,254 +879,422 @@ document.addEventListener("DOMContentLoaded", () => {
         <div>
           <h2>Evolução de treino</h2>
           <span>
-            Desempenho e metas
+            Metas, peso, histórico e recordes
           </span>
         </div>
 
         <button
-          id="lfEvolutionGoalsButton"
+          id="lfEvolutionMenuButton"
           type="button"
           class="lf-more-btn"
-        >⚙</button>
+        >☰</button>
       </div>
 
-      <section class="lf-evolution-hero-pro">
-        <div>
-          <span>META SEMANAL</span>
-          <strong>
-            ${weekCount}/${weeklyGoal}
-          </strong>
-          <small>
-            treinos realizados
-          </small>
-        </div>
-
-        <div class="lf-evolution-ring">
-          <strong>
-            ${goalPct}%
-          </strong>
-        </div>
-      </section>
-
-      <div class="lf-evolution-track">
-        <i
-          style="width:${goalPct}%"
-        ></i>
+      <div class="lf-evolution-section-tabs">
+        <button class="active" data-evolution-section="overview" type="button">Visão geral</button>
+        <button data-evolution-section="goals" type="button">Metas</button>
+        <button data-evolution-section="weight" type="button">Peso</button>
+        <button data-evolution-section="records" type="button">Recordes</button>
+        <button data-evolution-section="history" type="button">Histórico</button>
+        <button data-evolution-section="charts" type="button">Gráficos</button>
+        <button data-evolution-section="achievements" type="button">Conquistas</button>
       </div>
 
-      <section class="lf-evolution-top-stats">
-        <article>
-          <span>🔥 SEQUÊNCIA</span>
-          <strong>${streak}</strong>
-          <small>dias</small>
-        </article>
+      <div id="lfEvolutionSections">
 
-        <article>
-          <span>🏋️ TREINOS</span>
-          <strong>
-            ${gymAnalytics.trainingDays.length}
-          </strong>
-          <small>total</small>
-        </article>
+        <section class="lf-evolution-section active" data-evolution-panel="overview">
+          <section class="lf-evolution-hero-pro">
+            <div>
+              <span>META SEMANAL</span>
+              <strong>
+                ${weekCount}/${weeklyGoal}
+              </strong>
+              <small>
+                treinos realizados
+              </small>
+            </div>
 
-        <article>
-          <span>✓ SÉRIES</span>
-          <strong>${totalSets}</strong>
-          <small>feitas</small>
-        </article>
-      </section>
+            <div class="lf-evolution-ring">
+              <strong>
+                ${goalPct}%
+              </strong>
+            </div>
+          </section>
 
-      <section class="lf-evolution-chart-pro">
-        <div class="lf-evolution-chart-head">
-          <div>
-            <span>ÚLTIMOS 7 DIAS</span>
-            <strong>
-              Volume de treino
-            </strong>
+          <div class="lf-evolution-track">
+            <i
+              style="width:${goalPct}%"
+            ></i>
           </div>
 
-          <b>
-            ${
-              weekCount - previous > 0
-                ? "+"
-                : ""
-            }${weekCount - previous}
-          </b>
-        </div>
+          <section class="lf-evolution-top-stats">
+            <article>
+              <span>🔥 SEQUÊNCIA</span>
+              <strong>${streak}</strong>
+              <small>dias</small>
+            </article>
 
-        <div class="lf-evolution-bars">
-          ${week.map(
-            item => `
+            <article>
+              <span>🏋️ TREINOS</span>
+              <strong>
+                ${gymAnalytics.trainingDays.length}
+              </strong>
+              <small>total</small>
+            </article>
+
+            <article>
+              <span>✓ SÉRIES</span>
+              <strong>${totalSets}</strong>
+              <small>feitas</small>
+            </article>
+          </section>
+
+          <section class="lf-evolution-quick-grid">
+            <button data-jump-evolution="goals" type="button">
+              <span>🎯</span>
+              <strong>Metas</strong>
+              <small>${weeklyGoal} treinos/semana</small>
+            </button>
+
+            <button data-jump-evolution="weight" type="button">
+              <span>⚖️</span>
+              <strong>Peso</strong>
+              <small>${weight.latest ? `${Number(weight.latest.weight).toLocaleString("pt-BR")} kg` : "Sem registro"}</small>
+            </button>
+
+            <button data-jump-evolution="records" type="button">
+              <span>🏆</span>
+              <strong>Recordes</strong>
+              <small>${records.filter(item => item.load > 0).length} com carga</small>
+            </button>
+
+            <button data-jump-evolution="history" type="button">
+              <span>📅</span>
+              <strong>Histórico</strong>
+              <small>${monthlyDays} treinos no mês</small>
+            </button>
+
+            <button data-jump-evolution="charts" type="button">
+              <span>📈</span>
+              <strong>Gráficos</strong>
+              <small>Últimos 7 dias</small>
+            </button>
+
+            <button data-jump-evolution="achievements" type="button">
+              <span>💎</span>
+              <strong>Conquistas</strong>
+              <small>${perfectDays} treinos 100%</small>
+            </button>
+          </section>
+        </section>
+
+        <section class="lf-evolution-section" data-evolution-panel="goals">
+          <div class="lf-evolution-panel-head">
+            <div>
+              <span>🎯 METAS</span>
+              <h3>Objetivos de treino</h3>
+            </div>
+            <button id="lfEvolutionGoalsButton" type="button">Editar</button>
+          </div>
+
+          <div class="lf-evolution-goal-cards">
+            <article>
+              <span>Meta semanal</span>
+              <strong>${weekCount}/${weeklyGoal}</strong>
+              <small>${Math.max(0, weeklyGoal - weekCount)} treino(s) restantes</small>
+              <div><i style="width:${goalPct}%"></i></div>
+            </article>
+
+            <article>
+              <span>Treinos no mês</span>
+              <strong>${monthlyDays}</strong>
+              <small>dias registrados</small>
+            </article>
+
+            <article>
+              <span>Treinos 100%</span>
+              <strong>${perfectDays}</strong>
+              <small>planos concluídos por completo</small>
+            </article>
+
+            <article>
+              <span>Sequência atual</span>
+              <strong>${streak}</strong>
+              <small>dias seguidos treinando</small>
+            </article>
+          </div>
+        </section>
+
+        <section class="lf-evolution-section" data-evolution-panel="weight">
+          <div class="lf-evolution-panel-head">
+            <div>
+              <span>⚖️ PESO</span>
+              <h3>Evolução corporal</h3>
+            </div>
+            <button id="lfWeightEditButton" type="button">Registrar</button>
+          </div>
+
+          <div class="lf-evolution-weight-main">
+            <article>
+              <span>Atual</span>
+              <strong>${weight.latest ? `${Number(weight.latest.weight).toLocaleString("pt-BR")} kg` : "—"}</strong>
+            </article>
+
+            <article>
+              <span>Meta</span>
+              <strong>${weight.target ? `${Number(weight.target).toLocaleString("pt-BR")} kg` : "—"}</strong>
+            </article>
+
+            <article>
+              <span>Progresso</span>
+              <strong>${weight.target ? `${weight.progress}%` : "—"}</strong>
+            </article>
+          </div>
+
+          <div class="lf-weight-chart lf-evolution-weight-chart">
+            ${weightChartSvg(weight.entries)}
+          </div>
+        </section>
+
+        <section class="lf-evolution-section" data-evolution-panel="records">
+          <div class="lf-evolution-panel-head">
+            <div>
+              <span>🏆 RECORDES</span>
+              <h3>Maiores cargas</h3>
+            </div>
+          </div>
+
+          <div class="lf-records-list">
+            ${
+              records.length
+                ? records.slice(0, 20).map((item, index) => `
+                    <article>
+                      <b>${index + 1}</b>
+                      <div>
+                        <strong>${escapeGymHtml(item.name)}</strong>
+                        <span>${escapeGymHtml(item.plan)} • ${item.sets} séries • ${escapeGymHtml(item.reps)} reps</span>
+                      </div>
+                      <em>${Number(item.load).toLocaleString("pt-BR")} kg</em>
+                    </article>
+                  `).join("")
+                : `<div class="lf-evolution-empty">Adicione cargas aos exercícios para começar seus recordes.</div>`
+            }
+          </div>
+        </section>
+
+        <section class="lf-evolution-section" data-evolution-panel="history">
+          <div class="lf-evolution-panel-head">
+            <div>
+              <span>📅 HISTÓRICO</span>
+              <h3>Treinos recentes</h3>
+            </div>
+          </div>
+
+          <div class="lf-training-history-list">
+            ${
+              history.length
+                ? history.map(item => `
+                    <article>
+                      <div>
+                        <strong>
+                          ${item.date.toLocaleDateString("pt-BR", {
+                            day: "2-digit",
+                            month: "short",
+                            year: "numeric"
+                          })}
+                        </strong>
+                        <span>${item.perfect ? "🏆 Treino 100%" : "Treino registrado"}</span>
+                      </div>
+                      <b>${item.sets} séries</b>
+                    </article>
+                  `).join("")
+                : `<div class="lf-evolution-empty">Seu histórico aparecerá aqui conforme você treinar.</div>`
+            }
+          </div>
+        </section>
+
+        <section class="lf-evolution-section" data-evolution-panel="charts">
+          <div class="lf-evolution-panel-head">
+            <div>
+              <span>📈 GRÁFICOS</span>
+              <h3>Últimos 7 dias</h3>
+            </div>
+          </div>
+
+          <section class="lf-evolution-chart-pro standalone">
+            <div class="lf-evolution-chart-head">
               <div>
-                <div class="lf-evolution-bar-track">
-                  <i
-                    class="${
-                      item.perfect
-                        ? "perfect"
-                        : item.trained
-                          ? "trained"
-                          : ""
-                    }"
-                    style="
-                      height:${
-                        item.trained
-                          ? Math.max(
-                              14,
-                              Math.round(
-                                (
-                                  item.sets /
-                                  maxSets
-                                ) * 100
-                              )
-                            )
-                          : 5
-                      }%
-                    "
-                  ></i>
-                </div>
-
-                <strong>
-                  ${item.sets || "—"}
-                </strong>
-
-                <span>
-                  ${
-                    item.date
-                      .toLocaleDateString(
-                        "pt-BR",
-                        {
-                          weekday:
-                            "short"
-                        }
-                      )
-                      .replace(
-                        ".",
-                        ""
-                      )
-                      .slice(
-                        0,
-                        3
-                      )
-                  }
-                </span>
+                <span>VOLUME</span>
+                <strong>Séries por dia</strong>
               </div>
-            `
-          ).join("")}
-        </div>
-      </section>
 
-      <section class="lf-evolution-chart-pro">
-        <div class="lf-evolution-chart-head">
-          <div>
-            <span>PESO</span>
-            <strong>
-              Evolução corporal
-            </strong>
+              <b>
+                ${
+                  weekCount - previous > 0
+                    ? "+"
+                    : ""
+                }${weekCount - previous}
+              </b>
+            </div>
+
+            <div class="lf-evolution-bars">
+              ${week.map(
+                item => `
+                  <div>
+                    <div class="lf-evolution-bar-track">
+                      <i
+                        class="${
+                          item.perfect
+                            ? "perfect"
+                            : item.trained
+                              ? "trained"
+                              : ""
+                        }"
+                        style="
+                          height:${
+                            item.trained
+                              ? Math.max(
+                                  14,
+                                  Math.round(
+                                    (
+                                      item.sets /
+                                      maxSets
+                                    ) * 100
+                                  )
+                                )
+                              : 5
+                          }%
+                        "
+                      ></i>
+                    </div>
+
+                    <strong>${item.sets || "—"}</strong>
+                    <span>
+                      ${
+                        item.date
+                          .toLocaleDateString(
+                            "pt-BR",
+                            { weekday: "short" }
+                          )
+                          .replace(".", "")
+                          .slice(0, 3)
+                      }
+                    </span>
+                  </div>
+                `
+              ).join("")}
+            </div>
+          </section>
+
+          <section class="lf-evolution-chart-pro standalone">
+            <div class="lf-evolution-chart-head">
+              <div>
+                <span>PESO</span>
+                <strong>Linha de evolução</strong>
+              </div>
+            </div>
+
+            <div class="lf-weight-chart lf-evolution-weight-chart">
+              ${weightChartSvg(weight.entries)}
+            </div>
+          </section>
+        </section>
+
+        <section class="lf-evolution-section" data-evolution-panel="achievements">
+          <div class="lf-evolution-panel-head">
+            <div>
+              <span>💎 CONQUISTAS</span>
+              <h3>Metas batidas</h3>
+            </div>
           </div>
 
-          <b>
-            ${
-              weight.latest
-                ? `${Number(
-                    weight.latest
-                      .weight
-                  ).toLocaleString(
-                    "pt-BR"
-                  )} kg`
-                : "—"
-            }
-          </b>
-        </div>
+          <section class="lf-evolution-achievements-pro standalone">
+            <div>
+              <article class="${gymAnalytics.trainingDays.length >= 1 ? "unlocked" : ""}">
+                <i>🏋️</i>
+                <strong>Primeiro treino</strong>
+                <small>Complete 1 treino</small>
+              </article>
 
-        <div class="lf-weight-chart lf-evolution-weight-chart">
-          ${
-            weightChartSvg(
-              weight.entries
-            )
-          }
-        </div>
+              <article class="${weekCount >= weeklyGoal ? "unlocked" : ""}">
+                <i>🏆</i>
+                <strong>Meta semanal</strong>
+                <small>Bata sua meta de treinos</small>
+              </article>
 
-        <div class="lf-evolution-weight-meta">
-          <span>
-            Meta
-          </span>
+              <article class="${streak >= 3 ? "unlocked" : ""}">
+                <i>🔥</i>
+                <strong>Ritmo forte</strong>
+                <small>3 dias de sequência</small>
+              </article>
 
-          <strong>
-            ${
-              weight.target
-                ? `${Number(
-                    weight.target
-                  ).toLocaleString(
-                    "pt-BR"
-                  )} kg`
-                : "Não definida"
-            }
-          </strong>
+              <article class="${perfectDays >= 5 ? "unlocked" : ""}">
+                <i>💎</i>
+                <strong>5 treinos 100%</strong>
+                <small>Finalize 5 treinos por completo</small>
+              </article>
 
-          <b>
-            ${
-              weight.target
-                ? `${weight.progress}%`
-                : "—"
-            }
-          </b>
-        </div>
-      </section>
+              <article class="${gymAnalytics.trainingDays.length >= 10 ? "unlocked" : ""}">
+                <i>⚡</i>
+                <strong>10 treinos</strong>
+                <small>Registre 10 dias de treino</small>
+              </article>
 
-      <section class="lf-evolution-achievements-pro">
-        <span>METAS BATIDAS</span>
-
-        <div>
-          <article class="${
-            gymAnalytics.trainingDays
-              .length >= 1
-              ? "unlocked"
-              : ""
-          }">
-            <i>🏋️</i>
-            <strong>
-              Primeiro treino
-            </strong>
-          </article>
-
-          <article class="${
-            weekCount >=
-            weeklyGoal
-              ? "unlocked"
-              : ""
-          }">
-            <i>🏆</i>
-            <strong>
-              Meta semanal
-            </strong>
-          </article>
-
-          <article class="${
-            streak >= 3
-              ? "unlocked"
-              : ""
-          }">
-            <i>🔥</i>
-            <strong>
-              Ritmo forte
-            </strong>
-          </article>
-
-          <article class="${
-            gymAnalytics
-              .perfectDays
-              .length >= 5
-              ? "unlocked"
-              : ""
-          }">
-            <i>💎</i>
-            <strong>
-              5 treinos 100%
-            </strong>
-          </article>
-        </div>
-      </section>
+              <article class="${totalSets >= 100 ? "unlocked" : ""}">
+                <i>💪</i>
+                <strong>100 séries</strong>
+                <small>Complete 100 séries</small>
+              </article>
+            </div>
+          </section>
+        </section>
+      </div>
     `;
+
+    function activateEvolutionSection(section) {
+      document
+        .querySelectorAll("[data-evolution-section]")
+        .forEach(button => {
+          button.classList.toggle(
+            "active",
+            button.dataset.evolutionSection === section
+          );
+        });
+
+      document
+        .querySelectorAll("[data-evolution-panel]")
+        .forEach(panel => {
+          panel.classList.toggle(
+            "active",
+            panel.dataset.evolutionPanel === section
+          );
+        });
+    }
+
+    document
+      .querySelectorAll("[data-evolution-section]")
+      .forEach(button => {
+        button.addEventListener("click", () => {
+          activateEvolutionSection(
+            button.dataset.evolutionSection
+          );
+        });
+      });
+
+    document
+      .querySelectorAll("[data-jump-evolution]")
+      .forEach(button => {
+        button.addEventListener("click", () => {
+          activateEvolutionSection(
+            button.dataset.jumpEvolution
+          );
+
+          window.scrollTo({
+            top: 0,
+            behavior: "smooth"
+          });
+        });
+      });
 
     document
       .getElementById(
@@ -1098,7 +1317,30 @@ document.addEventListener("DOMContentLoaded", () => {
         "click",
         openGymGoalsModal
       );
+
+    document
+      .getElementById(
+        "lfWeightEditButton"
+      )
+      ?.addEventListener(
+        "click",
+        openGymGoalsModal
+      );
+
+    document
+      .getElementById(
+        "lfEvolutionMenuButton"
+      )
+      ?.addEventListener(
+        "click",
+        () => {
+          window
+            .openLifeFlowDrawer
+            ?.();
+        }
+      );
   }
+
 
   function injectLifeFlow34Styles() {
     if (
@@ -1420,6 +1662,247 @@ document.addEventListener("DOMContentLoaded", () => {
         font-size: 9px;
       }
 
+
+      .lf-evolution-section-tabs {
+        display: flex;
+        gap: 7px;
+        overflow-x: auto;
+        margin: 4px 0 12px;
+        padding-bottom: 4px;
+        scrollbar-width: none;
+      }
+
+      .lf-evolution-section-tabs::-webkit-scrollbar {
+        display: none;
+      }
+
+      .lf-evolution-section-tabs button {
+        flex: 0 0 auto;
+        min-height: 40px;
+        border: 1px solid rgba(255,255,255,.06);
+        border-radius: 12px;
+        background: #0e0f11;
+        color: #767a7f;
+        padding: 0 12px;
+        font-size: 8px;
+        font-weight: 900;
+      }
+
+      .lf-evolution-section-tabs button.active {
+        border-color: rgba(100,231,155,.18);
+        background: rgba(100,231,155,.07);
+        color: #75eaaa;
+      }
+
+      .lf-evolution-section {
+        display: none;
+      }
+
+      .lf-evolution-section.active {
+        display: block;
+      }
+
+      .lf-evolution-quick-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+        margin-top: 11px;
+      }
+
+      .lf-evolution-quick-grid button {
+        min-height: 84px;
+        display: grid;
+        align-content: center;
+        gap: 3px;
+        border: 1px solid rgba(255,255,255,.06);
+        border-radius: 15px;
+        background: #0e0f11;
+        color: inherit;
+        text-align: left;
+        padding: 12px;
+      }
+
+      .lf-evolution-quick-grid button > span {
+        font-size: 20px;
+      }
+
+      .lf-evolution-quick-grid button > strong {
+        color: #e3e4e5;
+        font-size: 11px;
+      }
+
+      .lf-evolution-quick-grid button > small {
+        color: #64686d;
+        font-size: 7px;
+      }
+
+      .lf-evolution-panel-head {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 10px;
+        margin-bottom: 10px;
+      }
+
+      .lf-evolution-panel-head span {
+        color: #75eaaa;
+        font-size: 8px;
+        font-weight: 950;
+        letter-spacing: .9px;
+      }
+
+      .lf-evolution-panel-head h3 {
+        margin: 4px 0 0;
+        color: #eceeef;
+        font-size: 17px;
+      }
+
+      .lf-evolution-panel-head button {
+        min-height: 38px;
+        border: 1px solid rgba(100,231,155,.15);
+        border-radius: 11px;
+        background: rgba(100,231,155,.055);
+        color: #75eaaa;
+        padding: 0 11px;
+        font-size: 8px;
+        font-weight: 900;
+      }
+
+      .lf-evolution-goal-cards,
+      .lf-evolution-weight-main {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+      }
+
+      .lf-evolution-goal-cards article,
+      .lf-evolution-weight-main article {
+        padding: 12px;
+        border: 1px solid rgba(255,255,255,.06);
+        border-radius: 14px;
+        background: #0e0f11;
+      }
+
+      .lf-evolution-goal-cards span,
+      .lf-evolution-weight-main span {
+        display: block;
+        color: #686c71;
+        font-size: 7px;
+        font-weight: 900;
+        text-transform: uppercase;
+      }
+
+      .lf-evolution-goal-cards strong,
+      .lf-evolution-weight-main strong {
+        display: block;
+        margin-top: 5px;
+        color: #eceeef;
+        font-size: 20px;
+      }
+
+      .lf-evolution-goal-cards small {
+        display: block;
+        margin-top: 3px;
+        color: #62666b;
+        font-size: 7px;
+      }
+
+      .lf-evolution-goal-cards article > div {
+        height: 5px;
+        overflow: hidden;
+        margin-top: 8px;
+        border-radius: 999px;
+        background: rgba(255,255,255,.04);
+      }
+
+      .lf-evolution-goal-cards article > div i {
+        display: block;
+        height: 100%;
+        border-radius: inherit;
+        background: linear-gradient(90deg, #319967, #75eaaa);
+      }
+
+      .lf-records-list,
+      .lf-training-history-list {
+        display: grid;
+        gap: 8px;
+      }
+
+      .lf-records-list article,
+      .lf-training-history-list article {
+        display: grid;
+        align-items: center;
+        gap: 10px;
+        min-height: 64px;
+        padding: 10px;
+        border: 1px solid rgba(255,255,255,.055);
+        border-radius: 13px;
+        background: #0e0f11;
+      }
+
+      .lf-records-list article {
+        grid-template-columns: 28px 1fr auto;
+      }
+
+      .lf-records-list article > b {
+        display: grid;
+        place-items: center;
+        width: 28px;
+        height: 28px;
+        border-radius: 9px;
+        background: rgba(100,231,155,.06);
+        color: #75eaaa;
+        font-size: 9px;
+      }
+
+      .lf-records-list strong,
+      .lf-training-history-list strong {
+        display: block;
+        color: #e2e4e5;
+        font-size: 10px;
+      }
+
+      .lf-records-list span,
+      .lf-training-history-list span {
+        display: block;
+        margin-top: 3px;
+        color: #62666b;
+        font-size: 7px;
+      }
+
+      .lf-records-list em {
+        color: #75eaaa;
+        font-style: normal;
+        font-size: 10px;
+        font-weight: 900;
+      }
+
+      .lf-training-history-list article {
+        grid-template-columns: 1fr auto;
+      }
+
+      .lf-training-history-list article > b {
+        color: #9fbfff;
+        font-size: 9px;
+      }
+
+      .lf-evolution-empty {
+        min-height: 130px;
+        display: grid;
+        place-items: center;
+        padding: 15px;
+        border: 1px dashed rgba(255,255,255,.07);
+        border-radius: 14px;
+        color: #65696e;
+        font-size: 8px;
+        text-align: center;
+      }
+
+      .lf-evolution-chart-pro.standalone,
+      .lf-evolution-achievements-pro.standalone {
+        margin-top: 0;
+      }
+
       @media (max-width: 520px) {
         .lf-evolution-hero-pro {
           padding: 14px;
@@ -1441,6 +1924,20 @@ document.addEventListener("DOMContentLoaded", () => {
         .lf-evolution-bars {
           gap: 4px;
           height: 155px;
+        }
+
+        .lf-evolution-section-tabs button {
+          min-height: 42px;
+          padding: 0 11px;
+        }
+
+        .lf-evolution-quick-grid {
+          grid-template-columns: repeat(2, 1fr);
+        }
+
+        .lf-evolution-goal-cards,
+        .lf-evolution-weight-main {
+          grid-template-columns: repeat(2, 1fr);
         }
       }
     `;
