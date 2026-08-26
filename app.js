@@ -459,6 +459,997 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
 
+
+  // =====================================================
+  // LIFEFLOW 3.4 — CENTRAL LATERAL + EVOLUÇÃO DE TREINO
+  // =====================================================
+
+  let gymStatsStandalone = false;
+
+  function moveLifeAreasToDrawer() {
+    const lifeGrid =
+      document.querySelector(
+        "#homeScreen .life-grid"
+      );
+
+    if (!lifeGrid) return;
+
+    const section =
+      lifeGrid.closest(
+        ".content-section"
+      );
+
+    if (section) {
+      section.style.display =
+        "none";
+      section.setAttribute(
+        "data-lf-hidden-home",
+        "true"
+      );
+    }
+
+    const studySection =
+      document.getElementById(
+        "studySection"
+      );
+
+    if (studySection) {
+      studySection.style.display =
+        "none";
+      studySection.setAttribute(
+        "data-lf-hidden-home",
+        "true"
+      );
+    }
+  }
+
+  function addLifeAreasToDrawer() {
+    const drawerNav =
+      document.querySelector(
+        "#lifeflowDrawer .lf-drawer-nav"
+      );
+
+    if (
+      !drawerNav ||
+      document.getElementById(
+        "lfLifeAreasDrawerGroup"
+      )
+    ) return;
+
+    const wrapper =
+      document.createElement("div");
+
+    wrapper.id =
+      "lfLifeAreasDrawerGroup";
+
+    wrapper.className =
+      "lf-drawer-group lf-life-areas-group";
+
+    wrapper.innerHTML = `
+      <button
+        class="lf-drawer-item lf-drawer-parent"
+        id="lfLifeAreasButton"
+        type="button"
+      >
+        <span>▦</span>
+        <strong>Áreas da sua vida</strong>
+        <b>⌄</b>
+      </button>
+
+      <div
+        id="lfLifeAreasSubmenu"
+        class="lf-drawer-submenu collapsed"
+      >
+        <button
+          type="button"
+          data-life-area="gym"
+        >
+          🏋️ Academia
+        </button>
+
+        <button
+          type="button"
+          data-life-area="study"
+        >
+          📚 Estudos
+        </button>
+
+        <button
+          type="button"
+          data-life-area="food"
+        >
+          🥘 Alimentação
+        </button>
+
+        <button
+          type="button"
+          data-life-area="family"
+        >
+          👧 Família
+        </button>
+
+        <button
+          type="button"
+          data-life-area="motorcycle"
+        >
+          🏍️ Moto
+        </button>
+
+        <button
+          type="button"
+          data-life-area="care"
+        >
+          ✨ Cuidados
+        </button>
+      </div>
+    `;
+
+    const statsItem =
+      [...drawerNav.children]
+        .find(element =>
+          element
+            .textContent
+            .includes(
+              "Estatísticas"
+            )
+        );
+
+    if (
+      statsItem &&
+      statsItem.parentNode === drawerNav
+    ) {
+      drawerNav.insertBefore(
+        wrapper,
+        statsItem
+      );
+    } else {
+      drawerNav.appendChild(
+        wrapper
+      );
+    }
+
+    document
+      .getElementById(
+        "lfLifeAreasButton"
+      )
+      ?.addEventListener(
+        "click",
+        () => {
+          document
+            .getElementById(
+              "lfLifeAreasSubmenu"
+            )
+            ?.classList
+            .toggle(
+              "collapsed"
+            );
+        }
+      );
+
+    document
+      .querySelectorAll(
+        "[data-life-area]"
+      )
+      .forEach(button => {
+        button.addEventListener(
+          "click",
+          () => {
+            const area =
+              button.dataset
+                .lifeArea;
+
+            if (area === "gym") {
+              showGymRoot();
+            }
+
+            if (
+              area === "study"
+            ) {
+              showStudy();
+            }
+
+            if (
+              area === "food"
+            ) {
+              showSiteMessage(
+                "A área Alimentação será adicionada em breve.",
+                "info"
+              );
+            }
+
+            if (
+              area === "family"
+            ) {
+              showSiteMessage(
+                "A área Família será adicionada em breve.",
+                "info"
+              );
+            }
+
+            if (
+              area === "motorcycle"
+            ) {
+              showSiteMessage(
+                "A área Moto será adicionada em breve.",
+                "info"
+              );
+            }
+
+            if (
+              area === "care"
+            ) {
+              showSiteMessage(
+                "A área Cuidados será adicionada em breve.",
+                "info"
+              );
+            }
+
+            window
+              .closeLifeFlowDrawer
+              ?.();
+          }
+        );
+      });
+  }
+
+  function addGymEvolutionToDrawer() {
+    const gymSubmenu =
+      document.getElementById(
+        "lfGymSubmenu"
+      );
+
+    if (
+      !gymSubmenu ||
+      document.getElementById(
+        "lfGymEvolutionDrawerButton"
+      )
+    ) return;
+
+    const button =
+      document.createElement(
+        "button"
+      );
+
+    button.id =
+      "lfGymEvolutionDrawerButton";
+
+    button.type = "button";
+    button.textContent =
+      "📈 Evolução de treino";
+
+    gymSubmenu.appendChild(
+      button
+    );
+
+    button.addEventListener(
+      "click",
+      () => {
+        showGymEvolution();
+        window
+          .closeLifeFlowDrawer
+          ?.();
+      }
+    );
+  }
+
+  function showGymEvolution() {
+    gymStatsStandalone = true;
+
+    showScreen(
+      "gymScreen"
+    );
+
+    clearNav();
+
+    renderGymEvolutionScreen();
+
+    window.scrollTo(
+      0,
+      0
+    );
+  }
+
+  function renderGymEvolutionScreen() {
+    const screen =
+      document.getElementById(
+        "gymScreen"
+      );
+
+    if (!screen) return;
+
+    const week =
+      getGymDateRange(7);
+
+    const weekCount =
+      getGymWeekCount();
+
+    const previous =
+      getGymWeekCount(7);
+
+    const weeklyGoal =
+      Number(
+        gymAnalytics.weeklyGoal ||
+        4
+      );
+
+    const goalPct =
+      Math.min(
+        100,
+        Math.round(
+          (
+            weekCount /
+            weeklyGoal
+          ) * 100
+        )
+      );
+
+    const streak =
+      getGymTrainingStreak();
+
+    const totalSets =
+      getTotalGymSets();
+
+    const weight =
+      getWeightGoalData();
+
+    const days =
+      week.map(item =>
+        item.date
+          .toLocaleDateString(
+            "pt-BR",
+            {
+              weekday:
+                "short"
+            }
+          )
+          .replace(".", "")
+          .slice(0, 3)
+      );
+
+    const setValues =
+      week.map(item =>
+        item.sets || 0
+      );
+
+    const maxSets =
+      Math.max(
+        1,
+        ...setValues
+      );
+
+    screen.innerHTML = `
+      <div class="lf-detail-header">
+        <button
+          type="button"
+          class="lf-back-btn"
+          id="lfBackFromGymEvolution"
+        >‹</button>
+
+        <div>
+          <h2>Evolução de treino</h2>
+          <span>
+            Desempenho e metas
+          </span>
+        </div>
+
+        <button
+          id="lfEvolutionGoalsButton"
+          type="button"
+          class="lf-more-btn"
+        >⚙</button>
+      </div>
+
+      <section class="lf-evolution-hero-pro">
+        <div>
+          <span>META SEMANAL</span>
+          <strong>
+            ${weekCount}/${weeklyGoal}
+          </strong>
+          <small>
+            treinos realizados
+          </small>
+        </div>
+
+        <div class="lf-evolution-ring">
+          <strong>
+            ${goalPct}%
+          </strong>
+        </div>
+      </section>
+
+      <div class="lf-evolution-track">
+        <i
+          style="width:${goalPct}%"
+        ></i>
+      </div>
+
+      <section class="lf-evolution-top-stats">
+        <article>
+          <span>🔥 SEQUÊNCIA</span>
+          <strong>${streak}</strong>
+          <small>dias</small>
+        </article>
+
+        <article>
+          <span>🏋️ TREINOS</span>
+          <strong>
+            ${gymAnalytics.trainingDays.length}
+          </strong>
+          <small>total</small>
+        </article>
+
+        <article>
+          <span>✓ SÉRIES</span>
+          <strong>${totalSets}</strong>
+          <small>feitas</small>
+        </article>
+      </section>
+
+      <section class="lf-evolution-chart-pro">
+        <div class="lf-evolution-chart-head">
+          <div>
+            <span>ÚLTIMOS 7 DIAS</span>
+            <strong>
+              Volume de treino
+            </strong>
+          </div>
+
+          <b>
+            ${
+              weekCount - previous > 0
+                ? "+"
+                : ""
+            }${weekCount - previous}
+          </b>
+        </div>
+
+        <div class="lf-evolution-bars">
+          ${week.map(
+            item => `
+              <div>
+                <div class="lf-evolution-bar-track">
+                  <i
+                    class="${
+                      item.perfect
+                        ? "perfect"
+                        : item.trained
+                          ? "trained"
+                          : ""
+                    }"
+                    style="
+                      height:${
+                        item.trained
+                          ? Math.max(
+                              14,
+                              Math.round(
+                                (
+                                  item.sets /
+                                  maxSets
+                                ) * 100
+                              )
+                            )
+                          : 5
+                      }%
+                    "
+                  ></i>
+                </div>
+
+                <strong>
+                  ${item.sets || "—"}
+                </strong>
+
+                <span>
+                  ${
+                    item.date
+                      .toLocaleDateString(
+                        "pt-BR",
+                        {
+                          weekday:
+                            "short"
+                        }
+                      )
+                      .replace(
+                        ".",
+                        ""
+                      )
+                      .slice(
+                        0,
+                        3
+                      )
+                  }
+                </span>
+              </div>
+            `
+          ).join("")}
+        </div>
+      </section>
+
+      <section class="lf-evolution-chart-pro">
+        <div class="lf-evolution-chart-head">
+          <div>
+            <span>PESO</span>
+            <strong>
+              Evolução corporal
+            </strong>
+          </div>
+
+          <b>
+            ${
+              weight.latest
+                ? `${Number(
+                    weight.latest
+                      .weight
+                  ).toLocaleString(
+                    "pt-BR"
+                  )} kg`
+                : "—"
+            }
+          </b>
+        </div>
+
+        <div class="lf-weight-chart lf-evolution-weight-chart">
+          ${
+            weightChartSvg(
+              weight.entries
+            )
+          }
+        </div>
+
+        <div class="lf-evolution-weight-meta">
+          <span>
+            Meta
+          </span>
+
+          <strong>
+            ${
+              weight.target
+                ? `${Number(
+                    weight.target
+                  ).toLocaleString(
+                    "pt-BR"
+                  )} kg`
+                : "Não definida"
+            }
+          </strong>
+
+          <b>
+            ${
+              weight.target
+                ? `${weight.progress}%`
+                : "—"
+            }
+          </b>
+        </div>
+      </section>
+
+      <section class="lf-evolution-achievements-pro">
+        <span>METAS BATIDAS</span>
+
+        <div>
+          <article class="${
+            gymAnalytics.trainingDays
+              .length >= 1
+              ? "unlocked"
+              : ""
+          }">
+            <i>🏋️</i>
+            <strong>
+              Primeiro treino
+            </strong>
+          </article>
+
+          <article class="${
+            weekCount >=
+            weeklyGoal
+              ? "unlocked"
+              : ""
+          }">
+            <i>🏆</i>
+            <strong>
+              Meta semanal
+            </strong>
+          </article>
+
+          <article class="${
+            streak >= 3
+              ? "unlocked"
+              : ""
+          }">
+            <i>🔥</i>
+            <strong>
+              Ritmo forte
+            </strong>
+          </article>
+
+          <article class="${
+            gymAnalytics
+              .perfectDays
+              .length >= 5
+              ? "unlocked"
+              : ""
+          }">
+            <i>💎</i>
+            <strong>
+              5 treinos 100%
+            </strong>
+          </article>
+        </div>
+      </section>
+    `;
+
+    document
+      .getElementById(
+        "lfBackFromGymEvolution"
+      )
+      ?.addEventListener(
+        "click",
+        () => {
+          gymStatsStandalone =
+            false;
+          showGymRoot();
+        }
+      );
+
+    document
+      .getElementById(
+        "lfEvolutionGoalsButton"
+      )
+      ?.addEventListener(
+        "click",
+        openGymGoalsModal
+      );
+  }
+
+  function injectLifeFlow34Styles() {
+    if (
+      document.getElementById(
+        "lifeflow34Styles"
+      )
+    ) return;
+
+    const style =
+      document.createElement(
+        "style"
+      );
+
+    style.id =
+      "lifeflow34Styles";
+
+    style.textContent = `
+      #lfProfessionalStatsHandle {
+        display: none !important;
+      }
+
+      #homeScreen [data-lf-hidden-home="true"] {
+        display: none !important;
+      }
+
+      .lf-life-areas-group {
+        margin-top: 3px;
+        padding-top: 4px;
+        border-top:
+          1px solid rgba(255,255,255,.045);
+      }
+
+      #lfLifeAreasSubmenu button,
+      #lfGymEvolutionDrawerButton {
+        display: block;
+        width: 100%;
+      }
+
+      .lf-evolution-hero-pro {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 14px;
+        padding: 16px;
+        border:
+          1px solid rgba(100,231,155,.10);
+        border-radius: 19px;
+        background:
+          radial-gradient(
+            circle at 90% 0%,
+            rgba(100,231,155,.07),
+            transparent 35%
+          ),
+          #0e0f11;
+      }
+
+      .lf-evolution-hero-pro span,
+      .lf-evolution-top-stats span,
+      .lf-evolution-chart-head span,
+      .lf-evolution-achievements-pro > span {
+        display: block;
+        color: #6c7075;
+        font-size: 7px;
+        font-weight: 950;
+        letter-spacing: .9px;
+      }
+
+      .lf-evolution-hero-pro > div:first-child > strong {
+        display: block;
+        margin-top: 5px;
+        color: #f1f2f2;
+        font-size: 31px;
+      }
+
+      .lf-evolution-hero-pro small {
+        display: block;
+        margin-top: 2px;
+        color: #71757a;
+        font-size: 8px;
+      }
+
+      .lf-evolution-ring {
+        width: 74px;
+        height: 74px;
+        display: grid;
+        place-items: center;
+        border:
+          5px solid rgba(100,231,155,.18);
+        border-radius: 50%;
+        box-shadow:
+          inset 0 0 25px rgba(100,231,155,.04);
+      }
+
+      .lf-evolution-ring strong {
+        color: #79eaae;
+        font-size: 18px;
+      }
+
+      .lf-evolution-track {
+        height: 7px;
+        overflow: hidden;
+        margin: 9px 3px 14px;
+        border-radius: 999px;
+        background:
+          rgba(255,255,255,.045);
+      }
+
+      .lf-evolution-track i {
+        display: block;
+        height: 100%;
+        border-radius: inherit;
+        background:
+          linear-gradient(
+            90deg,
+            #299565,
+            #79eaae
+          );
+      }
+
+      .lf-evolution-top-stats {
+        display: grid;
+        grid-template-columns:
+          repeat(3, 1fr);
+        gap: 7px;
+      }
+
+      .lf-evolution-top-stats article {
+        min-width: 0;
+        padding: 11px;
+        border:
+          1px solid rgba(255,255,255,.06);
+        border-radius: 14px;
+        background:
+          #0e0f11;
+      }
+
+      .lf-evolution-top-stats strong {
+        display: block;
+        margin-top: 5px;
+        color: #eceeef;
+        font-size: 19px;
+      }
+
+      .lf-evolution-top-stats small {
+        display: block;
+        margin-top: 2px;
+        color: #62666b;
+        font-size: 7px;
+      }
+
+      .lf-evolution-chart-pro,
+      .lf-evolution-achievements-pro {
+        margin-top: 11px;
+        padding: 14px;
+        border:
+          1px solid rgba(255,255,255,.07);
+        border-radius: 18px;
+        background:
+          radial-gradient(
+            circle at 90% 0%,
+            rgba(106,167,255,.04),
+            transparent 34%
+          ),
+          #0e0f11;
+      }
+
+      .lf-evolution-chart-head {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 10px;
+      }
+
+      .lf-evolution-chart-head strong {
+        display: block;
+        margin-top: 4px;
+        color: #e2e4e5;
+        font-size: 13px;
+      }
+
+      .lf-evolution-chart-head b {
+        color: #90baff;
+        font-size: 13px;
+      }
+
+      .lf-evolution-bars {
+        display: grid;
+        grid-template-columns:
+          repeat(7, 1fr);
+        gap: 5px;
+        height: 165px;
+        margin-top: 14px;
+      }
+
+      .lf-evolution-bars > div {
+        min-width: 0;
+        display: grid;
+        grid-template-rows:
+          1fr auto auto;
+        gap: 5px;
+        text-align: center;
+      }
+
+      .lf-evolution-bar-track {
+        position: relative;
+        min-height: 110px;
+        overflow: hidden;
+        border-radius: 9px;
+        background:
+          rgba(255,255,255,.03);
+      }
+
+      .lf-evolution-bar-track i {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        border-radius: 9px;
+        background:
+          rgba(255,255,255,.06);
+      }
+
+      .lf-evolution-bar-track i.trained {
+        background:
+          linear-gradient(
+            180deg,
+            #73e9a9,
+            #2c8d60
+          );
+      }
+
+      .lf-evolution-bar-track i.perfect {
+        background:
+          linear-gradient(
+            180deg,
+            #f0d080,
+            #b88c35
+          );
+      }
+
+      .lf-evolution-bars strong {
+        color: #afb2b5;
+        font-size: 8px;
+      }
+
+      .lf-evolution-bars span {
+        color: #60646a;
+        font-size: 7px;
+        text-transform: uppercase;
+      }
+
+      .lf-evolution-weight-chart {
+        height: 135px;
+        margin-top: 13px;
+      }
+
+      .lf-evolution-weight-meta {
+        display: grid;
+        grid-template-columns:
+          auto 1fr auto;
+        gap: 8px;
+        align-items: center;
+        margin-top: 9px;
+        padding-top: 9px;
+        border-top:
+          1px solid rgba(255,255,255,.05);
+      }
+
+      .lf-evolution-weight-meta span {
+        color: #676b70;
+        font-size: 8px;
+      }
+
+      .lf-evolution-weight-meta strong {
+        color: #d8dadc;
+        font-size: 10px;
+      }
+
+      .lf-evolution-weight-meta b {
+        color: #73e9a9;
+        font-size: 10px;
+      }
+
+      .lf-evolution-achievements-pro > div {
+        display: grid;
+        grid-template-columns:
+          repeat(2, 1fr);
+        gap: 7px;
+        margin-top: 10px;
+      }
+
+      .lf-evolution-achievements-pro article {
+        padding: 11px;
+        border:
+          1px solid rgba(255,255,255,.05);
+        border-radius: 13px;
+        background:
+          rgba(255,255,255,.015);
+        opacity: .38;
+      }
+
+      .lf-evolution-achievements-pro article.unlocked {
+        opacity: 1;
+        border-color:
+          rgba(100,231,155,.14);
+        background:
+          rgba(100,231,155,.04);
+      }
+
+      .lf-evolution-achievements-pro i {
+        font-style: normal;
+        font-size: 20px;
+      }
+
+      .lf-evolution-achievements-pro strong {
+        display: block;
+        margin-top: 5px;
+        color: #dcdddf;
+        font-size: 9px;
+      }
+
+      @media (max-width: 520px) {
+        .lf-evolution-hero-pro {
+          padding: 14px;
+        }
+
+        .lf-evolution-ring {
+          width: 68px;
+          height: 68px;
+        }
+
+        .lf-evolution-top-stats {
+          gap: 5px;
+        }
+
+        .lf-evolution-top-stats article {
+          padding: 9px 7px;
+        }
+
+        .lf-evolution-bars {
+          gap: 4px;
+          height: 155px;
+        }
+      }
+    `;
+
+    document.head.appendChild(
+      style
+    );
+  }
+
   // =====================================================
   // LIFEFLOW 3.3 — INTERFACE ORGANIZADA + PAINEL GRÁFICO
   // =====================================================
@@ -5865,7 +6856,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
   // =====================================================
-  // LIFEFLOW 3.3 — INTERFACE ORGANIZADA + GRÁFICOS PRO
+  // LIFEFLOW 3.4 — CENTRAL LATERAL + EVOLUÇÃO DE TREINO
   // =====================================================
 
   const gymStorageKey = "lifeflow-gym-v26";
@@ -10510,6 +11501,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function showGymRoot() {
+    gymStatsStandalone = false;
     gymFolderView = "root";
     gymOpenExerciseId = null;
     showGym();
@@ -10576,11 +11568,9 @@ document.addEventListener("DOMContentLoaded", () => {
       <div class="lf-gym-tabs">
         <button class="active" type="button">TREINOS</button>
         <button id="lfGymLibraryTab" type="button">EXERCÍCIOS</button>
+        <button id="lfGymEvolutionTab" type="button">EVOLUÇÃO</button>
         <button type="button" id="lfGymHistoryTab">HISTÓRICO</button>
-        <button type="button" id="lfGymStatsTab">ESTATÍSTICAS</button>
       </div>
-
-      ${renderGymProDashboardHtml()}
 
       <section class="lf-folder-section">
         <span class="lf-kicker">PASTAS DE TREINOS</span>
@@ -10666,10 +11656,6 @@ document.addEventListener("DOMContentLoaded", () => {
       ?.addEventListener("click", () => {
         showSiteMessage("O histórico detalhado de treinos entra na próxima evolução.", "info");
       });
-
-    document
-      .getElementById("lfGymStatsTab")
-      ?.addEventListener("click", showProgress);
 
     updateWorkoutTimerDisplay();
   }
@@ -11855,6 +12841,10 @@ document.addEventListener("DOMContentLoaded", () => {
   injectRoutineEditorStyles();
   setupProfessionalStatsDrawer();
   injectSimplifiedInterfaceStyles();
+  moveLifeAreasToDrawer();
+  addLifeAreasToDrawer();
+  addGymEvolutionToDrawer();
+  injectLifeFlow34Styles();
 
   // =====================================================
   // NAVEGAÇÃO
