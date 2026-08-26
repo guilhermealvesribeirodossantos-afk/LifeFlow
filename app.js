@@ -461,8 +461,525 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
 
+
   // =====================================================
-  // LIFEFLOW 4.0 — LIFE HUB COMPLETO
+  // LIFEFLOW 4.1 — PERFIL + ACESSO EXCLUSIVO
+  // Conta única / proteção client-side
+  // =====================================================
+
+  const lfAuthUserHash = "0c6d1680e36252c187807883bfacce2875a99fef50a097e7488951599c0632e4";
+  const lfAuthPasswordHash = "89f55f7dcdca14d89e2f59795861fdd08692ba0e8bfd5110dda69119f9597507";
+  const lfAuthSessionKey = "lifeflow-auth-session-v41";
+  const lfProfileStorageKey = "lifeflow-profile-v41";
+
+  let lfProfile = {
+    name: "",
+    photo: "",
+    subtitle: "Minha evolução, minha rotina."
+  };
+
+  try {
+    const saved = JSON.parse(
+      localStorage.getItem(lfProfileStorageKey) || "null"
+    );
+
+    if (saved) {
+      lfProfile = {
+        ...lfProfile,
+        ...saved
+      };
+    }
+  } catch (error) {
+    console.log("Erro ao carregar perfil:", error);
+  }
+
+  function saveLfProfile() {
+    localStorage.setItem(
+      lfProfileStorageKey,
+      JSON.stringify(lfProfile)
+    );
+  }
+
+  async function lfSha256(value) {
+    const data =
+      new TextEncoder().encode(String(value));
+
+    const digest =
+      await crypto.subtle.digest(
+        "SHA-256",
+        data
+      );
+
+    return Array
+      .from(new Uint8Array(digest))
+      .map(
+        byte =>
+          byte
+            .toString(16)
+            .padStart(2, "0")
+      )
+      .join("");
+  }
+
+  function isLifeFlowAuthenticated() {
+    return (
+      sessionStorage.getItem(
+        lfAuthSessionKey
+      ) === "authenticated"
+    );
+  }
+
+  function setLifeFlowAuthenticated() {
+    sessionStorage.setItem(
+      lfAuthSessionKey,
+      "authenticated"
+    );
+  }
+
+  function ensureLifeFlowLogin() {
+    if (document.getElementById("lfLoginScreen")) return;
+
+    const screen =
+      document.createElement("div");
+
+    screen.id = "lfLoginScreen";
+    screen.className = "lf-login-screen";
+
+    screen.innerHTML = `
+      <div class="lf-login-shell">
+        <div class="lf-login-brand">
+          <div class="lf-login-logo">LF</div>
+          <div>
+            <span>ACESSO EXCLUSIVO</span>
+            <h1>LifeFlow</h1>
+            <p>Entre para acessar sua rotina e evolução.</p>
+          </div>
+        </div>
+
+        <div class="lf-login-card">
+          <label>
+            <span>Login</span>
+            <input
+              id="lfLoginUser"
+              type="text"
+              inputmode="numeric"
+              autocomplete="username"
+              placeholder="Digite seu login"
+            >
+          </label>
+
+          <label>
+            <span>Senha</span>
+            <div class="lf-password-field">
+              <input
+                id="lfLoginPassword"
+                type="password"
+                autocomplete="current-password"
+                placeholder="Digite sua senha"
+              >
+              <button
+                id="lfTogglePassword"
+                type="button"
+                aria-label="Mostrar senha"
+              >◉</button>
+            </div>
+          </label>
+
+          <button
+            id="lfLoginSubmit"
+            class="lf-login-submit"
+            type="button"
+          >Entrar</button>
+
+          <p
+            id="lfLoginError"
+            class="lf-login-error"
+          ></p>
+        </div>
+
+        <small class="lf-login-private">
+          🔒 Área pessoal
+        </small>
+      </div>
+    `;
+
+    document.body.appendChild(screen);
+
+    const submit = async () => {
+      const user =
+        document.getElementById("lfLoginUser")
+          ?.value.trim() || "";
+
+      const pass =
+        document.getElementById("lfLoginPassword")
+          ?.value || "";
+
+      const error =
+        document.getElementById("lfLoginError");
+
+      if (error) error.textContent = "Verificando...";
+
+      try {
+        const [userHash, passHash] =
+          await Promise.all([
+            lfSha256(user),
+            lfSha256(pass)
+          ]);
+
+        if (
+          userHash === lfAuthUserHash &&
+          passHash === lfAuthPasswordHash
+        ) {
+          setLifeFlowAuthenticated();
+
+          screen.classList.remove("visible");
+          document.body.classList.remove("lf-auth-locked");
+
+          if (error) error.textContent = "";
+
+          const passwordInput =
+            document.getElementById("lfLoginPassword");
+
+          if (passwordInput) passwordInput.value = "";
+
+          renderLifeProfileChip();
+
+          showSiteMessage(
+            "Acesso liberado.",
+            "success"
+          );
+
+          return;
+        }
+
+        if (error) {
+          error.textContent =
+            "Login ou senha incorretos.";
+        }
+      } catch (authError) {
+        console.log("Erro no login:", authError);
+
+        if (error) {
+          error.textContent =
+            "Não foi possível validar o acesso.";
+        }
+      }
+    };
+
+    document
+      .getElementById("lfLoginSubmit")
+      ?.addEventListener("click", submit);
+
+    ["lfLoginUser","lfLoginPassword"]
+      .forEach(id => {
+        document
+          .getElementById(id)
+          ?.addEventListener(
+            "keydown",
+            event => {
+              if (event.key === "Enter") {
+                submit();
+              }
+            }
+          );
+      });
+
+    document
+      .getElementById("lfTogglePassword")
+      ?.addEventListener(
+        "click",
+        () => {
+          const input =
+            document.getElementById("lfLoginPassword");
+
+          if (!input) return;
+
+          input.type =
+            input.type === "password"
+              ? "text"
+              : "password";
+        }
+      );
+  }
+
+  function showLifeFlowLogin() {
+    ensureLifeFlowLogin();
+
+    const screen =
+      document.getElementById("lfLoginScreen");
+
+    if (!screen) return;
+
+    screen.classList.add("visible");
+    document.body.classList.add("lf-auth-locked");
+  }
+
+  function enforceLifeFlowAuth() {
+    ensureLifeFlowLogin();
+
+    if (!isLifeFlowAuthenticated()) {
+      showLifeFlowLogin();
+    }
+  }
+
+  function logoutLifeFlow() {
+    sessionStorage.removeItem(lfAuthSessionKey);
+    showLifeFlowLogin();
+  }
+
+  function resizeProfileImage(file, maxSize = 512) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+
+      reader.onload = () => {
+        const image = new Image();
+
+        image.onload = () => {
+          let width = image.width;
+          let height = image.height;
+
+          const scale =
+            Math.min(
+              1,
+              maxSize /
+                Math.max(
+                  width,
+                  height
+                )
+            );
+
+          width =
+            Math.max(
+              1,
+              Math.round(width * scale)
+            );
+
+          height =
+            Math.max(
+              1,
+              Math.round(height * scale)
+            );
+
+          const canvas =
+            document.createElement("canvas");
+
+          canvas.width = width;
+          canvas.height = height;
+
+          const ctx =
+            canvas.getContext("2d");
+
+          ctx.drawImage(
+            image,
+            0,
+            0,
+            width,
+            height
+          );
+
+          resolve(
+            canvas.toDataURL(
+              "image/jpeg",
+              0.84
+            )
+          );
+        };
+
+        image.onerror = reject;
+        image.src = reader.result;
+      };
+
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  }
+
+  function getLifeProfileAvatarHtml(className) {
+    if (lfProfile.photo) {
+      return `
+        <div class="${className}">
+          <img
+            src="${lf40Esc(lfProfile.photo)}"
+            alt="Foto do perfil"
+          >
+        </div>
+      `;
+    }
+
+    const initial =
+      (
+        lfProfile.name?.trim()?.charAt(0) ||
+        "L"
+      ).toUpperCase();
+
+    return `
+      <div class="${className}">
+        <span>${initial}</span>
+      </div>
+    `;
+  }
+
+  function renderLifeProfileChip() {
+    const drawer =
+      document.getElementById("lifeflowDrawer");
+
+    if (!drawer) return;
+
+    let chip =
+      document.getElementById("lfProfileChip");
+
+    if (!chip) {
+      chip =
+        document.createElement("button");
+
+      chip.id = "lfProfileChip";
+      chip.className = "lf-profile-chip";
+      chip.type = "button";
+
+      const head =
+        drawer.querySelector(".lf-drawer-head");
+
+      if (head?.parentNode) {
+        head.parentNode.insertBefore(
+          chip,
+          head.nextSibling
+        );
+      } else {
+        drawer.prepend(chip);
+      }
+
+      chip.addEventListener(
+        "click",
+        () => {
+          showLifeSettings();
+          window.closeLifeFlowDrawer?.();
+        }
+      );
+    }
+
+    chip.innerHTML = `
+      ${getLifeProfileAvatarHtml("lf-profile-chip-avatar")}
+
+      <div>
+        <strong>
+          ${lf40Esc(
+            lfProfile.name ||
+            "Meu perfil"
+          )}
+        </strong>
+
+        <span>
+          ${lf40Esc(
+            lfProfile.subtitle ||
+            "LifeFlow"
+          )}
+        </span>
+      </div>
+
+      <b>›</b>
+    `;
+  }
+
+  function chooseLifeProfilePhoto() {
+    let input =
+      document.getElementById(
+        "lfProfilePhotoInput"
+      );
+
+    if (!input) {
+      input =
+        document.createElement("input");
+
+      input.id =
+        "lfProfilePhotoInput";
+
+      input.type = "file";
+      input.accept = "image/*";
+      input.hidden = true;
+
+      document.body.appendChild(input);
+
+      input.addEventListener(
+        "change",
+        async () => {
+          const file =
+            input.files?.[0];
+
+          if (!file) return;
+
+          try {
+            lfProfile.photo =
+              await resizeProfileImage(file);
+
+            saveLfProfile();
+            renderLifeProfileChip();
+            showLifeSettings();
+
+            showSiteMessage(
+              "Foto do perfil atualizada.",
+              "success"
+            );
+          } catch (error) {
+            console.log(
+              "Erro ao salvar foto:",
+              error
+            );
+
+            showSiteMessage(
+              "Não foi possível salvar essa foto.",
+              "warning"
+            );
+          } finally {
+            input.value = "";
+          }
+        }
+      );
+    }
+
+    input.click();
+  }
+
+  function openLifeProfileEditor() {
+    lf40Modal(
+      "Editar perfil",
+      [
+        {
+          id:"lfProfileNameInput",
+          label:"Nome",
+          value:lfProfile.name || "",
+          wide:true
+        },
+        {
+          id:"lfProfileSubtitleInput",
+          label:"Frase do perfil",
+          value:lfProfile.subtitle || "",
+          wide:true
+        }
+      ],
+      (values, close) => {
+        lfProfile.name =
+          values.lfProfileNameInput.trim();
+
+        lfProfile.subtitle =
+          values.lfProfileSubtitleInput.trim() ||
+          "Minha evolução, minha rotina.";
+
+        saveLfProfile();
+        close();
+
+        renderLifeProfileChip();
+        showLifeSettings();
+
+        showSiteMessage(
+          "Perfil atualizado.",
+          "success"
+        );
+      }
+    );
+  }
+
+  // =====================================================
+  // LIFEFLOW 4.1 — PERFIL + ACESSO EXCLUSIVO
   // PMMG/ESTUDOS PRESERVADOS SEM ALTERAÇÕES
   // =====================================================
 
@@ -828,29 +1345,129 @@ document.addEventListener("DOMContentLoaded", () => {
     showSiteMessage("Backup gerado.", "success");
   }
 
+
   function showLifeSettings() {
-    showLifeModule("Perfil e dados", "Preferências e segurança dos seus dados", `
-      <section class="lf40-card">
-        <span class="lf40-kicker">PERFIL</span>
-        <div class="lf40-settings-row"><span>Nome no LifeFlow</span><strong>${lf40Esc(lifeHub.settings.name || "Não definido")}</strong><button id="lf40EditProfile">Editar</button></div>
-      </section>
-      <section class="lf40-card">
-        <span class="lf40-kicker">BACKUP</span>
-        <p class="lf40-copy">Exporte seus dados do LifeFlow em um arquivo JSON para guardar uma cópia.</p>
-        <button id="lf40Backup" class="lf40-primary">Gerar backup</button>
-      </section>
-      <section class="lf40-card">
-        <span class="lf40-kicker">LOGIN EXCLUSIVO</span>
-        <p class="lf40-copy">Estrutura reservada para uma etapa futura. Nesta versão seus dados continuam salvos localmente no navegador.</p>
-      </section>
-    `,()=>{
-      document.getElementById("lf40EditProfile")?.addEventListener("click",()=>lf40Modal("Editar perfil",[
-        {id:"pname",label:"Nome",value:lifeHub.settings.name||"",wide:true}
-      ],(v,close)=>{
-        lifeHub.settings.name=v.pname.trim();saveLifeHub();close();showLifeSettings();
-      }));
-      document.getElementById("lf40Backup")?.addEventListener("click",downloadLifeFlowBackup);
-    });
+    const trainingDays =
+      typeof gymAnalytics !== "undefined"
+        ? gymAnalytics.trainingDays.length
+        : 0;
+
+    const streak =
+      typeof getGymTrainingStreak === "function"
+        ? getGymTrainingStreak()
+        : 0;
+
+    showLifeModule(
+      "Perfil e dados",
+      "Sua conta pessoal no LifeFlow",
+      `
+        <section class="lf-profile-hero">
+          ${getLifeProfileAvatarHtml("lf-profile-main-avatar")}
+
+          <div class="lf-profile-main-copy">
+            <span>PERFIL</span>
+            <h3>${lf40Esc(lfProfile.name || "Meu LifeFlow")}</h3>
+            <p>${lf40Esc(lfProfile.subtitle || "Minha evolução, minha rotina.")}</p>
+          </div>
+
+          <button
+            id="lfProfileChangePhoto"
+            type="button"
+          >📷</button>
+        </section>
+
+        <div class="lf-profile-stats">
+          <article>
+            <span>TREINOS</span>
+            <strong>${trainingDays}</strong>
+            <small>registrados</small>
+          </article>
+
+          <article>
+            <span>SEQUÊNCIA</span>
+            <strong>${streak}</strong>
+            <small>dias</small>
+          </article>
+
+          <article>
+            <span>XP</span>
+            <strong>${typeof evolution !== "undefined" ? evolution.totalXp : 0}</strong>
+            <small>total</small>
+          </article>
+        </div>
+
+        <section class="lf40-card">
+          <span class="lf40-kicker">PERFIL</span>
+
+          <div class="lf-profile-action-list">
+            <button id="lfProfileEdit" type="button">
+              <span>✎</span>
+              <div>
+                <strong>Editar perfil</strong>
+                <small>Nome e frase pessoal</small>
+              </div>
+              <b>›</b>
+            </button>
+
+            <button id="lfProfilePhoto" type="button">
+              <span>📷</span>
+              <div>
+                <strong>Alterar foto</strong>
+                <small>Escolher imagem do aparelho</small>
+              </div>
+              <b>›</b>
+            </button>
+          </div>
+        </section>
+
+        <section class="lf40-card">
+          <span class="lf40-kicker">CONTA</span>
+
+          <div class="lf-profile-action-list">
+            <div class="lf-profile-static-row">
+              <span>🔒</span>
+              <div>
+                <strong>Acesso exclusivo</strong>
+                <small>Conta única ativada</small>
+              </div>
+              <b class="lf-account-active">ATIVO</b>
+            </div>
+
+            <button id="lfProfileLogout" type="button">
+              <span>↪</span>
+              <div>
+                <strong>Sair do LifeFlow</strong>
+                <small>Voltar para a tela de login</small>
+              </div>
+              <b>›</b>
+            </button>
+          </div>
+        </section>
+
+        <section class="lf40-card">
+          <span class="lf40-kicker">BACKUP</span>
+          <p class="lf40-copy">
+            Exporte seus dados do LifeFlow para guardar uma cópia.
+          </p>
+          <button
+            id="lf40Backup"
+            class="lf40-primary"
+            type="button"
+          >Gerar backup</button>
+        </section>
+
+        <p class="lf-security-note">
+          Esta versão usa proteção no navegador. Uma autenticação realmente forte exigirá backend no futuro.
+        </p>
+      `,
+      () => {
+        document.getElementById("lfProfileEdit")?.addEventListener("click", openLifeProfileEditor);
+        document.getElementById("lfProfilePhoto")?.addEventListener("click", chooseLifeProfilePhoto);
+        document.getElementById("lfProfileChangePhoto")?.addEventListener("click", chooseLifeProfilePhoto);
+        document.getElementById("lfProfileLogout")?.addEventListener("click", logoutLifeFlow);
+        document.getElementById("lf40Backup")?.addEventListener("click", downloadLifeFlowBackup);
+      }
+    );
   }
 
   // ---------- ACADEMIA: HISTÓRICO POR EXERCÍCIO ----------
@@ -937,6 +1554,55 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("lf40SleepDrawer")?.addEventListener("click",()=>{showLifeSleep();window.closeLifeFlowDrawer?.();});
     document.getElementById("lf40AgendaDrawer")?.addEventListener("click",()=>{showLifeAgenda();window.closeLifeFlowDrawer?.();});
     document.getElementById("lf40ProfileDrawer")?.addEventListener("click",()=>{showLifeSettings();window.closeLifeFlowDrawer?.();});
+  }
+
+
+  function injectLifeFlow41Styles() {
+    if (document.getElementById("lifeflow41Styles")) return;
+
+    const style =
+      document.createElement("style");
+
+    style.id = "lifeflow41Styles";
+
+    style.textContent = `
+      .lf-login-screen{position:fixed;inset:0;z-index:20000;display:grid;place-items:center;padding:18px;box-sizing:border-box;background:radial-gradient(circle at 50% 0%,rgba(100,231,155,.10),transparent 34%),#08090a;opacity:0;visibility:hidden;transition:.22s}
+      .lf-login-screen.visible{opacity:1;visibility:visible}
+      body.lf-auth-locked{overflow:hidden!important}
+      body.lf-auth-locked>*:not(#lfLoginScreen){filter:blur(10px);pointer-events:none!important;user-select:none!important}
+      .lf-login-shell{width:min(100%,390px)}
+      .lf-login-brand{display:flex;align-items:center;gap:13px;margin-bottom:18px}
+      .lf-login-logo{width:58px;height:58px;display:grid;place-items:center;border:1px solid rgba(100,231,155,.18);border-radius:18px;background:rgba(100,231,155,.065);color:#75eaaa;font-size:19px;font-weight:950}
+      .lf-login-brand span{display:block;color:#75eaaa;font-size:8px;font-weight:950;letter-spacing:1.1px}
+      .lf-login-brand h1{margin:3px 0 2px;color:#f4f4f5;font-size:28px}
+      .lf-login-brand p{margin:0;color:#74787c;font-size:9px}
+      .lf-login-card{padding:17px;border:1px solid rgba(255,255,255,.075);border-radius:22px;background:#0e1011}
+      .lf-login-card label{display:block;margin-bottom:11px}
+      .lf-login-card label>span{display:block;margin-bottom:6px;color:#73777b;font-size:7px;font-weight:900;text-transform:uppercase}
+      .lf-login-card input{box-sizing:border-box;width:100%;min-height:49px;border:1px solid rgba(255,255,255,.08);border-radius:13px;outline:none;background:#131516;color:#eee;padding:0 12px;font:inherit;font-size:16px}
+      .lf-password-field{position:relative}.lf-password-field input{padding-right:50px}
+      .lf-password-field button{position:absolute;top:5px;right:5px;width:39px;height:39px;border:0;border-radius:10px;background:rgba(255,255,255,.035);color:#8d9195}
+      .lf-login-submit{width:100%;min-height:51px;border:1px solid rgba(100,231,155,.20);border-radius:14px;background:rgba(100,231,155,.10);color:#81edb3;font:inherit;font-size:10px;font-weight:950}
+      .lf-login-error{min-height:15px;margin:9px 0 0;color:#da8585;font-size:8px;text-align:center}
+      .lf-login-private{display:block;margin-top:14px;color:#54585c;font-size:8px;text-align:center}
+      .lf-profile-chip{width:100%;min-height:68px;display:grid;grid-template-columns:46px 1fr auto;align-items:center;gap:10px;margin:11px 0 5px;border:1px solid rgba(255,255,255,.06);border-radius:15px;background:rgba(255,255,255,.02);color:inherit;padding:9px;text-align:left}
+      .lf-profile-chip-avatar,.lf-profile-main-avatar{overflow:hidden;display:grid;place-items:center;border:1px solid rgba(100,231,155,.16);border-radius:50%;background:rgba(100,231,155,.065);color:#79eaae;font-weight:950}
+      .lf-profile-chip-avatar{width:46px;height:46px}.lf-profile-main-avatar{width:92px;height:92px;font-size:31px}
+      .lf-profile-chip-avatar img,.lf-profile-main-avatar img{width:100%;height:100%;object-fit:cover}
+      .lf-profile-chip strong,.lf-profile-chip span{display:block}.lf-profile-chip strong{color:#e8e9ea;font-size:11px}.lf-profile-chip span{margin-top:3px;color:#686c70;font-size:7px}
+      .lf-profile-hero{display:grid;grid-template-columns:92px 1fr 42px;align-items:center;gap:13px;padding:15px;border:1px solid rgba(255,255,255,.07);border-radius:19px;background:#0e0f11}
+      .lf-profile-main-copy>span{display:block;color:#75eaaa;font-size:7px;font-weight:950}.lf-profile-main-copy h3{margin:4px 0 2px;color:#f0f1f2;font-size:19px}.lf-profile-main-copy p{margin:0;color:#6f7377;font-size:8px}
+      .lf-profile-hero>button{width:42px;height:42px;border:1px solid rgba(255,255,255,.07);border-radius:12px;background:#151718;color:#aaa}
+      .lf-profile-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}.lf-profile-stats article{padding:10px;border:1px solid rgba(255,255,255,.055);border-radius:13px;background:#0e0f11}
+      .lf-profile-stats span,.lf-profile-stats strong,.lf-profile-stats small{display:block}.lf-profile-stats span{color:#65696e;font-size:6px}.lf-profile-stats strong{margin-top:4px;color:#e7e8e9;font-size:18px}.lf-profile-stats small{color:#5e6267;font-size:6px}
+      .lf-profile-action-list{display:grid;gap:7px;margin-top:10px}
+      .lf-profile-action-list>button,.lf-profile-static-row{min-height:58px;display:grid;grid-template-columns:32px 1fr auto;align-items:center;gap:9px;border:1px solid rgba(255,255,255,.05);border-radius:12px;background:rgba(255,255,255,.015);color:inherit;padding:8px 10px;text-align:left}
+      .lf-profile-action-list strong,.lf-profile-static-row strong{display:block;color:#dbddde;font-size:9px}.lf-profile-action-list small,.lf-profile-static-row small{display:block;margin-top:2px;color:#606469;font-size:7px}
+      .lf-account-active{color:#75eaaa;font-size:7px}.lf-security-note{margin:2px 4px 0;color:#595d61;font-size:7px;line-height:1.55;text-align:center}
+      @media(max-width:520px){.lf-login-screen{padding:14px}.lf-profile-main-avatar{width:78px;height:78px}.lf-profile-hero{grid-template-columns:78px 1fr 40px;padding:12px}}
+    `;
+
+    document.head.appendChild(style);
   }
 
   function injectLifeFlow40Styles() {
@@ -13874,6 +14540,9 @@ document.addEventListener("DOMContentLoaded", () => {
   injectLifeFlow34Styles();
   injectLifeFlow40Styles();
   wireLifeHubDrawer();
+  injectLifeFlow41Styles();
+  renderLifeProfileChip();
+  enforceLifeFlowAuth();
 
   // =====================================================
   // NAVEGAÇÃO
