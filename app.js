@@ -80,15 +80,15 @@ document.addEventListener("DOMContentLoaded", () => {
     const hour =
       new Date().getHours();
 
-    if (hour < 12) {
-      return "Bom dia.";
+    if (hour >= 5 && hour < 12) {
+      return "Bom dia! 🌅";
     }
 
-    if (hour < 18) {
-      return "Boa tarde.";
+    if (hour >= 12 && hour < 18) {
+      return "Boa tarde! ☀️";
     }
 
-    return "Boa noite.";
+    return "Boa noite! 🌙";
   }
 
 
@@ -410,6 +410,413 @@ document.addEventListener("DOMContentLoaded", () => {
     );
   }
 
+  // =====================================================
+  // LIFEFLOW 2.2 — SISTEMA DE EVOLUÇÃO
+  // =====================================================
+
+  const evolutionStorageKey = "lifeflow-evolution-v2";
+
+  const evolutionLevels = [
+    { name: "Iniciante", min: 0, icon: "🌱" },
+    { name: "Disciplinado", min: 300, icon: "⚡" },
+    { name: "Consistente", min: 900, icon: "🔥" },
+    { name: "Elite", min: 2000, icon: "🏆" }
+  ];
+
+  let evolution = {
+    totalXp: 0,
+    completedDays: [],
+    bestStreak: 0,
+    achievements: [],
+    bonusDays: []
+  };
+
+  try {
+    const savedEvolution =
+      localStorage.getItem(evolutionStorageKey);
+
+    if (savedEvolution) {
+      evolution = {
+        ...evolution,
+        ...JSON.parse(savedEvolution)
+      };
+    }
+  } catch (error) {
+    console.log("Erro ao carregar evolução:", error);
+  }
+
+  if (!Array.isArray(evolution.completedDays)) evolution.completedDays = [];
+  if (!Array.isArray(evolution.achievements)) evolution.achievements = [];
+  if (!Array.isArray(evolution.bonusDays)) evolution.bonusDays = [];
+  if (typeof evolution.totalXp !== "number") evolution.totalXp = 0;
+  if (typeof evolution.bestStreak !== "number") evolution.bestStreak = 0;
+
+  function saveEvolution() {
+    localStorage.setItem(
+      evolutionStorageKey,
+      JSON.stringify(evolution)
+    );
+  }
+
+  function addEvolutionXp(amount) {
+    evolution.totalXp =
+      Math.max(0, evolution.totalXp + amount);
+
+    saveEvolution();
+  }
+
+  function dateKeyToDate(key) {
+    const [year, month, day] =
+      key.split("-").map(Number);
+
+    return new Date(year, month - 1, day);
+  }
+
+  function calculateCurrentStreak() {
+    const uniqueDays =
+      [...new Set(evolution.completedDays)]
+        .sort();
+
+    if (uniqueDays.length === 0) {
+      return 0;
+    }
+
+    const todayStart = startOfDay(new Date());
+    const yesterday = new Date(todayStart);
+    yesterday.setDate(yesterday.getDate() - 1);
+
+    const lastDate =
+      dateKeyToDate(uniqueDays[uniqueDays.length - 1]);
+
+    const lastIsToday =
+      isSameDay(lastDate, todayStart);
+
+    const lastIsYesterday =
+      isSameDay(lastDate, yesterday);
+
+    if (!lastIsToday && !lastIsYesterday) {
+      return 0;
+    }
+
+    let streak = 1;
+
+    for (
+      let i = uniqueDays.length - 1;
+      i > 0;
+      i--
+    ) {
+      const current =
+        dateKeyToDate(uniqueDays[i]);
+
+      const previous =
+        dateKeyToDate(uniqueDays[i - 1]);
+
+      const difference =
+        Math.round(
+          (startOfDay(current) - startOfDay(previous)) /
+          86400000
+        );
+
+      if (difference === 1) {
+        streak++;
+      } else {
+        break;
+      }
+    }
+
+    return streak;
+  }
+
+  function syncDailyEvolution() {
+    const routineComplete =
+      tasks.length > 0 &&
+      state.completed.length >= tasks.length;
+
+    const hasCompletedDay =
+      evolution.completedDays.includes(todayKey);
+
+    const hasBonus =
+      evolution.bonusDays.includes(todayKey);
+
+    if (routineComplete && !hasCompletedDay) {
+      evolution.completedDays.push(todayKey);
+    }
+
+    if (routineComplete && !hasBonus) {
+      evolution.bonusDays.push(todayKey);
+      evolution.totalXp += 100;
+    }
+
+    if (!routineComplete && hasCompletedDay) {
+      evolution.completedDays =
+        evolution.completedDays.filter(
+          key => key !== todayKey
+        );
+    }
+
+    if (!routineComplete && hasBonus) {
+      evolution.bonusDays =
+        evolution.bonusDays.filter(
+          key => key !== todayKey
+        );
+
+      evolution.totalXp =
+        Math.max(0, evolution.totalXp - 100);
+    }
+
+    const streak =
+      calculateCurrentStreak();
+
+    evolution.bestStreak =
+      Math.max(
+        evolution.bestStreak,
+        streak
+      );
+
+    updateAchievements();
+    saveEvolution();
+  }
+
+  function getEvolutionLevel() {
+    let current =
+      evolutionLevels[0];
+
+    evolutionLevels.forEach(level => {
+      if (evolution.totalXp >= level.min) {
+        current = level;
+      }
+    });
+
+    const currentIndex =
+      evolutionLevels.indexOf(current);
+
+    const next =
+      evolutionLevels[currentIndex + 1] || null;
+
+    return {
+      current,
+      next,
+      currentIndex
+    };
+  }
+
+  function updateAchievements() {
+    const unlocked = new Set(
+      evolution.achievements
+    );
+
+    const streak =
+      calculateCurrentStreak();
+
+    if (evolution.totalXp >= 100) {
+      unlocked.add("primeiros-passos");
+    }
+
+    if (streak >= 3) {
+      unlocked.add("ritmo-forte");
+    }
+
+    if (streak >= 7) {
+      unlocked.add("semana-perfeita");
+    }
+
+    if (evolution.completedDays.length >= 10) {
+      unlocked.add("dez-dias");
+    }
+
+    if (evolution.totalXp >= 1000) {
+      unlocked.add("mil-xp");
+    }
+
+    evolution.achievements =
+      [...unlocked];
+  }
+
+  function getAchievementData() {
+    return [
+      {
+        id: "primeiros-passos",
+        icon: "⚡",
+        title: "Primeiros Passos",
+        description: "Alcance 100 XP."
+      },
+      {
+        id: "ritmo-forte",
+        icon: "🔥",
+        title: "Ritmo Forte",
+        description: "Complete 3 dias seguidos."
+      },
+      {
+        id: "semana-perfeita",
+        icon: "🏆",
+        title: "Semana Perfeita",
+        description: "Complete 7 dias seguidos."
+      },
+      {
+        id: "dez-dias",
+        icon: "📅",
+        title: "Consistência",
+        description: "Feche 10 dias completos."
+      },
+      {
+        id: "mil-xp",
+        icon: "💎",
+        title: "1.000 XP",
+        description: "Acumule 1.000 XP."
+      }
+    ];
+  }
+
+  function renderEvolutionPanel() {
+    const progressScreen =
+      document.getElementById("progressScreen");
+
+    if (!progressScreen) {
+      return;
+    }
+
+    let panel =
+      document.getElementById("evolutionPanel");
+
+    if (!panel) {
+      panel = document.createElement("section");
+      panel.id = "evolutionPanel";
+      panel.className = "evolution-panel";
+
+      const firstCard =
+        progressScreen.querySelector(".progress-hero, .progress-card, .card");
+
+      if (firstCard && firstCard.parentNode) {
+        firstCard.parentNode.insertBefore(
+          panel,
+          firstCard.nextSibling
+        );
+      } else {
+        progressScreen.appendChild(panel);
+      }
+    }
+
+    const streak =
+      calculateCurrentStreak();
+
+    const level =
+      getEvolutionLevel();
+
+    let levelProgress = 100;
+    let levelText = "Nível máximo";
+
+    if (level.next) {
+      const range =
+        level.next.min - level.current.min;
+
+      const gained =
+        evolution.totalXp - level.current.min;
+
+      levelProgress =
+        Math.max(
+          0,
+          Math.min(
+            100,
+            Math.round((gained / range) * 100)
+          )
+        );
+
+      levelText =
+        `${evolution.totalXp} / ${level.next.min} XP`;
+    }
+
+    const achievements =
+      getAchievementData();
+
+    panel.innerHTML = `
+      <div class="evolution-hero">
+        <div class="evolution-topline">
+          <span class="evolution-kicker">SUA EVOLUÇÃO</span>
+          <span class="evolution-level-badge">
+            ${level.current.icon} ${level.current.name}
+          </span>
+        </div>
+
+        <div class="evolution-main">
+          <div>
+            <span class="evolution-label">XP TOTAL</span>
+            <strong class="evolution-xp">
+              ${evolution.totalXp.toLocaleString("pt-BR")} XP
+            </strong>
+          </div>
+
+          <div class="evolution-streak">
+            <span>🔥</span>
+            <strong>${streak}</strong>
+            <small>dias</small>
+          </div>
+        </div>
+
+        <div class="evolution-progress-head">
+          <span>Próximo nível</span>
+          <strong>${levelText}</strong>
+        </div>
+
+        <div class="evolution-progress-track">
+          <div
+            class="evolution-progress-fill"
+            style="width:${levelProgress}%"
+          ></div>
+        </div>
+
+        <div class="evolution-stats">
+          <div>
+            <span>Recorde</span>
+            <strong>${evolution.bestStreak} dias</strong>
+          </div>
+
+          <div>
+            <span>Dias completos</span>
+            <strong>${evolution.completedDays.length}</strong>
+          </div>
+
+          <div>
+            <span>Bônus diário</span>
+            <strong>+100 XP</strong>
+          </div>
+        </div>
+      </div>
+
+      <div class="achievement-section">
+        <div class="achievement-heading">
+          <div>
+            <span class="evolution-kicker">CONQUISTAS</span>
+            <h3>Marcos da jornada</h3>
+          </div>
+
+          <strong>
+            ${evolution.achievements.length}/${achievements.length}
+          </strong>
+        </div>
+
+        <div class="achievement-grid">
+          ${achievements.map(item => {
+            const unlocked =
+              evolution.achievements.includes(item.id);
+
+            return `
+              <div class="achievement-card ${unlocked ? "unlocked" : "locked"}">
+                <div class="achievement-icon">
+                  ${unlocked ? item.icon : "🔒"}
+                </div>
+                <div>
+                  <strong>${item.title}</strong>
+                  <span>${item.description}</span>
+                </div>
+              </div>
+            `;
+          }).join("")}
+        </div>
+      </div>
+    `;
+  }
+
+
 
   // =====================================================
   // HOME
@@ -610,6 +1017,8 @@ document.addEventListener("DOMContentLoaded", () => {
                   state.xp - 10
                 );
 
+              addEvolutionXp(-10);
+
             } else {
 
               state.completed.push(
@@ -618,10 +1027,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
               state.xp += 10;
+
+              addEvolutionXp(10);
             }
 
 
             saveState();
+
+            syncDailyEvolution();
 
             renderHome();
 
@@ -900,12 +1313,29 @@ document.addEventListener("DOMContentLoaded", () => {
         : "dia de folga";
 
 
+    const hour = new Date().getHours();
+
+    let momentMessage =
+      "Vamos manter o ritmo.";
+
+    if (hour >= 18 || hour < 5) {
+      momentMessage =
+        "Finalize o dia no seu ritmo.";
+    } else if (hour >= 12) {
+      momentMessage =
+        "Continue firme no restante do dia.";
+    } else {
+      momentMessage =
+        "Vamos começar bem o dia.";
+    }
+
     welcomeSubtitle.textContent =
-      `${completed} de ${total} missões concluídas • ${percentage}% do dia • ${dayType}.`;
+      `${momentMessage} • ${completed} de ${total} missões • ${percentage}% • ${dayType}.`;
   }
 
 
   function refreshSmartNow() {
+    renderHeader();
     renderNextTask();
     renderSmartSummary();
   }
@@ -1588,6 +2018,8 @@ document.addEventListener("DOMContentLoaded", () => {
           "Rotina de hoje 100% concluída. Dia fechado.";
       }
     }
+
+    renderEvolutionPanel();
   }
 
 
@@ -1711,6 +2143,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
         saveState();
+
+        syncDailyEvolution();
 
         renderHome();
 
@@ -2542,6 +2976,250 @@ document.addEventListener("DOMContentLoaded", () => {
   );
 
 
+
+
+  function injectEvolutionStyles() {
+    if (document.getElementById("lifeflowEvolutionStyles")) {
+      return;
+    }
+
+    const style = document.createElement("style");
+    style.id = "lifeflowEvolutionStyles";
+
+    style.textContent = `
+      .evolution-panel {
+        display: grid;
+        gap: 14px;
+        margin: 16px 0;
+      }
+
+      .evolution-hero,
+      .achievement-section {
+        border: 1px solid rgba(255,255,255,.09);
+        border-radius: 24px;
+        background:
+          radial-gradient(circle at 90% 0%, rgba(85,227,154,.10), transparent 30%),
+          linear-gradient(145deg, rgba(22,22,22,.98), rgba(7,7,7,.98));
+        box-shadow: 0 22px 60px rgba(0,0,0,.42);
+        padding: 18px;
+      }
+
+      .evolution-topline,
+      .evolution-progress-head,
+      .achievement-heading {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+      }
+
+      .evolution-kicker {
+        color: #8c8c8c;
+        font-size: 9px;
+        font-weight: 950;
+        letter-spacing: 1.2px;
+      }
+
+      .evolution-level-badge {
+        border: 1px solid rgba(85,227,154,.22);
+        border-radius: 999px;
+        background: rgba(85,227,154,.08);
+        color: #70edb1;
+        padding: 7px 10px;
+        font-size: 9px;
+        font-weight: 900;
+        letter-spacing: .4px;
+        text-transform: uppercase;
+      }
+
+      .evolution-main {
+        display: flex;
+        align-items: end;
+        justify-content: space-between;
+        gap: 14px;
+        margin-top: 20px;
+      }
+
+      .evolution-label {
+        display: block;
+        color: #777;
+        font-size: 9px;
+        font-weight: 900;
+        letter-spacing: .9px;
+        margin-bottom: 5px;
+      }
+
+      .evolution-xp {
+        display: block;
+        color: #f4f4f4;
+        font-size: clamp(25px, 5vw, 36px);
+        letter-spacing: -1.2px;
+      }
+
+      .evolution-streak {
+        display: flex;
+        align-items: baseline;
+        gap: 5px;
+        border: 1px solid rgba(255,255,255,.08);
+        border-radius: 18px;
+        background: rgba(255,255,255,.035);
+        padding: 10px 12px;
+      }
+
+      .evolution-streak > span {
+        font-size: 20px;
+      }
+
+      .evolution-streak strong {
+        font-size: 24px;
+      }
+
+      .evolution-streak small {
+        color: #8f8f8f;
+        font-size: 9px;
+        font-weight: 800;
+        text-transform: uppercase;
+      }
+
+      .evolution-progress-head {
+        margin-top: 20px;
+        color: #8f8f8f;
+        font-size: 9px;
+        font-weight: 850;
+        text-transform: uppercase;
+      }
+
+      .evolution-progress-head strong {
+        color: #cfcfcf;
+      }
+
+      .evolution-progress-track {
+        height: 8px;
+        margin-top: 8px;
+        overflow: hidden;
+        border-radius: 999px;
+        background: rgba(255,255,255,.06);
+      }
+
+      .evolution-progress-fill {
+        height: 100%;
+        border-radius: inherit;
+        background: linear-gradient(90deg, #43c983, #78efb3);
+        box-shadow: 0 0 18px rgba(85,227,154,.18);
+        transition: width .4s ease;
+      }
+
+      .evolution-stats {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+        margin-top: 14px;
+      }
+
+      .evolution-stats > div {
+        min-width: 0;
+        border: 1px solid rgba(255,255,255,.065);
+        border-radius: 15px;
+        background: rgba(255,255,255,.025);
+        padding: 10px;
+      }
+
+      .evolution-stats span {
+        display: block;
+        color: #777;
+        font-size: 8px;
+        font-weight: 850;
+        text-transform: uppercase;
+      }
+
+      .evolution-stats strong {
+        display: block;
+        margin-top: 4px;
+        color: #ededed;
+        font-size: 12px;
+      }
+
+      .achievement-heading h3 {
+        margin: 4px 0 0;
+        color: #f0f0f0;
+        font-size: 17px;
+      }
+
+      .achievement-heading > strong {
+        color: #70edb1;
+        font-size: 12px;
+      }
+
+      .achievement-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 9px;
+        margin-top: 14px;
+      }
+
+      .achievement-card {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        min-width: 0;
+        border: 1px solid rgba(255,255,255,.065);
+        border-radius: 16px;
+        background: rgba(255,255,255,.025);
+        padding: 11px;
+      }
+
+      .achievement-card.unlocked {
+        border-color: rgba(231,182,95,.20);
+        background: rgba(231,182,95,.055);
+      }
+
+      .achievement-card.locked {
+        opacity: .48;
+      }
+
+      .achievement-icon {
+        display: grid;
+        place-items: center;
+        flex: 0 0 36px;
+        width: 36px;
+        height: 36px;
+        border-radius: 12px;
+        background: rgba(255,255,255,.045);
+        font-size: 17px;
+      }
+
+      .achievement-card strong,
+      .achievement-card span {
+        display: block;
+      }
+
+      .achievement-card strong {
+        color: #e9e9e9;
+        font-size: 10px;
+      }
+
+      .achievement-card span {
+        margin-top: 3px;
+        color: #777;
+        font-size: 8px;
+        line-height: 1.35;
+      }
+
+      @media (max-width: 520px) {
+        .evolution-stats {
+          grid-template-columns: 1fr;
+        }
+
+        .achievement-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+    `;
+
+    document.head.appendChild(style);
+  }
+
+
   // =====================================================
   // ATUALIZAÇÃO INTELIGENTE DO HORÁRIO
   // =====================================================
@@ -2555,6 +3233,10 @@ document.addEventListener("DOMContentLoaded", () => {
   // =====================================================
   // INICIAR
   // =====================================================
+
+  injectEvolutionStyles();
+
+  syncDailyEvolution();
 
   renderHome();
 
