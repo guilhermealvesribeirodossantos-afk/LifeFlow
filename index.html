@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
+
   <meta charset="UTF-8">
 
   <meta
@@ -8,20 +10,31 @@
     content="width=device-width, initial-scale=1.0, viewport-fit=cover"
   >
 
-  <meta name="theme-color" content="#0b0f14">
+  <meta
+    name="theme-color"
+    content="#0b0f14"
+  >
 
-  <title>LifeFlow</title>
+  <title>
+    LifeFlow
+  </title>
 
-  <link rel="stylesheet" href="style.css">
+  <link
+    rel="stylesheet"
+    href="style.css"
+  >
+
 </head>
+
 
 <body>
 
   <div class="app-shell">
 
-    <!-- ==================================================
+
+    <!-- =========================================
          CABEÇALHO
-    =================================================== -->
+    ========================================== -->
 
     <header class="app-header">
 
@@ -30,6 +43,7 @@
         <div class="brand-icon">
           LF
         </div>
+
 
         <div>
 
@@ -45,6 +59,7 @@
 
       </div>
 
+
       <button
         class="profile-button"
         type="button"
@@ -56,14 +71,18 @@
     </header>
 
 
-    <!-- ==================================================
+
+    <!-- =========================================
          HOME
-    =================================================== -->
+    ========================================== -->
 
     <main
       id="homeScreen"
       class="app-main"
     >
+
+
+      <!-- SAUDAÇÃO -->
 
       <section class="welcome-section">
 
@@ -74,9 +93,11 @@
           Carregando data...
         </p>
 
+
         <h2 id="welcomeTitle">
           Bom dia.
         </h2>
+
 
         <p
           id="welcomeSubtitle"
@@ -86,6 +107,7 @@
         </p>
 
       </section>
+
 
 
       <!-- PRÓXIMA ATIVIDADE -->
@@ -100,11 +122,13 @@
               PRÓXIMA ATIVIDADE
             </span>
 
+
             <h3 id="nextTaskTitle">
               Carregando...
             </h3>
 
           </div>
+
 
           <div class="next-icon">
             ⚡
@@ -113,7 +137,9 @@
         </div>
 
 
+
         <div class="next-info">
+
 
           <div>
 
@@ -128,6 +154,7 @@
           </div>
 
 
+
           <div>
 
             <span>
@@ -140,14 +167,19 @@
 
           </div>
 
+
         </div>
 
       </section>
 
 
-      <!-- RESUMO -->
+
+      <!-- =========================================
+           RESUMO
+      ========================================== -->
 
       <section class="overview-grid">
+
 
         <article class="overview-card card">
 
@@ -168,6 +200,7 @@
           </div>
 
         </article>
+
 
 
         <article class="overview-card card">
@@ -191,6 +224,7 @@
         </article>
 
 
+
         <article class="overview-card card">
 
           <div class="overview-icon">
@@ -211,10 +245,14 @@
 
         </article>
 
+
       </section>
 
 
-      <!-- PROGRESSO DO DIA -->
+
+      <!-- =========================================
+           PROGRESSO DO DIA
+      ========================================== -->
 
       <section
         id="progressSection"
@@ -222,6 +260,7 @@
       >
 
         <div class="card-header">
+
 
           <div>
 
@@ -235,6 +274,7 @@
 
           </div>
 
+
           <span
             id="dayBadge"
             class="day-badge"
@@ -242,7 +282,9 @@
             CARREGANDO
           </span>
 
+
         </div>
+
 
 
         <div class="progress-track">
@@ -253,6 +295,7 @@
           ></div>
 
         </div>
+
 
 
         <div class="progress-footer">
@@ -267,14 +310,20 @@
 
         </div>
 
+
       </section>
 
 
-      <!-- ROTINA -->
+
+      <!-- =========================================
+           ROTINA
+      ========================================== -->
 
       <section class="routine-section">
 
+
         <div class="section-heading">
+
 
           <div>
 
@@ -288,6 +337,7 @@
 
           </div>
 
+
           <button
             class="text-button"
             id="resetTasks"
@@ -296,7 +346,9 @@
             Resetar
           </button>
 
+
         </div>
+
 
 
         <div
@@ -304,14 +356,20 @@
           class="task-list"
         ></div>
 
+
       </section>
 
 
-      <!-- ÁGUA -->
+
+      <!-- =========================================
+           HIDRATAÇÃO
+      ========================================== -->
 
       <section class="water-card card">
 
+
         <div class="card-header">
+
 
           <div>
 
@@ -325,6 +383,7 @@
 
           </div>
 
+
           <strong
             id="waterGoalText"
             class="water-goal"
@@ -332,7 +391,9 @@
             0 / 4 L
           </strong>
 
+
         </div>
+
 
 
         <div class="water-track">
@@ -345,7 +406,9 @@
         </div>
 
 
+
         <div class="water-buttons">
+
 
           <button
             class="water-button"
@@ -355,6 +418,7 @@
             +250 ml
           </button>
 
+
           <button
             class="water-button primary"
             data-water="500"
@@ -362,6 +426,7 @@
           >
             +500 ml
           </button>
+
 
           <button
             class="water-button reset"
@@ -371,85 +436,124 @@
             Zerar
           </button>
 
+
         </div>
+
 
       </section>
 
 
-      <!-- PMMG RESUMO -->
+
+      <!-- =========================================
+           ESTUDOS PMMG
+      ========================================== -->
 
       <section
-        id="pmmgSection"
-        class="pmmg-card card"
+        id="studySection"
+        class="study-card card"
       >
 
-        <div class="pmmg-top">
 
-          <div class="pmmg-icon">
+        <div class="study-top">
+
+
+          <div class="study-icon">
             👮
           </div>
 
-          <div class="pmmg-content">
+
+          <div class="study-content">
 
             <span class="section-label">
-              PROJETO PMMG
+              ESTUDOS PMMG
             </span>
 
             <h3>
-              Preparação para Soldado
+              Missão de estudo
             </h3>
 
+
             <p id="studyText">
-              Preparando seu plano de estudos.
+              Organizando o estudo dentro da sua rotina.
             </p>
 
           </div>
 
+
         </div>
 
 
-        <div class="pmmg-home-progress">
 
-          <div class="pmmg-home-progress-head">
+        <div class="study-summary-grid">
+
+
+          <div>
 
             <span>
-              Progresso geral
+              Hoje
             </span>
 
-            <strong id="pmmgHomeProgressText">
-              0%
+            <strong id="studyTodayStatus">
+              Planejado
             </strong>
 
           </div>
 
-          <div class="pmmg-progress-track">
 
-            <div
-              id="pmmgHomeProgressBar"
-              class="pmmg-progress-bar"
-            ></div>
+
+          <div>
+
+            <span>
+              Meta
+            </span>
+
+            <strong id="studyDailyGoal">
+              2h
+            </strong>
 
           </div>
+
+
+
+          <div>
+
+            <span>
+              Tipo
+            </span>
+
+            <strong id="studyDayType">
+              Teoria
+            </strong>
+
+          </div>
+
 
         </div>
 
 
+
         <button
-          id="openPMMGButton"
+          id="studyButton"
           class="main-action-button"
           type="button"
         >
-          Abrir Central PMMG
+          Ver plano de estudo
         </button>
+
 
       </section>
 
 
-      <!-- ÁREAS -->
+
+      <!-- =========================================
+           ÁREAS DA VIDA
+      ========================================== -->
 
       <section class="areas-section">
 
+
         <div class="section-heading">
+
 
           <div>
 
@@ -463,75 +567,128 @@
 
           </div>
 
+
         </div>
+
 
 
         <div class="areas-grid">
 
+
           <button
             class="area-card"
+            id="academyAreaButton"
             type="button"
           >
-            <span>🏋️</span>
+
+            <span>
+              🏋️
+            </span>
+
             Academia
+
           </button>
+
+
 
           <button
             class="area-card"
-            id="areaPMMG"
+            id="studyAreaButton"
             type="button"
           >
-            <span>👮</span>
-            PMMG
+
+            <span>
+              👮
+            </span>
+
+            Estudos
+
           </button>
+
+
 
           <button
             class="area-card"
+            id="foodAreaButton"
             type="button"
           >
-            <span>🥘</span>
+
+            <span>
+              🥘
+            </span>
+
             Alimentação
+
           </button>
+
+
 
           <button
             class="area-card"
+            id="familyAreaButton"
             type="button"
           >
-            <span>👧</span>
+
+            <span>
+              👧
+            </span>
+
             Família
+
           </button>
+
+
 
           <button
             class="area-card"
+            id="motorcycleAreaButton"
             type="button"
           >
-            <span>🏍️</span>
+
+            <span>
+              🏍️
+            </span>
+
             Moto
+
           </button>
+
+
 
           <button
             class="area-card"
+            id="careAreaButton"
             type="button"
           >
-            <span>🧴</span>
+
+            <span>
+              🧴
+            </span>
+
             Cuidados
+
           </button>
+
 
         </div>
 
+
       </section>
+
 
     </main>
 
 
-    <!-- ==================================================
+
+    <!-- =========================================
          AGENDA
-    =================================================== -->
+    ========================================== -->
 
     <main
       id="agendaScreen"
       class="app-main screen hidden"
     >
+
 
       <section class="screen-title">
 
@@ -544,13 +701,15 @@
         </h2>
 
         <p>
-          Veja automaticamente seus dias de trabalho e folga.
+          Seus dias de trabalho, folga e compromissos organizados.
         </p>
 
       </section>
 
 
+
       <section class="calendar-toolbar card">
+
 
         <button
           id="prevMonth"
@@ -559,6 +718,8 @@
         >
           ‹
         </button>
+
+
 
         <div class="calendar-title-area">
 
@@ -572,6 +733,8 @@
 
         </div>
 
+
+
         <button
           id="nextMonth"
           class="calendar-arrow"
@@ -580,27 +743,43 @@
           ›
         </button>
 
+
       </section>
+
 
 
       <div class="calendar-legend">
 
+
         <span>
+
           <i class="legend-dot work-dot"></i>
+
           Trabalho
+
         </span>
 
+
         <span>
+
           <i class="legend-dot off-dot"></i>
+
           Folga
+
         </span>
 
+
         <span>
+
           <i class="legend-dot today-dot"></i>
+
           Hoje
+
         </span>
+
 
       </div>
+
 
 
       <div class="calendar-weekdays">
@@ -616,10 +795,12 @@
       </div>
 
 
+
       <div
         id="calendarGrid"
         class="calendar-grid"
       ></div>
+
 
 
       <section class="agenda-details card">
@@ -628,7 +809,9 @@
           DIA SELECIONADO
         </span>
 
+
         <div class="selected-date-header">
+
 
           <div>
 
@@ -642,6 +825,7 @@
 
           </div>
 
+
           <span
             id="selectedDayBadge"
             class="selected-day-badge"
@@ -649,7 +833,9 @@
             —
           </span>
 
+
         </div>
+
 
 
         <div
@@ -657,12 +843,16 @@
           class="selected-day-tasks"
         ></div>
 
+
       </section>
+
 
 
       <section class="next-days-section">
 
+
         <div class="section-heading">
+
 
           <div>
 
@@ -676,7 +866,9 @@
 
           </div>
 
+
         </div>
+
 
 
         <div
@@ -684,498 +876,201 @@
           class="next-days-list"
         ></div>
 
+
       </section>
+
 
     </main>
 
 
-    <!-- ==================================================
-         CENTRAL PMMG
-    =================================================== -->
+
+    <!-- =========================================
+         PLANO DE ESTUDOS
+    ========================================== -->
 
     <main
-      id="pmmgScreen"
+      id="studyScreen"
       class="app-main screen hidden"
     >
+
 
       <section class="screen-title">
 
         <span class="section-label">
-          MISSÃO PMMG
+          FOCO PMMG
         </span>
 
         <h2>
-          Central de Estudos
+          Plano de Estudos
         </h2>
 
         <p>
-          Evolução organizada do básico até a prova.
+          O LifeFlow organiza quando estudar. O conteúdo continua no seu site exclusivo da PMMG.
         </p>
 
       </section>
 
 
-      <section class="pmmg-dashboard card">
 
-        <div class="pmmg-dashboard-top">
+      <section class="study-plan-card card">
 
-          <div>
-
-            <span class="section-label">
-              PROGRESSO GERAL
-            </span>
-
-            <h3>
-              Preparação PMMG
-            </h3>
-
-          </div>
-
-          <div class="pmmg-big-progress">
-
-            <strong id="pmmgOverallPercent">
-              0%
-            </strong>
-
-            <span>
-              concluído
-            </span>
-
-          </div>
-
-        </div>
-
-
-        <div class="pmmg-progress-track">
-
-          <div
-            id="pmmgOverallBar"
-            class="pmmg-progress-bar"
-          ></div>
-
-        </div>
-
-
-        <div class="pmmg-stats-grid">
-
-          <div>
-
-            <span>
-              Matérias
-            </span>
-
-            <strong>
-              6
-            </strong>
-
-          </div>
-
-          <div>
-
-            <span>
-              Concluídas
-            </span>
-
-            <strong id="pmmgCompletedCount">
-              0
-            </strong>
-
-          </div>
-
-          <div>
-
-            <span>
-              Meta
-            </span>
-
-            <strong>
-              70%
-            </strong>
-
-          </div>
-
-        </div>
-
-      </section>
-
-
-      <section class="pmmg-today-card card">
 
         <div class="card-header">
 
+
           <div>
 
             <span class="section-label">
-              MISSÃO DE HOJE
+              HOJE
             </span>
 
-            <h3 id="pmmgTodaySubject">
-              Português
+            <h3 id="studyPlanTitle">
+              Plano do dia
             </h3>
 
           </div>
 
-          <span class="mission-icon">
-            🎯
+
+          <span
+            id="studyPlanBadge"
+            class="day-badge"
+          >
+            FOLGA
           </span>
+
 
         </div>
 
-        <p id="pmmgTodayDescription">
-          Continue avançando nos estudos.
-        </p>
 
-        <button
-          id="continueStudyButton"
-          class="main-action-button"
-          type="button"
-        >
-          Continuar estudando
-        </button>
+
+        <div class="study-plan-main">
+
+          <span id="studyPlanIcon">
+            📚
+          </span>
+
+
+          <div>
+
+            <strong id="studyPlanMainTitle">
+              Bloco principal
+            </strong>
+
+            <p id="studyPlanDescription">
+              Organizando seu estudo.
+            </p>
+
+          </div>
+
+        </div>
+
 
       </section>
 
 
-      <section class="pmmg-subjects-section">
+
+      <section class="study-schedule-section">
+
 
         <div class="section-heading">
 
+
           <div>
 
             <span class="section-label">
-              MATÉRIAS
+              CRONOGRAMA
             </span>
 
             <h3>
-              Seu caminho de estudos
+              Estudos do dia
             </h3>
 
           </div>
 
+
         </div>
 
 
+
         <div
-          id="pmmgSubjectsList"
-          class="pmmg-subjects-list"
+          id="studyScheduleList"
+          class="study-schedule-list"
         ></div>
+
 
       </section>
 
 
-      <section class="study-rule-card card">
+
+      <section class="study-method-card card">
 
         <span class="section-label">
-          REGRA DE PROGRESSÃO
+          MÉTODO
         </span>
 
         <h3>
-          Mínimo de 70%
+          Estudar com qualidade
         </h3>
 
-        <p>
-          Cada aula possui conteúdo e prova. Ao alcançar pelo menos 70% na prova, a próxima aula será desbloqueada.
-        </p>
 
-      </section>
+        <div class="study-method-list">
 
-    </main>
-
-
-    <!-- ==================================================
-         TELA DA MATÉRIA
-    =================================================== -->
-
-    <main
-      id="subjectScreen"
-      class="app-main screen hidden"
-    >
-
-      <button
-        id="backToPMMGButton"
-        class="back-button"
-        type="button"
-      >
-        ← Voltar
-      </button>
-
-
-      <section class="screen-title">
-
-        <span class="section-label">
-          MATÉRIA
-        </span>
-
-        <h2 id="subjectScreenTitle">
-          Português
-        </h2>
-
-        <p id="subjectScreenDescription">
-          Sua trilha completa de estudos.
-        </p>
-
-      </section>
-
-
-      <section class="subject-overview-card card">
-
-        <div class="subject-overview-top">
-
-          <div>
-
-            <span class="section-label">
-              PROGRESSO
-            </span>
-
-            <h3 id="subjectProgressTitle">
-              Português
-            </h3>
-
-          </div>
-
-          <strong id="subjectOverallPercent">
-            0%
-          </strong>
-
-        </div>
-
-
-        <div class="pmmg-progress-track">
-
-          <div
-            id="subjectOverallBar"
-            class="pmmg-progress-bar"
-          ></div>
-
-        </div>
-
-
-        <div class="subject-overview-stats">
 
           <div>
 
             <span>
-              Aulas
+              01
             </span>
 
-            <strong id="subjectLessonsTotal">
-              0
-            </strong>
+            <p>
+              Leia a teoria no seu site PMMG.
+            </p>
 
           </div>
+
 
           <div>
 
             <span>
-              Concluídas
+              02
             </span>
 
-            <strong id="subjectLessonsCompleted">
-              0
-            </strong>
+            <p>
+              Faça questões depois da aula.
+            </p>
 
           </div>
+
 
           <div>
 
             <span>
-              Liberação
+              03
             </span>
 
-            <strong>
-              70%
-            </strong>
+            <p>
+              Revise os erros antes de avançar.
+            </p>
 
           </div>
 
-        </div>
-
-      </section>
-
-
-      <section class="lessons-section">
-
-        <div class="section-heading">
-
-          <div>
-
-            <span class="section-label">
-              AULAS
-            </span>
-
-            <h3>
-              Trilha de aprendizado
-            </h3>
-
-          </div>
 
         </div>
 
 
-        <div
-          id="lessonsList"
-          class="lessons-list"
-        ></div>
-
       </section>
+
 
     </main>
 
 
-    <!-- ==================================================
-         TELA DA AULA
-    =================================================== -->
 
-    <main
-      id="lessonScreen"
-      class="app-main screen hidden"
-    >
-
-      <button
-        id="backToSubjectButton"
-        class="back-button"
-        type="button"
-      >
-        ← Voltar para matéria
-      </button>
-
-
-      <section class="lesson-header">
-
-        <span
-          id="lessonNumber"
-          class="section-label"
-        >
-          AULA 01
-        </span>
-
-        <h2 id="lessonTitle">
-          Interpretação de Texto
-        </h2>
-
-        <p id="lessonSubtitle">
-          Leia com atenção e depois faça a prova.
-        </p>
-
-      </section>
-
-
-      <!-- CONTEÚDO -->
-
-      <section
-        id="lessonContentCard"
-        class="lesson-content-card card"
-      >
-
-        <div
-          id="lessonContent"
-          class="lesson-content"
-        ></div>
-
-      </section>
-
-
-      <button
-        id="startQuizButton"
-        class="main-action-button lesson-main-button"
-        type="button"
-      >
-        Fazer prova da aula
-      </button>
-
-
-      <!-- PROVA -->
-
-      <section
-        id="quizSection"
-        class="quiz-section hidden"
-      >
-
-        <div class="section-heading">
-
-          <div>
-
-            <span class="section-label">
-              PROVA
-            </span>
-
-            <h3>
-              Teste seu conhecimento
-            </h3>
-
-          </div>
-
-        </div>
-
-
-        <form id="quizForm">
-
-          <div
-            id="quizQuestions"
-            class="quiz-questions"
-          ></div>
-
-
-          <button
-            class="main-action-button"
-            type="submit"
-          >
-            Finalizar prova
-          </button>
-
-        </form>
-
-      </section>
-
-
-      <!-- RESULTADO -->
-
-      <section
-        id="quizResult"
-        class="quiz-result card hidden"
-      >
-
-        <span class="section-label">
-          RESULTADO
-        </span>
-
-        <div
-          id="quizResultIcon"
-          class="quiz-result-icon"
-        >
-          🎯
-        </div>
-
-        <h3 id="quizResultTitle">
-          Resultado
-        </h3>
-
-        <strong id="quizScore">
-          0%
-        </strong>
-
-        <p id="quizResultMessage">
-          Resultado da sua prova.
-        </p>
-
-        <button
-          id="finishLessonButton"
-          class="main-action-button"
-          type="button"
-        >
-          Voltar para aulas
-        </button>
-
-      </section>
-
-    </main>
-
-
-    <!-- ==================================================
+    <!-- =========================================
          MENU INFERIOR
-    =================================================== -->
+    ========================================== -->
 
     <nav class="bottom-nav">
+
 
       <button
         class="nav-item active"
@@ -1192,6 +1087,7 @@
         </span>
 
       </button>
+
 
 
       <button
@@ -1211,9 +1107,10 @@
       </button>
 
 
+
       <button
         class="nav-item"
-        id="pmmgButton"
+        id="studyNavButton"
         type="button"
       >
 
@@ -1222,10 +1119,11 @@
         </span>
 
         <span>
-          PMMG
+          Estudos
         </span>
 
       </button>
+
 
 
       <button
@@ -1244,7 +1142,9 @@
 
       </button>
 
+
     </nav>
+
 
   </div>
 
@@ -1252,4 +1152,5 @@
   <script src="app.js"></script>
 
 </body>
+
 </html>
