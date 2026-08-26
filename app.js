@@ -4197,6 +4197,612 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
 
+
+  // =====================================================
+  // LIFEFLOW 2.6 — ACADEMIA INTELIGENTE
+  // =====================================================
+
+  const gymStorageKey = "lifeflow-gym-v26";
+
+  let gymHistory = {};
+
+  try {
+    const savedGym = localStorage.getItem(gymStorageKey);
+    if (savedGym) gymHistory = JSON.parse(savedGym) || {};
+  } catch (error) {
+    console.log("Erro ao carregar academia:", error);
+    gymHistory = {};
+  }
+
+  let workoutStartedAt = null;
+  let workoutElapsedBeforeStart = 0;
+  let workoutTimerInterval = null;
+
+  let restRemaining = 0;
+  let restTimerInterval = null;
+
+  function saveGymHistory() {
+    localStorage.setItem(
+      gymStorageKey,
+      JSON.stringify(gymHistory)
+    );
+  }
+
+  function getTodayGym() {
+    return gymHistory[todayKey] || {
+      date: todayKey,
+      started: false,
+      workoutSeconds: 0,
+      completedExercises: [],
+      notes: "",
+      updatedAt: null
+    };
+  }
+
+  function saveTodayGym(patch = {}) {
+    gymHistory[todayKey] = {
+      ...getTodayGym(),
+      ...patch,
+      updatedAt: new Date().toISOString()
+    };
+    saveGymHistory();
+  }
+
+  function formatTimer(totalSeconds) {
+    const safe = Math.max(0, Math.floor(totalSeconds || 0));
+    const hours = Math.floor(safe / 3600);
+    const minutes = Math.floor((safe % 3600) / 60);
+    const seconds = safe % 60;
+
+    if (hours > 0) {
+      return `${String(hours).padStart(2,"0")}:${String(minutes).padStart(2,"0")}:${String(seconds).padStart(2,"0")}`;
+    }
+
+    return `${String(minutes).padStart(2,"0")}:${String(seconds).padStart(2,"0")}`;
+  }
+
+  function currentWorkoutSeconds() {
+    if (!workoutStartedAt) {
+      return workoutElapsedBeforeStart;
+    }
+
+    return workoutElapsedBeforeStart +
+      Math.floor((Date.now() - workoutStartedAt) / 1000);
+  }
+
+  function updateWorkoutTimerDisplay() {
+    const display = document.getElementById("gymWorkoutTimer");
+    if (display) {
+      display.textContent =
+        formatTimer(currentWorkoutSeconds());
+    }
+  }
+
+  function startWorkoutTimer() {
+    if (workoutStartedAt) return;
+
+    workoutStartedAt = Date.now();
+    saveTodayGym({ started: true });
+
+    clearInterval(workoutTimerInterval);
+    workoutTimerInterval = setInterval(
+      updateWorkoutTimerDisplay,
+      1000
+    );
+
+    updateWorkoutTimerDisplay();
+    updateGymTimerButtons();
+  }
+
+  function pauseWorkoutTimer() {
+    if (!workoutStartedAt) return;
+
+    workoutElapsedBeforeStart =
+      currentWorkoutSeconds();
+
+    workoutStartedAt = null;
+
+    clearInterval(workoutTimerInterval);
+    workoutTimerInterval = null;
+
+    saveTodayGym({
+      workoutSeconds: workoutElapsedBeforeStart,
+      started: false
+    });
+
+    updateWorkoutTimerDisplay();
+    updateGymTimerButtons();
+  }
+
+  function resetWorkoutTimer() {
+    workoutStartedAt = null;
+    workoutElapsedBeforeStart = 0;
+
+    clearInterval(workoutTimerInterval);
+    workoutTimerInterval = null;
+
+    saveTodayGym({
+      workoutSeconds: 0,
+      started: false
+    });
+
+    updateWorkoutTimerDisplay();
+    updateGymTimerButtons();
+  }
+
+  function updateGymTimerButtons() {
+    const start = document.getElementById("gymStartWorkout");
+    const pause = document.getElementById("gymPauseWorkout");
+
+    if (start) start.disabled = Boolean(workoutStartedAt);
+    if (pause) pause.disabled = !workoutStartedAt;
+  }
+
+  function updateRestTimerDisplay() {
+    const display = document.getElementById("gymRestTimer");
+    if (!display) return;
+
+    display.textContent = formatTimer(restRemaining);
+
+    if (restRemaining <= 0) {
+      display.classList.remove("running");
+    }
+  }
+
+  function startRestTimer(seconds) {
+    restRemaining = Math.max(0, Number(seconds) || 0);
+
+    clearInterval(restTimerInterval);
+
+    const display = document.getElementById("gymRestTimer");
+    display?.classList.add("running");
+
+    updateRestTimerDisplay();
+
+    restTimerInterval = setInterval(() => {
+      restRemaining -= 1;
+      updateRestTimerDisplay();
+
+      if (restRemaining <= 0) {
+        clearInterval(restTimerInterval);
+        restTimerInterval = null;
+
+        if ("vibrate" in navigator) {
+          navigator.vibrate([180, 100, 180]);
+        }
+      }
+    }, 1000);
+  }
+
+  function addRestTime(seconds) {
+    restRemaining =
+      Math.max(0, restRemaining + Number(seconds || 0));
+
+    updateRestTimerDisplay();
+  }
+
+  function setupGymHub() {
+    if (!document.getElementById("gymScreen")) {
+      const sleepScreen =
+        document.getElementById("sleepScreen");
+
+      const progressScreen =
+        document.getElementById("progressScreen");
+
+      const gymScreen =
+        document.createElement("section");
+
+      gymScreen.id = "gymScreen";
+      gymScreen.className = "hidden lifeflow-gym-screen";
+
+      const reference = sleepScreen || progressScreen;
+
+      if (reference?.parentNode) {
+        reference.parentNode.insertBefore(
+          gymScreen,
+          reference.nextSibling
+        );
+      } else {
+        document.body.appendChild(gymScreen);
+      }
+    }
+
+    if (!document.getElementById("gymButton")) {
+      const sleepButton =
+        document.getElementById("sleepButton");
+
+      const progressButton =
+        document.getElementById("progressButton");
+
+      const referenceButton =
+        sleepButton || progressButton;
+
+      if (referenceButton?.parentNode) {
+        const gymButton =
+          document.createElement(
+            referenceButton.tagName || "button"
+          );
+
+        gymButton.id = "gymButton";
+        gymButton.className =
+          referenceButton.className || "nav-item";
+        gymButton.classList.remove("active");
+        gymButton.type = "button";
+        gymButton.setAttribute(
+          "aria-label",
+          "Academia"
+        );
+
+        gymButton.innerHTML = `
+          <span class="gym-nav-icon">🏋️</span>
+          <span class="gym-nav-label">Academia</span>
+        `;
+
+        referenceButton.parentNode.insertBefore(
+          gymButton,
+          referenceButton.nextSibling
+        );
+      }
+    }
+  }
+
+  function renderGymPanel() {
+    const screen =
+      document.getElementById("gymScreen");
+
+    if (!screen) return;
+
+    const saved = getTodayGym();
+
+    if (!workoutStartedAt) {
+      workoutElapsedBeforeStart =
+        Number(saved.workoutSeconds || 0);
+    }
+
+    const workoutType =
+      workDay
+        ? "Treino de dia de trabalho"
+        : "Treino de folga";
+
+    const workoutHint =
+      workDay
+        ? "Meta aproximada: 1h–1h15"
+        : "Musculação + cardio • treino mais longo";
+
+    screen.innerHTML = `
+      <div class="gym-page-header">
+        <div>
+          <span>TREINO DO DIA</span>
+          <h2>🏋️ Academia</h2>
+          <p>${workoutType} • ${workoutHint}</p>
+        </div>
+        <span class="gym-day-badge">
+          ${workDay ? "Trabalho" : "Folga"}
+        </span>
+      </div>
+
+      <section class="gym-timer-card">
+        <div class="gym-section-heading">
+          <div>
+            <span>CRONÔMETRO</span>
+            <h3>Tempo de treino</h3>
+          </div>
+          <span class="gym-live-dot">● AO VIVO</span>
+        </div>
+
+        <strong id="gymWorkoutTimer" class="gym-main-timer">
+          ${formatTimer(currentWorkoutSeconds())}
+        </strong>
+
+        <div class="gym-timer-actions">
+          <button id="gymStartWorkout" type="button">▶ Iniciar</button>
+          <button id="gymPauseWorkout" type="button">Ⅱ Pausar</button>
+          <button id="gymResetWorkout" type="button">↻ Zerar</button>
+        </div>
+      </section>
+
+      <section class="gym-rest-card">
+        <div class="gym-section-heading">
+          <div>
+            <span>DESCANSO ENTRE SÉRIES</span>
+            <h3>⏳ Timer de descanso</h3>
+          </div>
+        </div>
+
+        <strong id="gymRestTimer" class="gym-rest-timer">
+          ${formatTimer(restRemaining)}
+        </strong>
+
+        <div class="gym-rest-presets">
+          <button type="button" data-rest="30">30s</button>
+          <button type="button" data-rest="60">60s</button>
+          <button type="button" data-rest="90">90s</button>
+          <button type="button" data-rest="120">120s</button>
+        </div>
+
+        <div class="gym-rest-adjust">
+          <button type="button" data-rest-add="-15">−15s</button>
+          <button type="button" data-rest-add="15">+15s</button>
+          <button type="button" id="gymRestStop">Zerar</button>
+        </div>
+      </section>
+
+      <section class="gym-coming-card">
+        <span>ACADEMIA INTELIGENTE</span>
+        <h3>Base do seu treino pronta</h3>
+        <p>
+          O cronômetro total e o descanso entre séries já estão funcionando.
+          Na próxima evolução desta aba entram exercícios, séries,
+          repetições, cargas e histórico de evolução.
+        </p>
+      </section>
+    `;
+
+    document
+      .getElementById("gymStartWorkout")
+      ?.addEventListener("click", startWorkoutTimer);
+
+    document
+      .getElementById("gymPauseWorkout")
+      ?.addEventListener("click", pauseWorkoutTimer);
+
+    document
+      .getElementById("gymResetWorkout")
+      ?.addEventListener("click", resetWorkoutTimer);
+
+    document
+      .querySelectorAll("[data-rest]")
+      .forEach(button => {
+        button.addEventListener("click", () => {
+          startRestTimer(
+            Number(button.dataset.rest)
+          );
+        });
+      });
+
+    document
+      .querySelectorAll("[data-rest-add]")
+      .forEach(button => {
+        button.addEventListener("click", () => {
+          addRestTime(
+            Number(button.dataset.restAdd)
+          );
+        });
+      });
+
+    document
+      .getElementById("gymRestStop")
+      ?.addEventListener("click", () => {
+        restRemaining = 0;
+        clearInterval(restTimerInterval);
+        restTimerInterval = null;
+        updateRestTimerDisplay();
+      });
+
+    updateWorkoutTimerDisplay();
+    updateRestTimerDisplay();
+    updateGymTimerButtons();
+  }
+
+  function injectGymStyles() {
+    if (document.getElementById("lifeflowGymStyles")) return;
+
+    const style = document.createElement("style");
+    style.id = "lifeflowGymStyles";
+
+    style.textContent = `
+      .lifeflow-gym-screen {
+        width: 100%;
+      }
+
+      .gym-page-header,
+      .gym-timer-card,
+      .gym-rest-card,
+      .gym-coming-card {
+        border: 1px solid rgba(255,255,255,.075);
+        background:
+          radial-gradient(circle at 92% 0%, rgba(92,230,153,.09), transparent 32%),
+          linear-gradient(145deg, rgba(18,18,20,.98), rgba(7,7,8,.98));
+        box-shadow: 0 22px 60px rgba(0,0,0,.32);
+      }
+
+      .gym-page-header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 12px;
+        margin: 4px 0 14px;
+        padding: 18px;
+        border-radius: 22px;
+      }
+
+      .gym-page-header > div > span,
+      .gym-section-heading span,
+      .gym-coming-card > span {
+        color: #66d99d;
+        font-size: 8px;
+        font-weight: 950;
+        letter-spacing: 1px;
+      }
+
+      .gym-page-header h2 {
+        margin: 5px 0 3px;
+        color: #f4f4f5;
+        font-size: 24px;
+      }
+
+      .gym-page-header p,
+      .gym-coming-card p {
+        margin: 0;
+        color: #7f7f87;
+        font-size: 10px;
+        line-height: 1.55;
+      }
+
+      .gym-day-badge {
+        flex: 0 0 auto;
+        border: 1px solid rgba(92,230,153,.17);
+        border-radius: 999px;
+        padding: 7px 10px;
+        background: rgba(92,230,153,.06);
+        color: #8ae9b6;
+        font-size: 8px;
+        font-weight: 900;
+      }
+
+      .gym-timer-card,
+      .gym-rest-card,
+      .gym-coming-card {
+        margin: 12px 0;
+        padding: 16px;
+        border-radius: 20px;
+      }
+
+      .gym-section-heading {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 10px;
+      }
+
+      .gym-section-heading h3,
+      .gym-coming-card h3 {
+        margin: 5px 0 0;
+        color: #eeeeef;
+        font-size: 16px;
+      }
+
+      .gym-live-dot {
+        color: #65dda0 !important;
+        font-size: 7px !important;
+      }
+
+      .gym-main-timer,
+      .gym-rest-timer {
+        display: block;
+        margin: 20px 0;
+        text-align: center;
+        color: #f7f7f8;
+        font-variant-numeric: tabular-nums;
+        letter-spacing: 2px;
+      }
+
+      .gym-main-timer {
+        font-size: clamp(38px, 10vw, 58px);
+      }
+
+      .gym-rest-timer {
+        font-size: clamp(34px, 9vw, 48px);
+      }
+
+      .gym-rest-timer.running {
+        color: #8ae9b6;
+      }
+
+      .gym-timer-actions,
+      .gym-rest-presets,
+      .gym-rest-adjust {
+        display: grid;
+        gap: 8px;
+      }
+
+      .gym-timer-actions {
+        grid-template-columns: 1.2fr 1fr 1fr;
+      }
+
+      .gym-rest-presets {
+        grid-template-columns: repeat(4, 1fr);
+      }
+
+      .gym-rest-adjust {
+        grid-template-columns: repeat(3, 1fr);
+        margin-top: 8px;
+      }
+
+      .gym-timer-actions button,
+      .gym-rest-presets button,
+      .gym-rest-adjust button {
+        min-height: 48px;
+        border: 1px solid rgba(255,255,255,.08);
+        border-radius: 14px;
+        background: #0d0d0f;
+        color: #d5d5d8;
+        font-size: 10px;
+        font-weight: 900;
+        cursor: pointer;
+        touch-action: manipulation;
+      }
+
+      .gym-timer-actions button:first-child {
+        border-color: rgba(92,230,153,.22);
+        background: rgba(92,230,153,.08);
+        color: #8ae9b6;
+      }
+
+      .gym-timer-actions button:disabled {
+        opacity: .35;
+      }
+
+      .gym-coming-card p {
+        margin-top: 8px;
+      }
+
+      #gymButton .gym-nav-icon,
+      #gymButton .gym-nav-label {
+        pointer-events: none;
+      }
+
+      .gym-nav-icon {
+        display: block;
+        font-size: 17px;
+        line-height: 1;
+      }
+
+      .gym-nav-label {
+        display: block;
+        margin-top: 3px;
+        font-size: 8px;
+        font-weight: 800;
+      }
+
+      @media (max-width: 520px) {
+        .gym-page-header {
+          padding: 15px;
+          border-radius: 18px;
+        }
+
+        .gym-page-header h2 {
+          font-size: 21px;
+        }
+
+        .gym-timer-card,
+        .gym-rest-card,
+        .gym-coming-card {
+          padding: 14px;
+          border-radius: 18px;
+        }
+
+        .gym-rest-presets {
+          grid-template-columns: repeat(2, 1fr);
+        }
+
+        .gym-timer-actions button,
+        .gym-rest-presets button,
+        .gym-rest-adjust button {
+          min-height: 50px;
+        }
+
+        #gymButton {
+          min-width: 0 !important;
+          padding-left: 3px !important;
+          padding-right: 3px !important;
+        }
+      }
+    `;
+
+    document.head.appendChild(style);
+  }
+
   // =====================================================
   // LIFEFLOW 2.5 — SLEEP HUB / ABA SONO
   // =====================================================
@@ -4545,6 +5151,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     "sleepScreen",
 
+    "gymScreen",
+
     "progressScreen"
 
   ];
@@ -4724,6 +5332,21 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
 
+
+  function showGym() {
+    showScreen("gymScreen");
+    clearNav();
+
+    document
+      .getElementById("gymButton")
+      ?.classList.add("active");
+
+    renderGymPanel();
+
+    window.scrollTo(0, 0);
+  }
+
+
   function showProgress() {
 
     showScreen(
@@ -4754,6 +5377,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
   setupSleepHub();
+  setupGymHub();
 
   // =====================================================
   // NAVEGAÇÃO
@@ -4796,6 +5420,16 @@ document.addEventListener("DOMContentLoaded", () => {
     ?.addEventListener(
       "click",
       showSleep
+    );
+
+
+  document
+    .getElementById(
+      "gymButton"
+    )
+    ?.addEventListener(
+      "click",
+      showGym
     );
 
 
@@ -5160,6 +5794,7 @@ document.addEventListener("DOMContentLoaded", () => {
   injectHistoryStyles();
   injectSleepStyles();
   injectSleepHubStyles();
+  injectGymStyles();
 
   syncDailyEvolution();
   syncTodayHistory();
@@ -5171,6 +5806,7 @@ document.addEventListener("DOMContentLoaded", () => {
   renderStudyPlan();
 
   renderSleepPanel();
+  renderGymPanel();
 
   renderProgressScreen();
 
