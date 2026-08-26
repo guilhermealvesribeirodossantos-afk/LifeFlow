@@ -640,21 +640,115 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
   // =====================================================
-  // PRÓXIMA ATIVIDADE
+  // HOJE INTELIGENTE / PRÓXIMA ATIVIDADE
   // =====================================================
+
+  function timeToMinutes(time) {
+
+    const [hours, minutes] =
+      time
+        .split(":")
+        .map(Number);
+
+    return (hours * 60) + minutes;
+  }
+
+
+  function getCurrentMinutes() {
+
+    const now =
+      new Date();
+
+    return (
+      now.getHours() * 60 +
+      now.getMinutes()
+    );
+  }
+
+
+  function formatMinutesDistance(minutes) {
+
+    const absolute =
+      Math.abs(minutes);
+
+    const hours =
+      Math.floor(absolute / 60);
+
+    const mins =
+      absolute % 60;
+
+
+    if (hours === 0) {
+      return `${mins} min`;
+    }
+
+
+    if (mins === 0) {
+      return `${hours}h`;
+    }
+
+
+    return `${hours}h ${mins}min`;
+  }
+
+
+  function getSmartTask() {
+
+    const currentMinutes =
+      getCurrentMinutes();
+
+
+    const pending =
+      tasks
+        .map((task, index) => ({
+          task,
+          index,
+          minutes: timeToMinutes(task.time)
+        }))
+        .filter(item =>
+          !state.completed.includes(
+            item.index
+          )
+        );
+
+
+    if (pending.length === 0) {
+      return null;
+    }
+
+
+    const future =
+      pending.find(item =>
+        item.minutes >= currentMinutes
+      );
+
+
+    if (future) {
+
+      return {
+        ...future,
+        status: "future",
+        distance: future.minutes - currentMinutes
+      };
+    }
+
+
+    const overdue =
+      pending[pending.length - 1];
+
+
+    return {
+      ...overdue,
+      status: "overdue",
+      distance: currentMinutes - overdue.minutes
+    };
+  }
+
 
   function renderNextTask() {
 
-    const next =
-      tasks.find(
-        (
-          task,
-          index
-        ) =>
-          !state.completed.includes(
-            index
-          )
-      );
+    const smart =
+      getSmartTask();
 
 
     const title =
@@ -672,18 +766,31 @@ document.addEventListener("DOMContentLoaded", () => {
         "nextTaskDescription"
       );
 
+    const nextCard =
+      document.querySelector(
+        ".next-card"
+      );
+
 
     if (
       !title ||
       !time ||
       !description
     ) {
-
       return;
     }
 
 
-    if (!next) {
+    if (nextCard) {
+      nextCard.classList.remove(
+        "urgent",
+        "overdue",
+        "completed-day"
+      );
+    }
+
+
+    if (!smart) {
 
       title.textContent =
         "Rotina concluída";
@@ -692,20 +799,115 @@ document.addEventListener("DOMContentLoaded", () => {
         "✓";
 
       description.textContent =
-        "Todas as tarefas de hoje foram concluídas.";
+        "Todas as missões de hoje foram concluídas.";
+
+
+      if (nextCard) {
+        nextCard.classList.add(
+          "completed-day"
+        );
+      }
 
       return;
     }
 
 
     title.textContent =
-      next.title;
+      smart.task.title;
 
     time.textContent =
-      next.time;
+      smart.task.time;
+
+
+    if (smart.status === "overdue") {
+
+      description.textContent =
+        `ATRASADA HÁ ${formatMinutesDistance(smart.distance)} • ${smart.task.description}`;
+
+
+      if (nextCard) {
+        nextCard.classList.add(
+          "overdue"
+        );
+      }
+
+      return;
+    }
+
+
+    if (smart.distance === 0) {
+
+      description.textContent =
+        `AGORA • ${smart.task.description}`;
+
+
+      if (nextCard) {
+        nextCard.classList.add(
+          "urgent"
+        );
+      }
+
+      return;
+    }
+
+
+    if (smart.distance <= 30) {
+
+      description.textContent =
+        `FALTAM ${formatMinutesDistance(smart.distance)} • ${smart.task.description}`;
+
+
+      if (nextCard) {
+        nextCard.classList.add(
+          "urgent"
+        );
+      }
+
+      return;
+    }
+
 
     description.textContent =
-      next.description;
+      `Faltam ${formatMinutesDistance(smart.distance)} • ${smart.task.description}`;
+  }
+
+
+  function renderSmartSummary() {
+
+    const welcomeSubtitle =
+      document.getElementById(
+        "welcomeSubtitle"
+      );
+
+
+    if (!welcomeSubtitle) {
+      return;
+    }
+
+
+    const completed =
+      state.completed.length;
+
+    const total =
+      tasks.length;
+
+    const percentage =
+      getRoutinePercent();
+
+    const dayType =
+      workDay
+        ? "dia de trabalho"
+        : "dia de folga";
+
+
+    welcomeSubtitle.textContent =
+      `${completed} de ${total} missões concluídas • ${percentage}% do dia • ${dayType}.`;
+  }
+
+
+  function refreshSmartNow() {
+    renderNextTask();
+    renderSmartSummary();
   }
 
 
@@ -1406,6 +1608,8 @@ document.addEventListener("DOMContentLoaded", () => {
     renderWater();
 
     renderStudyHome();
+
+    renderSmartSummary();
   }
 
 
@@ -2335,6 +2539,16 @@ document.addEventListener("DOMContentLoaded", () => {
           }
         );
     }
+  );
+
+
+  // =====================================================
+  // ATUALIZAÇÃO INTELIGENTE DO HORÁRIO
+  // =====================================================
+
+  setInterval(
+    refreshSmartNow,
+    30000
   );
 
 
