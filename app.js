@@ -1,27 +1,42 @@
-// ======================================================
-// LIFEFLOW V2
-// Sistema principal da rotina
-// ======================================================
+// =====================================================
+// LIFEFLOW V2.1
+// ROTINA + AGENDA 12x36
+// =====================================================
 
 
-// ======================================================
-// CONFIGURAÇÃO DA ESCALA 12x36
-// ======================================================
+// =====================================================
+// CONFIGURAÇÃO DA ESCALA
+// =====================================================
 
-// 24/08/2026 foi definido como dia de TRABALHO.
-// A partir dessa data, o LifeFlow alterna automaticamente:
-// Trabalho → Folga → Trabalho → Folga...
+// 24/08/2026 = TRABALHO
 
-const WORK_ANCHOR = new Date(2026, 7, 24);
+const WORK_ANCHOR =
+  new Date(
+    2026,
+    7,
+    24
+  );
 
 
-// ======================================================
-// FUNÇÕES DE DATA
-// ======================================================
+// =====================================================
+// DATAS
+// =====================================================
 
-function getDateKey(date = new Date()) {
+function startOfDay(date) {
 
-  const year = date.getFullYear();
+  return new Date(
+    date.getFullYear(),
+    date.getMonth(),
+    date.getDate()
+  );
+
+}
+
+
+function getDateKey(date) {
+
+  const year =
+    date.getFullYear();
 
   const month =
     String(
@@ -38,28 +53,41 @@ function getDateKey(date = new Date()) {
 }
 
 
-function isWorkDay(date = new Date()) {
+function isSameDay(a, b) {
+
+  return (
+    a.getFullYear() ===
+      b.getFullYear() &&
+
+    a.getMonth() ===
+      b.getMonth() &&
+
+    a.getDate() ===
+      b.getDate()
+  );
+
+}
+
+
+function isWorkDay(date) {
 
   const anchor =
-    new Date(
-      WORK_ANCHOR.getFullYear(),
-      WORK_ANCHOR.getMonth(),
-      WORK_ANCHOR.getDate()
+    startOfDay(
+      WORK_ANCHOR
     );
 
 
   const current =
-    new Date(
-      date.getFullYear(),
-      date.getMonth(),
-      date.getDate()
+    startOfDay(
+      date
     );
 
 
   const difference =
     Math.round(
       (
-        current - anchor
+        current -
+        anchor
       ) /
       86400000
     );
@@ -70,12 +98,13 @@ function isWorkDay(date = new Date()) {
       difference % 2
     ) + 2
   ) % 2 === 0;
+
 }
 
 
-// ======================================================
+// =====================================================
 // SAUDAÇÃO
-// ======================================================
+// =====================================================
 
 function getGreeting() {
 
@@ -94,12 +123,13 @@ function getGreeting() {
 
 
   return "Boa noite.";
+
 }
 
 
-// ======================================================
-// ROTINA — DIA DE TRABALHO
-// ======================================================
+// =====================================================
+// ROTINA DE TRABALHO
+// =====================================================
 
 const workTasks = [
 
@@ -121,7 +151,7 @@ const workTasks = [
     time: "06:00",
     title: "Academia",
     description:
-      "Treino do dia de trabalho."
+      "Treino de aproximadamente 1 hora."
   },
 
   {
@@ -135,64 +165,64 @@ const workTasks = [
     time: "07:40",
     title: "Sair para o trabalho",
     description:
-      "Meta: chegar antes das 08:00."
+      "Chegar antes das 08:00."
   },
 
   {
     time: "08:00",
     title: "Início do trabalho",
     description:
-      "Começar o expediente e manter hidratação."
+      "Começar expediente."
   },
 
   {
     time: "11:30",
     title: "Almoço",
     description:
-      "Marmita na empresa • retorno às 12:30."
+      "Marmita na empresa."
   },
 
   {
     time: "12:30",
     title: "Voltar ao trabalho",
     description:
-      "Retomar o expediente."
+      "Retomar expediente."
   },
 
   {
     time: "20:00",
     title: "Fim do trabalho",
     description:
-      "Sair da empresa e voltar para casa."
+      "Voltar para casa."
   },
 
   {
     time: "20:20",
     title: "Jantar e banho",
     description:
-      "Alimentação, higiene e recuperação."
+      "Alimentação e recuperação."
   },
 
   {
     time: "21:30",
-    title: "Preparar o próximo dia",
+    title: "Organizar amanhã",
     description:
-      "Organizar roupas, água, mochila e compromissos."
+      "Roupas, água e compromissos."
   },
 
   {
     time: "22:30",
     title: "Dormir",
     description:
-      "Sono e recuperação são prioridade."
+      "Prioridade para recuperação."
   }
 
 ];
 
 
-// ======================================================
-// ROTINA — DIA DE FOLGA
-// ======================================================
+// =====================================================
+// ROTINA DE FOLGA
+// =====================================================
 
 const offTasks = [
 
@@ -228,56 +258,56 @@ const offTasks = [
     time: "09:15",
     title: "Estudo PMMG",
     description:
-      "Bloco principal de teoria com intervalos."
+      "Bloco principal de teoria."
   },
 
   {
     time: "11:30",
     title: "Almoço",
     description:
-      "Refeição completa e hidratação."
+      "Refeição completa."
   },
 
   {
     time: "12:30",
     title: "Descanso",
     description:
-      "Momento para recuperar corpo e mente."
+      "Recuperar corpo e mente."
   },
 
   {
     time: "13:15",
     title: "Projeto da moto",
     description:
-      "Tempo reservado para planejar ou trabalhar no projeto."
+      "Tempo reservado para o projeto."
   },
 
   {
     time: "14:15",
     title: "Revisão PMMG",
     description:
-      "Questões, revisão e análise dos erros."
+      "Questões e revisão dos erros."
   },
 
   {
     time: "15:15",
     title: "Se preparar",
     description:
-      "Organizar tudo antes de buscar sua filha."
+      "Organizar tudo antes de sair."
   },
 
   {
     time: "15:40",
     title: "Sair para escola",
     description:
-      "Chegar com antecedência."
+      "Chegar antes das 16:00."
   },
 
   {
     time: "16:00",
     title: "Buscar sua filha",
     description:
-      "Horário importante • chegar pontualmente."
+      "Chegar pontualmente."
   },
 
   {
@@ -298,28 +328,28 @@ const offTasks = [
     time: "21:15",
     title: "Organizar amanhã",
     description:
-      "Se for trabalhar: preparar marmita e roupas."
+      "Se trabalhar amanhã, preparar marmita e roupas."
   },
 
   {
     time: "22:30",
     title: "Dormir",
     description:
-      "Preparar o corpo para o próximo dia."
+      "Preparar para o próximo dia."
   }
 
 ];
 
 
-// ======================================================
-// DADOS DO DIA
-// ======================================================
+// =====================================================
+// DIA ATUAL
+// =====================================================
 
 const today =
   new Date();
 
 
-const dateKey =
+const todayKey =
   getDateKey(today);
 
 
@@ -333,12 +363,12 @@ const tasks =
     : offTasks;
 
 
-// ======================================================
-// CARREGAR DADOS SALVOS
-// ======================================================
+// =====================================================
+// ESTADO DO DIA
+// =====================================================
 
 const storageKey =
-  `lifeflow-${dateKey}`;
+  `lifeflow-${todayKey}`;
 
 
 const defaultState = {
@@ -366,10 +396,11 @@ try {
   state =
     saved
       ? JSON.parse(saved)
-      : defaultState;
+      : {
+          ...defaultState
+        };
 
-
-} catch (error) {
+} catch {
 
   state = {
     ...defaultState
@@ -378,7 +409,7 @@ try {
 }
 
 
-// Compatibilidade com a V1
+// Compatibilidade com versões antigas
 
 if (
   state.done &&
@@ -422,9 +453,9 @@ if (
 }
 
 
-// ======================================================
+// =====================================================
 // SALVAR
-// ======================================================
+// =====================================================
 
 function saveState() {
 
@@ -436,9 +467,9 @@ function saveState() {
 }
 
 
-// ======================================================
-// FORMATAÇÃO
-// ======================================================
+// =====================================================
+// ÁGUA
+// =====================================================
 
 function formatWater() {
 
@@ -451,38 +482,54 @@ function formatWater() {
 }
 
 
-// ======================================================
-// PRÓXIMA TAREFA
-// ======================================================
+function addWater(amount) {
 
-function getNextTask() {
+  state.water =
+    Math.min(
+      6000,
+      state.water + amount
+    );
 
-  return tasks.find(
-    (
-      task,
-      index
-    ) =>
-      !state.completed.includes(
-        index
-      )
-  );
+
+  saveState();
+
+  renderHome();
 
 }
 
 
-// ======================================================
-// MARCAR / DESMARCAR TAREFA
-// ======================================================
+function resetWater() {
+
+  if (
+    !confirm(
+      "Deseja zerar a hidratação de hoje?"
+    )
+  ) {
+    return;
+  }
+
+
+  state.water = 0;
+
+
+  saveState();
+
+  renderHome();
+
+}
+
+
+// =====================================================
+// TAREFAS
+// =====================================================
 
 function toggleTask(index) {
 
-  const alreadyCompleted =
+  if (
     state.completed.includes(
       index
-    );
-
-
-  if (alreadyCompleted) {
+    )
+  ) {
 
     state.completed =
       state.completed.filter(
@@ -511,24 +558,18 @@ function toggleTask(index) {
 
   saveState();
 
-  render();
+  renderHome();
 
 }
 
 
-// ======================================================
-// RESETAR TAREFAS
-// ======================================================
-
 function resetTasks() {
 
-  const confirmed =
-    confirm(
-      "Deseja resetar as tarefas concluídas de hoje?"
-    );
-
-
-  if (!confirmed) {
+  if (
+    !confirm(
+      "Deseja resetar todas as tarefas concluídas de hoje?"
+    )
+  ) {
     return;
   }
 
@@ -540,73 +581,58 @@ function resetTasks() {
 
   saveState();
 
-  render();
+  renderHome();
 
 }
 
 
-// ======================================================
-// ÁGUA
-// ======================================================
+// =====================================================
+// PRÓXIMA TAREFA
+// =====================================================
 
-function addWater(amount) {
+function getNextTask() {
 
-  state.water += amount;
-
-
-  // Limite visual de 6 litros.
-  // Isso evita valores absurdos por clique acidental.
-
-  state.water =
-    Math.min(
-      state.water,
-      6000
-    );
-
-
-  saveState();
-
-  render();
+  return tasks.find(
+    (
+      task,
+      index
+    ) =>
+      !state.completed.includes(
+        index
+      )
+  );
 
 }
 
 
-function resetWater() {
+// =====================================================
+// RENDER DA HOME
+// =====================================================
 
-  const confirmed =
-    confirm(
-      "Deseja zerar a hidratação de hoje?"
-    );
+function renderHome() {
 
+  renderHeader();
 
-  if (!confirmed) {
-    return;
-  }
+  renderNextTask();
 
+  renderTasks();
 
-  state.water = 0;
+  renderProgress();
 
-
-  saveState();
-
-  render();
+  renderWater();
 
 }
 
 
-// ======================================================
-// RENDERIZAR CABEÇALHO
-// ======================================================
+// =====================================================
+// CABEÇALHO
+// =====================================================
 
 function renderHeader() {
 
-  const todayText =
-    document.getElementById(
-      "todayText"
-    );
-
-
-  todayText.textContent =
+  document.getElementById(
+    "todayText"
+  ).textContent =
     today.toLocaleDateString(
       "pt-BR",
       {
@@ -660,15 +686,15 @@ function renderHeader() {
     "studyText"
   ).textContent =
     workDay
-      ? "Dia de trabalho: o estudo pode ser leve. Recuperação e sono continuam sendo prioridade."
-      : "Dia de folga: foco maior nos estudos, com teoria pela manhã e questões/revisão à tarde.";
+      ? "Dia de trabalho: estudo leve é opcional. Sono e recuperação continuam sendo prioridade."
+      : "Dia de folga: teoria pela manhã e revisão/questões à tarde.";
 
 }
 
 
-// ======================================================
-// RENDERIZAR PRÓXIMA ATIVIDADE
-// ======================================================
+// =====================================================
+// PRÓXIMA TAREFA
+// =====================================================
 
 function renderNextTask() {
 
@@ -676,67 +702,64 @@ function renderNextTask() {
     getNextTask();
 
 
-  const title =
-    document.getElementById(
-      "nextTaskTitle"
-    );
-
-
-  const time =
-    document.getElementById(
-      "nextTaskTime"
-    );
-
-
-  const description =
-    document.getElementById(
-      "nextTaskDescription"
-    );
-
-
   if (!next) {
 
-    title.textContent =
+    document.getElementById(
+      "nextTaskTitle"
+    ).textContent =
       "Rotina concluída";
 
-    time.textContent =
+
+    document.getElementById(
+      "nextTaskTime"
+    ).textContent =
       "✓";
 
-    description.textContent =
+
+    document.getElementById(
+      "nextTaskDescription"
+    ).textContent =
       "Todas as tarefas de hoje foram concluídas.";
+
 
     return;
 
   }
 
 
-  title.textContent =
+  document.getElementById(
+    "nextTaskTitle"
+  ).textContent =
     next.title;
 
 
-  time.textContent =
+  document.getElementById(
+    "nextTaskTime"
+  ).textContent =
     next.time;
 
 
-  description.textContent =
+  document.getElementById(
+    "nextTaskDescription"
+  ).textContent =
     next.description;
 
 }
 
 
-// ======================================================
-// RENDERIZAR TAREFAS
-// ======================================================
+// =====================================================
+// LISTA DE TAREFAS
+// =====================================================
 
 function renderTasks() {
 
-  const taskList =
+  const list =
     document.getElementById(
       "taskList"
     );
 
 
-  taskList.innerHTML = "";
+  list.innerHTML = "";
 
 
   tasks.forEach(
@@ -751,24 +774,23 @@ function renderTasks() {
         );
 
 
-      const taskElement =
+      const item =
         document.createElement(
           "article"
         );
 
 
-      taskElement.className =
+      item.className =
         completed
           ? "task done"
           : "task";
 
 
-      taskElement.innerHTML = `
+      item.innerHTML = `
 
         <div class="task-time">
           ${task.time}
         </div>
-
 
         <div class="task-body">
 
@@ -782,15 +804,9 @@ function renderTasks() {
 
         </div>
 
-
         <button
           class="check"
           type="button"
-          aria-label="${
-            completed
-              ? "Desmarcar tarefa"
-              : "Concluir tarefa"
-          }"
         >
           ${
             completed
@@ -802,21 +818,19 @@ function renderTasks() {
       `;
 
 
-      const button =
-        taskElement.querySelector(
+      item
+        .querySelector(
           ".check"
+        )
+        .addEventListener(
+          "click",
+          () =>
+            toggleTask(index)
         );
 
 
-      button.addEventListener(
-        "click",
-        () =>
-          toggleTask(index)
-      );
-
-
-      taskList.appendChild(
-        taskElement
+      list.appendChild(
+        item
       );
 
     }
@@ -825,9 +839,9 @@ function renderTasks() {
 }
 
 
-// ======================================================
-// RENDERIZAR PROGRESSO
-// ======================================================
+// =====================================================
+// PROGRESSO
+// =====================================================
 
 function renderProgress() {
 
@@ -840,15 +854,15 @@ function renderProgress() {
 
 
   const percentage =
-    total === 0
-      ? 0
-      : Math.round(
+    total
+      ? Math.round(
           (
             completed /
             total
           ) *
           100
-        );
+        )
+      : 0;
 
 
   document.getElementById(
@@ -883,9 +897,9 @@ function renderProgress() {
 }
 
 
-// ======================================================
-// RENDERIZAR ÁGUA
-// ======================================================
+// =====================================================
+// HIDRATAÇÃO
+// =====================================================
 
 function renderWater() {
 
@@ -924,28 +938,552 @@ function renderWater() {
 }
 
 
-// ======================================================
-// RENDER PRINCIPAL
-// ======================================================
+// =====================================================
+// AGENDA
+// =====================================================
 
-function render() {
+let calendarDate =
+  new Date(
+    today.getFullYear(),
+    today.getMonth(),
+    1
+  );
 
-  renderHeader();
 
-  renderNextTask();
+let selectedCalendarDate =
+  new Date(
+    today.getFullYear(),
+    today.getMonth(),
+    today.getDate()
+  );
 
-  renderTasks();
 
-  renderProgress();
+const monthNames = [
 
-  renderWater();
+  "Janeiro",
+  "Fevereiro",
+  "Março",
+  "Abril",
+  "Maio",
+  "Junho",
+  "Julho",
+  "Agosto",
+  "Setembro",
+  "Outubro",
+  "Novembro",
+  "Dezembro"
+
+];
+
+
+// =====================================================
+// RENDER DO CALENDÁRIO
+// =====================================================
+
+function renderCalendar() {
+
+  const year =
+    calendarDate.getFullYear();
+
+
+  const month =
+    calendarDate.getMonth();
+
+
+  document.getElementById(
+    "calendarMonth"
+  ).textContent =
+    monthNames[month];
+
+
+  document.getElementById(
+    "calendarYear"
+  ).textContent =
+    year;
+
+
+  const grid =
+    document.getElementById(
+      "calendarGrid"
+    );
+
+
+  grid.innerHTML = "";
+
+
+  const firstDay =
+    new Date(
+      year,
+      month,
+      1
+    );
+
+
+  const lastDay =
+    new Date(
+      year,
+      month + 1,
+      0
+    );
+
+
+  const emptyBefore =
+    firstDay.getDay();
+
+
+  for (
+    let i = 0;
+    i < emptyBefore;
+    i++
+  ) {
+
+    const empty =
+      document.createElement(
+        "div"
+      );
+
+
+    empty.className =
+      "calendar-day empty";
+
+
+    grid.appendChild(
+      empty
+    );
+
+  }
+
+
+  for (
+    let day = 1;
+    day <= lastDay.getDate();
+    day++
+  ) {
+
+    const date =
+      new Date(
+        year,
+        month,
+        day
+      );
+
+
+    const work =
+      isWorkDay(date);
+
+
+    const button =
+      document.createElement(
+        "button"
+      );
+
+
+    button.type =
+      "button";
+
+
+    button.className =
+      `calendar-day ${
+        work
+          ? "work-day"
+          : "off-day"
+      }`;
+
+
+    if (
+      isSameDay(
+        date,
+        today
+      )
+    ) {
+
+      button.classList.add(
+        "today"
+      );
+
+    }
+
+
+    if (
+      isSameDay(
+        date,
+        selectedCalendarDate
+      )
+    ) {
+
+      button.classList.add(
+        "selected"
+      );
+
+    }
+
+
+    button.innerHTML = `
+
+      <span class="calendar-day-number">
+        ${day}
+      </span>
+
+      <span class="calendar-day-label">
+        ${
+          work
+            ? "TRABALHO"
+            : "FOLGA"
+        }
+      </span>
+
+    `;
+
+
+    button.addEventListener(
+      "click",
+      () => {
+
+        selectedCalendarDate =
+          date;
+
+
+        renderCalendar();
+
+        renderSelectedDay();
+
+      }
+    );
+
+
+    grid.appendChild(
+      button
+    );
+
+  }
+
+
+  renderSelectedDay();
+
+  renderNextDays();
 
 }
 
 
-// ======================================================
-// EVENTOS — ÁGUA
-// ======================================================
+// =====================================================
+// DIA SELECIONADO
+// =====================================================
+
+function renderSelectedDay() {
+
+  const work =
+    isWorkDay(
+      selectedCalendarDate
+    );
+
+
+  const selectedTasks =
+    work
+      ? workTasks
+      : offTasks;
+
+
+  document.getElementById(
+    "selectedDateTitle"
+  ).textContent =
+    selectedCalendarDate
+      .toLocaleDateString(
+        "pt-BR",
+        {
+          weekday: "long",
+          day: "2-digit",
+          month: "long"
+        }
+      );
+
+
+  document.getElementById(
+    "selectedDateType"
+  ).textContent =
+    work
+      ? "Escala 12x36 • expediente das 08:00 às 20:00"
+      : "Escala 12x36 • dia de folga";
+
+
+  const badge =
+    document.getElementById(
+      "selectedDayBadge"
+    );
+
+
+  badge.textContent =
+    work
+      ? "TRABALHO"
+      : "FOLGA";
+
+
+  badge.className =
+    work
+      ? "selected-day-badge work"
+      : "selected-day-badge off";
+
+
+  const list =
+    document.getElementById(
+      "selectedDayTasks"
+    );
+
+
+  list.innerHTML = "";
+
+
+  selectedTasks.forEach(
+    task => {
+
+      const item =
+        document.createElement(
+          "div"
+        );
+
+
+      item.className =
+        "agenda-task";
+
+
+      item.innerHTML = `
+
+        <div class="agenda-task-time">
+          ${task.time}
+        </div>
+
+        <div>
+
+          <strong>
+            ${task.title}
+          </strong>
+
+          <span>
+            ${task.description}
+          </span>
+
+        </div>
+
+      `;
+
+
+      list.appendChild(
+        item
+      );
+
+    }
+  );
+
+}
+
+
+// =====================================================
+// PRÓXIMOS 7 DIAS
+// =====================================================
+
+function renderNextDays() {
+
+  const list =
+    document.getElementById(
+      "nextDaysList"
+    );
+
+
+  list.innerHTML = "";
+
+
+  for (
+    let i = 0;
+    i < 7;
+    i++
+  ) {
+
+    const date =
+      new Date(
+        today.getFullYear(),
+        today.getMonth(),
+        today.getDate() + i
+      );
+
+
+    const work =
+      isWorkDay(date);
+
+
+    const item =
+      document.createElement(
+        "div"
+      );
+
+
+    item.className =
+      "next-day-item";
+
+
+    item.innerHTML = `
+
+      <div>
+
+        <strong>
+          ${
+            date.toLocaleDateString(
+              "pt-BR",
+              {
+                weekday: "long"
+              }
+            )
+          }
+        </strong>
+
+        <span>
+          ${
+            date.toLocaleDateString(
+              "pt-BR",
+              {
+                day: "2-digit",
+                month: "2-digit"
+              }
+            )
+          }
+        </span>
+
+      </div>
+
+      <div
+        class="next-day-type ${
+          work
+            ? "work"
+            : "off"
+        }"
+      >
+        ${
+          work
+            ? "TRABALHO"
+            : "FOLGA"
+        }
+      </div>
+
+    `;
+
+
+    list.appendChild(
+      item
+    );
+
+  }
+
+}
+
+
+// =====================================================
+// MUDAR MÊS
+// =====================================================
+
+function changeMonth(amount) {
+
+  calendarDate =
+    new Date(
+      calendarDate.getFullYear(),
+      calendarDate.getMonth() + amount,
+      1
+    );
+
+
+  renderCalendar();
+
+}
+
+
+// =====================================================
+// TROCA DE TELAS
+// =====================================================
+
+function showHome() {
+
+  document.getElementById(
+    "homeScreen"
+  ).classList.remove(
+    "hidden"
+  );
+
+
+  document.getElementById(
+    "agendaScreen"
+  ).classList.add(
+    "hidden"
+  );
+
+
+  setActiveNav(
+    "homeButton"
+  );
+
+
+  window.scrollTo({
+    top: 0,
+    behavior: "smooth"
+  });
+
+}
+
+
+function showAgenda() {
+
+  document.getElementById(
+    "homeScreen"
+  ).classList.add(
+    "hidden"
+  );
+
+
+  document.getElementById(
+    "agendaScreen"
+  ).classList.remove(
+    "hidden"
+  );
+
+
+  setActiveNav(
+    "agendaButton"
+  );
+
+
+  renderCalendar();
+
+
+  window.scrollTo({
+    top: 0,
+    behavior: "smooth"
+  });
+
+}
+
+
+function setActiveNav(id) {
+
+  document
+    .querySelectorAll(
+      ".nav-item"
+    )
+    .forEach(
+      button =>
+        button.classList.remove(
+          "active"
+        )
+    );
+
+
+  document.getElementById(
+    id
+  ).classList.add(
+    "active"
+  );
+
+}
+
+
+// =====================================================
+// EVENTOS
+// =====================================================
 
 document
   .querySelectorAll(
@@ -958,14 +1496,10 @@ document
         "click",
         () => {
 
-          const amount =
+          addWater(
             Number(
               button.dataset.water
-            );
-
-
-          addWater(
-            amount
+            )
           );
 
         }
@@ -975,94 +1509,129 @@ document
   );
 
 
-document
-  .getElementById(
-    "resetWater"
-  )
-  .addEventListener(
-    "click",
-    resetWater
-  );
+document.getElementById(
+  "resetWater"
+).addEventListener(
+  "click",
+  resetWater
+);
 
 
-// ======================================================
-// EVENTO — RESETAR TAREFAS
-// ======================================================
-
-document
-  .getElementById(
-    "resetTasks"
-  )
-  .addEventListener(
-    "click",
-    resetTasks
-  );
+document.getElementById(
+  "resetTasks"
+).addEventListener(
+  "click",
+  resetTasks
+);
 
 
-// ======================================================
-// MENU
-// ======================================================
+document.getElementById(
+  "homeButton"
+).addEventListener(
+  "click",
+  showHome
+);
 
-document
-  .getElementById(
-    "pmmgButton"
-  )
-  .addEventListener(
-    "click",
+
+document.getElementById(
+  "agendaButton"
+).addEventListener(
+  "click",
+  showAgenda
+);
+
+
+document.getElementById(
+  "prevMonth"
+).addEventListener(
+  "click",
+  () =>
+    changeMonth(-1)
+);
+
+
+document.getElementById(
+  "nextMonth"
+).addEventListener(
+  "click",
+  () =>
+    changeMonth(1)
+);
+
+
+// PMMG
+
+function goToPMMG() {
+
+  showHome();
+
+
+  setTimeout(
     () => {
 
-      document
-        .querySelector(
-          ".pmmg-card"
-        )
-        .scrollIntoView({
+      document.getElementById(
+        "pmmgSection"
+      ).scrollIntoView({
+        behavior: "smooth",
+        block: "center"
+      });
+
+    },
+    100
+  );
+
+}
+
+
+document.getElementById(
+  "pmmgButton"
+).addEventListener(
+  "click",
+  goToPMMG
+);
+
+
+document.getElementById(
+  "areaPMMG"
+).addEventListener(
+  "click",
+  goToPMMG
+);
+
+
+// PROGRESSO
+
+document.getElementById(
+  "progressButton"
+).addEventListener(
+  "click",
+  () => {
+
+    showHome();
+
+
+    setTimeout(
+      () => {
+
+        document.getElementById(
+          "progressSection"
+        ).scrollIntoView({
           behavior: "smooth",
           block: "center"
         });
 
-    }
-  );
+      },
+      100
+    );
+
+  }
+);
 
 
-document
-  .getElementById(
-    "agendaButton"
-  )
-  .addEventListener(
-    "click",
-    () => {
+// =====================================================
+// INICIAR
+// =====================================================
 
-      alert(
-        "O calendário 12x36 será uma das próximas áreas do LifeFlow."
-      );
+renderHome();
 
-    }
-  );
-
-
-document
-  .getElementById(
-    "progressButton"
-  )
-  .addEventListener(
-    "click",
-    () => {
-
-      document
-        .querySelector(
-          ".progress-card"
-        )
-        .scrollIntoView({
-          behavior: "smooth",
-          block: "center"
-        });
-
-    }
-  );
-
-
-// ======================================================
-// INICIAR LIFEFLOW
-// ======================================================
-
-render();
+renderCalendar();
