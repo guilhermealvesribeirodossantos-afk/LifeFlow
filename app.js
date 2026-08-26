@@ -1413,7 +1413,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
   // =====================================================
-  // LIFEFLOW 2.4 — SONO INTELIGENTE
+  // LIFEFLOW 2.5 — SONO INTELIGENTE + SLEEP HUB
   // =====================================================
 
   const sleepStorageKey = "lifeflow-sleep-v24";
@@ -1653,10 +1653,10 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function renderSleepPanel() {
-    const progressScreen =
-      document.getElementById("progressScreen");
+    const sleepScreen =
+      document.getElementById("sleepScreen");
 
-    if (!progressScreen) return;
+    if (!sleepScreen) return;
 
     let panel =
       document.getElementById("sleepPanel");
@@ -1666,17 +1666,7 @@ document.addEventListener("DOMContentLoaded", () => {
       panel.id = "sleepPanel";
       panel.className = "sleep-panel";
 
-      const historyPanel =
-        document.getElementById("historyProgressPanel");
-
-      if (historyPanel && historyPanel.parentNode) {
-        historyPanel.parentNode.insertBefore(
-          panel,
-          historyPanel.nextSibling
-        );
-      } else {
-        progressScreen.appendChild(panel);
-      }
+      sleepScreen.appendChild(panel);
     }
 
     const todaySleep =
@@ -3576,7 +3566,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     renderEvolutionPanel();
     renderHistoryProgressPanel();
-    renderSleepPanel();
+    renderSleepProgressSummary();
   }
 
 
@@ -4206,6 +4196,341 @@ document.addEventListener("DOMContentLoaded", () => {
     );
 
 
+
+  // =====================================================
+  // LIFEFLOW 2.5 — SLEEP HUB / ABA SONO
+  // =====================================================
+
+  function setupSleepHub() {
+    if (!document.getElementById("sleepScreen")) {
+      const referenceScreen =
+        document.getElementById("progressScreen");
+
+      const sleepScreen =
+        document.createElement("section");
+
+      sleepScreen.id = "sleepScreen";
+      sleepScreen.className = "hidden lifeflow-sleep-screen";
+
+      sleepScreen.innerHTML = `
+        <div class="sleep-page-header">
+          <div>
+            <span>RECUPERAÇÃO</span>
+            <h2>🌙 Sono</h2>
+            <p>Acompanhe seu descanso, qualidade e consistência.</p>
+          </div>
+        </div>
+      `;
+
+      if (referenceScreen?.parentNode) {
+        referenceScreen.parentNode.insertBefore(
+          sleepScreen,
+          referenceScreen
+        );
+      } else {
+        document.body.appendChild(sleepScreen);
+      }
+    }
+
+    if (!document.getElementById("sleepButton")) {
+      const progressButton =
+        document.getElementById("progressButton");
+
+      if (progressButton?.parentNode) {
+        const sleepButton =
+          document.createElement(
+            progressButton.tagName || "button"
+          );
+
+        sleepButton.id = "sleepButton";
+        sleepButton.className =
+          progressButton.className || "nav-item";
+        sleepButton.classList.remove("active");
+        sleepButton.type = "button";
+        sleepButton.setAttribute(
+          "aria-label",
+          "Sono"
+        );
+
+        sleepButton.innerHTML = `
+          <span class="sleep-nav-icon">🌙</span>
+          <span class="sleep-nav-label">Sono</span>
+        `;
+
+        progressButton.parentNode.insertBefore(
+          sleepButton,
+          progressButton
+        );
+      }
+    }
+  }
+
+  function renderSleepProgressSummary() {
+    const progressScreen =
+      document.getElementById("progressScreen");
+
+    if (!progressScreen) return;
+
+    let summary =
+      document.getElementById("sleepProgressSummary");
+
+    if (!summary) {
+      summary = document.createElement("section");
+      summary.id = "sleepProgressSummary";
+      summary.className = "sleep-progress-summary";
+
+      const historyPanel =
+        document.getElementById("historyProgressPanel");
+
+      if (historyPanel?.parentNode) {
+        historyPanel.parentNode.insertBefore(
+          summary,
+          historyPanel.nextSibling
+        );
+      } else {
+        progressScreen.appendChild(summary);
+      }
+    }
+
+    const todaySleep = getTodaySleep();
+    const week = getSleepRange(7);
+    const averageMinutes = averageSleepMinutes(week);
+    const averageScore = averageSleepScore(week);
+    const registered =
+      week.filter(item => item.hasData).length;
+
+    summary.innerHTML = `
+      <button
+        id="openSleepHubButton"
+        class="sleep-summary-card"
+        type="button"
+      >
+        <div class="sleep-summary-top">
+          <div>
+            <span>🌙 SONO INTELIGENTE</span>
+            <strong>
+              ${todaySleep
+                ? formatSleepDuration(todaySleep.minutes)
+                : "Sem registro hoje"}
+            </strong>
+          </div>
+
+          <span class="sleep-summary-arrow">›</span>
+        </div>
+
+        <div class="sleep-summary-metrics">
+          <div>
+            <span>Score</span>
+            <strong>${todaySleep?.score || "—"}</strong>
+          </div>
+          <div>
+            <span>Média 7 dias</span>
+            <strong>${formatSleepDuration(averageMinutes)}</strong>
+          </div>
+          <div>
+            <span>Registros</span>
+            <strong>${registered}/7</strong>
+          </div>
+        </div>
+
+        <small>Toque para abrir o Sleep Hub</small>
+      </button>
+    `;
+
+    document
+      .getElementById("openSleepHubButton")
+      ?.addEventListener(
+        "click",
+        showSleep
+      );
+  }
+
+  function injectSleepHubStyles() {
+    if (
+      document.getElementById(
+        "lifeflowSleepHubStyles"
+      )
+    ) return;
+
+    const style =
+      document.createElement("style");
+
+    style.id = "lifeflowSleepHubStyles";
+
+    style.textContent = `
+      .lifeflow-sleep-screen {
+        width: 100%;
+      }
+
+      .sleep-page-header {
+        margin: 4px 0 14px;
+        padding: 18px;
+        border: 1px solid rgba(255,255,255,.075);
+        border-radius: 22px;
+        background:
+          radial-gradient(circle at 90% 0%, rgba(129,107,255,.13), transparent 35%),
+          linear-gradient(145deg, rgba(18,18,21,.98), rgba(7,7,8,.98));
+      }
+
+      .sleep-page-header span {
+        color: #8d80df;
+        font-size: 9px;
+        font-weight: 950;
+        letter-spacing: 1.2px;
+      }
+
+      .sleep-page-header h2 {
+        margin: 5px 0 3px;
+        color: #f4f2ff;
+        font-size: 24px;
+      }
+
+      .sleep-page-header p {
+        margin: 0;
+        color: #7f7f88;
+        font-size: 10px;
+        line-height: 1.5;
+      }
+
+      .sleep-progress-summary {
+        margin: 14px 0;
+      }
+
+      .sleep-summary-card {
+        width: 100%;
+        display: block;
+        text-align: left;
+        border: 1px solid rgba(145,124,255,.14);
+        border-radius: 20px;
+        padding: 15px;
+        background:
+          radial-gradient(circle at 92% 0%, rgba(129,107,255,.10), transparent 32%),
+          rgba(12,12,14,.96);
+        color: inherit;
+        cursor: pointer;
+        touch-action: manipulation;
+      }
+
+      .sleep-summary-top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+      }
+
+      .sleep-summary-top > div > span {
+        display: block;
+        color: #8d80df;
+        font-size: 8px;
+        font-weight: 950;
+        letter-spacing: .8px;
+      }
+
+      .sleep-summary-top > div > strong {
+        display: block;
+        margin-top: 5px;
+        color: #f0eef9;
+        font-size: 17px;
+      }
+
+      .sleep-summary-arrow {
+        color: #a99cff;
+        font-size: 28px;
+        line-height: 1;
+      }
+
+      .sleep-summary-metrics {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 7px;
+        margin-top: 12px;
+      }
+
+      .sleep-summary-metrics > div {
+        padding: 9px;
+        border: 1px solid rgba(255,255,255,.055);
+        border-radius: 12px;
+        background: rgba(255,255,255,.02);
+      }
+
+      .sleep-summary-metrics span {
+        display: block;
+        color: #6f6f78;
+        font-size: 7px;
+        font-weight: 850;
+        text-transform: uppercase;
+      }
+
+      .sleep-summary-metrics strong {
+        display: block;
+        margin-top: 4px;
+        color: #e7e5ee;
+        font-size: 12px;
+      }
+
+      .sleep-summary-card small {
+        display: block;
+        margin-top: 10px;
+        color: #777780;
+        font-size: 8px;
+      }
+
+      #sleepButton .sleep-nav-icon,
+      #sleepButton .sleep-nav-label {
+        pointer-events: none;
+      }
+
+      .sleep-nav-icon {
+        display: block;
+        font-size: 17px;
+        line-height: 1;
+      }
+
+      .sleep-nav-label {
+        display: block;
+        margin-top: 3px;
+        font-size: 8px;
+        font-weight: 800;
+      }
+
+      @media (max-width: 520px) {
+        .sleep-page-header {
+          padding: 15px;
+          border-radius: 18px;
+        }
+
+        .sleep-page-header h2 {
+          font-size: 21px;
+        }
+
+        .sleep-summary-card {
+          padding: 13px;
+          border-radius: 17px;
+        }
+
+        .sleep-summary-metrics {
+          gap: 5px;
+        }
+
+        .sleep-summary-metrics > div {
+          padding: 8px 6px;
+        }
+
+        .nav-item {
+          min-width: 0 !important;
+        }
+
+        #sleepButton {
+          min-width: 0 !important;
+          padding-left: 4px !important;
+          padding-right: 4px !important;
+        }
+      }
+    `;
+
+    document.head.appendChild(style);
+  }
+
   // =====================================================
   // TELAS
   // =====================================================
@@ -4217,6 +4542,8 @@ document.addEventListener("DOMContentLoaded", () => {
     "agendaScreen",
 
     "studyScreen",
+
+    "sleepScreen",
 
     "progressScreen"
 
@@ -4371,6 +4698,32 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
 
+
+  function showSleep() {
+
+    showScreen(
+      "sleepScreen"
+    );
+
+    clearNav();
+
+    document
+      .getElementById(
+        "sleepButton"
+      )
+      ?.classList.add(
+        "active"
+      );
+
+    renderSleepPanel();
+
+    window.scrollTo(
+      0,
+      0
+    );
+  }
+
+
   function showProgress() {
 
     showScreen(
@@ -4399,6 +4752,8 @@ document.addEventListener("DOMContentLoaded", () => {
     );
   }
 
+
+  setupSleepHub();
 
   // =====================================================
   // NAVEGAÇÃO
@@ -4431,6 +4786,16 @@ document.addEventListener("DOMContentLoaded", () => {
     ?.addEventListener(
       "click",
       showStudy
+    );
+
+
+  document
+    .getElementById(
+      "sleepButton"
+    )
+    ?.addEventListener(
+      "click",
+      showSleep
     );
 
 
@@ -4794,6 +5159,7 @@ document.addEventListener("DOMContentLoaded", () => {
   injectEvolutionStyles();
   injectHistoryStyles();
   injectSleepStyles();
+  injectSleepHubStyles();
 
   syncDailyEvolution();
   syncTodayHistory();
@@ -4803,6 +5169,8 @@ document.addEventListener("DOMContentLoaded", () => {
   renderCalendar();
 
   renderStudyPlan();
+
+  renderSleepPanel();
 
   renderProgressScreen();
 
