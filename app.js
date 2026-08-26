@@ -10,6 +10,157 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
   // =====================================================
+  // LIFEFLOW 3.0 — MENSAGENS DENTRO DO SITE
+  // =====================================================
+
+  function ensureLifeFlowMessageUI() {
+    if (!document.getElementById("lifeflowMessageStyles")) {
+      const style = document.createElement("style");
+      style.id = "lifeflowMessageStyles";
+      style.textContent = `
+        #lfToastArea {
+          position: fixed;
+          left: 50%;
+          bottom: calc(92px + env(safe-area-inset-bottom));
+          transform: translateX(-50%);
+          width: min(92vw, 430px);
+          z-index: 99998;
+          display: grid;
+          gap: 9px;
+          pointer-events: none;
+        }
+        .lf-site-toast {
+          display: flex; align-items: center; gap: 11px;
+          padding: 13px 15px; border-radius: 17px;
+          border: 1px solid rgba(93,229,160,.20);
+          background: rgba(10,14,12,.96); color: #f4f4f4;
+          box-shadow: 0 18px 55px rgba(0,0,0,.55);
+          backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+          font-size: 12px; font-weight: 750; line-height: 1.4;
+          animation: lfToastIn .22s ease both;
+        }
+        .lf-site-toast.info { border-color: rgba(106,167,255,.22); }
+        .lf-site-toast.warning { border-color: rgba(231,182,95,.24); }
+        .lf-site-toast.error { border-color: rgba(255,105,105,.24); }
+        .lf-site-toast .lf-toast-icon { font-size: 18px; flex: 0 0 auto; }
+        .lf-site-toast.leaving { animation: lfToastOut .2s ease both; }
+        @keyframes lfToastIn { from { opacity:0; transform:translateY(12px) scale(.98); } to { opacity:1; transform:none; } }
+        @keyframes lfToastOut { to { opacity:0; transform:translateY(8px) scale(.98); } }
+
+        #lfSiteModal {
+          position: fixed; inset: 0; z-index: 99999;
+          display: none; align-items: center; justify-content: center;
+          padding: 22px; background: rgba(0,0,0,.72);
+          backdrop-filter: blur(9px); -webkit-backdrop-filter: blur(9px);
+        }
+        #lfSiteModal.open { display: flex; }
+        .lf-modal-card {
+          width: min(100%, 390px); border-radius: 25px; padding: 20px;
+          border: 1px solid rgba(255,255,255,.09);
+          background: radial-gradient(circle at 90% 0%, rgba(85,227,154,.09), transparent 32%), #0b0c0c;
+          box-shadow: 0 28px 90px rgba(0,0,0,.72);
+        }
+        .lf-modal-icon { width:46px; height:46px; display:grid; place-items:center; border-radius:15px; background:rgba(85,227,154,.08); font-size:22px; }
+        .lf-modal-card h3 { margin:14px 0 6px; color:#f4f4f4; font-size:19px; }
+        .lf-modal-card p { margin:0; color:#929796; font-size:12px; line-height:1.55; }
+        .lf-modal-input { box-sizing:border-box; width:100%; margin-top:15px; padding:13px 14px; border-radius:14px; border:1px solid rgba(255,255,255,.10); outline:none; background:#111313; color:#f5f5f5; font:inherit; font-size:13px; }
+        .lf-modal-input:focus { border-color:rgba(85,227,154,.45); box-shadow:0 0 0 3px rgba(85,227,154,.07); }
+        .lf-modal-actions { display:grid; grid-template-columns:1fr 1fr; gap:9px; margin-top:18px; }
+        .lf-modal-actions button { min-height:46px; border-radius:14px; border:1px solid rgba(255,255,255,.08); background:#121414; color:#c9cccb; font:inherit; font-size:11px; font-weight:900; }
+        .lf-modal-actions .primary { border-color:rgba(85,227,154,.25); background:rgba(85,227,154,.10); color:#74ebb0; }
+        @media (max-width:520px) { #lfToastArea { bottom: calc(84px + env(safe-area-inset-bottom)); } .lf-modal-card { padding:18px; } }
+      `;
+      document.head.appendChild(style);
+    }
+
+    if (!document.getElementById("lfToastArea")) {
+      const area = document.createElement("div");
+      area.id = "lfToastArea";
+      document.body.appendChild(area);
+    }
+
+    if (!document.getElementById("lfSiteModal")) {
+      const modal = document.createElement("div");
+      modal.id = "lfSiteModal";
+      modal.innerHTML = `<div class="lf-modal-card" role="dialog" aria-modal="true">
+        <div class="lf-modal-icon" id="lfModalIcon">✨</div>
+        <h3 id="lfModalTitle">LifeFlow</h3>
+        <p id="lfModalMessage"></p>
+        <div id="lfModalInputWrap"></div>
+        <div class="lf-modal-actions">
+          <button type="button" id="lfModalCancel">Cancelar</button>
+          <button type="button" class="primary" id="lfModalConfirm">Confirmar</button>
+        </div>
+      </div>`;
+      document.body.appendChild(modal);
+    }
+  }
+
+  function showSiteMessage(message, type = "success") {
+    ensureLifeFlowMessageUI();
+    const icons = { success:"✓", info:"ℹ️", warning:"⚠️", error:"✕" };
+    const toast = document.createElement("div");
+    toast.className = `lf-site-toast ${type}`;
+    toast.innerHTML = `<span class="lf-toast-icon">${icons[type] || "✓"}</span><span></span>`;
+    toast.lastElementChild.textContent = message;
+    document.getElementById("lfToastArea")?.appendChild(toast);
+    setTimeout(() => { toast.classList.add("leaving"); setTimeout(() => toast.remove(), 220); }, 3200);
+  }
+
+  function showSiteConfirm(message, onConfirm, options = {}) {
+    ensureLifeFlowMessageUI();
+    const modal = document.getElementById("lfSiteModal");
+    const title = document.getElementById("lfModalTitle");
+    const text = document.getElementById("lfModalMessage");
+    const icon = document.getElementById("lfModalIcon");
+    const inputWrap = document.getElementById("lfModalInputWrap");
+    const cancel = document.getElementById("lfModalCancel");
+    const confirmButton = document.getElementById("lfModalConfirm");
+    if (!modal || !title || !text || !inputWrap || !cancel || !confirmButton) return;
+
+    title.textContent = options.title || "Confirmar ação";
+    text.textContent = message;
+    if (icon) icon.textContent = options.icon || "⚠️";
+    inputWrap.innerHTML = "";
+    cancel.textContent = options.cancelText || "Cancelar";
+    confirmButton.textContent = options.confirmText || "Confirmar";
+    modal.classList.add("open");
+
+    const close = () => modal.classList.remove("open");
+    cancel.onclick = close;
+    confirmButton.onclick = () => { close(); if (typeof onConfirm === "function") onConfirm(); };
+    modal.onclick = event => { if (event.target === modal) close(); };
+  }
+
+  function showSitePrompt(message, defaultValue, onConfirm) {
+    ensureLifeFlowMessageUI();
+    const modal = document.getElementById("lfSiteModal");
+    const title = document.getElementById("lfModalTitle");
+    const text = document.getElementById("lfModalMessage");
+    const icon = document.getElementById("lfModalIcon");
+    const inputWrap = document.getElementById("lfModalInputWrap");
+    const cancel = document.getElementById("lfModalCancel");
+    const confirmButton = document.getElementById("lfModalConfirm");
+    if (!modal || !title || !text || !inputWrap || !cancel || !confirmButton) return;
+
+    title.textContent = "Novo treino"; text.textContent = message; if (icon) icon.textContent = "🏋️";
+    inputWrap.innerHTML = `<input id="lfModalInput" class="lf-modal-input" maxlength="40" autocomplete="off">`;
+    const input = document.getElementById("lfModalInput");
+    if (input) input.value = defaultValue || "";
+    cancel.textContent = "Cancelar"; confirmButton.textContent = "Criar treino"; modal.classList.add("open");
+    setTimeout(() => { input?.focus(); input?.select(); }, 40);
+
+    const close = () => modal.classList.remove("open");
+    const submit = () => { const value = input?.value.trim(); if (!value) { showSiteMessage("Digite um nome para o treino.", "warning"); input?.focus(); return; } close(); onConfirm?.(value); };
+    cancel.onclick = close; confirmButton.onclick = submit;
+    if (input) input.onkeydown = event => { if (event.key === "Enter") submit(); };
+    modal.onclick = event => { if (event.target === modal) close(); };
+  }
+
+  ensureLifeFlowMessageUI();
+
+
+  // =====================================================
   // DATAS
   // =====================================================
 
@@ -3673,29 +3824,19 @@ document.addEventListener("DOMContentLoaded", () => {
       "click",
       () => {
 
-        const confirmed =
-          confirm(
-            "Deseja resetar todas as tarefas concluídas de hoje?"
-          );
-
-
-        if (!confirmed) {
-          return;
-        }
-
-
-        state.completed = [];
-
-        state.xp = 0;
-
-
-        saveState();
-
-        syncDailyEvolution();
-
-        renderHome();
-
-        renderProgressScreen();
+        showSiteConfirm(
+          "Deseja resetar todas as tarefas concluídas de hoje?",
+          () => {
+            state.completed = [];
+            state.xp = 0;
+            saveState();
+            syncDailyEvolution();
+            renderHome();
+            renderProgressScreen();
+            showSiteMessage("Tarefas de hoje foram resetadas.", "info");
+          },
+          { title: "Resetar tarefas", icon: "↻", confirmText: "Resetar" }
+        );
 
       }
     );
@@ -4666,7 +4807,7 @@ document.addEventListener("DOMContentLoaded", () => {
       document.getElementById("gymEditName")?.value.trim();
 
     if (!name) {
-      alert("Informe o nome do exercício.");
+      showSiteMessage("Informe o nome do exercício.", "warning");
       return;
     }
 
@@ -4728,70 +4869,70 @@ document.addEventListener("DOMContentLoaded", () => {
 
     saveGymPrograms();
     renderGymPanel();
+    showSiteMessage(`${name} adicionado ao treino.`, "success");
   }
 
   function deleteGymExercise(exerciseId) {
     const plan = getActiveGymPlan();
     if (!plan) return;
 
-    const confirmed =
-      confirm("Remover este exercício do treino?");
-
-    if (!confirmed) return;
-
-    plan.exercises =
-      plan.exercises.filter(
-        exercise => exercise.id !== exerciseId
-      );
-
-    saveGymPrograms();
-    renderGymPanel();
+    showSiteConfirm(
+      "Remover este exercício do treino?",
+      () => {
+        plan.exercises =
+          plan.exercises.filter(
+            exercise => exercise.id !== exerciseId
+          );
+        saveGymPrograms();
+        renderGymPanel();
+        showSiteMessage("Exercício removido do treino.", "success");
+      },
+      { title: "Remover exercício", icon: "🗑️", confirmText: "Remover" }
+    );
   }
 
   function createGymPlan() {
-    const name =
-      prompt(
-        "Nome do novo treino:",
-        `Treino ${gymPrograms.plans.length + 1}`
-      );
-
-    if (!name?.trim()) return;
-
-    const id = makeGymId("plan");
-
-    gymPrograms.plans.push({
-      id,
-      name: name.trim(),
-      focus: "Treino personalizado",
-      exercises: []
-    });
-
-    gymPrograms.activePlanId = id;
-
-    saveGymPrograms();
-    renderGymPanel();
+    showSitePrompt(
+      "Digite o nome do novo treino:",
+      `Treino ${gymPrograms.plans.length + 1}`,
+      name => {
+        const id = makeGymId("plan");
+        gymPrograms.plans.push({
+          id,
+          name: name.trim(),
+          focus: "Treino personalizado",
+          exercises: []
+        });
+        gymPrograms.activePlanId = id;
+        saveGymPrograms();
+        renderGymPanel();
+        showSiteMessage(`${name.trim()} criado com sucesso.`, "success");
+      }
+    );
   }
 
   function deleteActiveGymPlan() {
     if (gymPrograms.plans.length <= 1) {
-      alert("Mantenha pelo menos um treino cadastrado.");
+      showSiteMessage("Mantenha pelo menos um treino cadastrado.", "warning");
       return;
     }
 
     const plan = getActiveGymPlan();
 
-    if (!confirm(`Excluir ${plan.name}?`)) return;
-
-    gymPrograms.plans =
-      gymPrograms.plans.filter(
-        item => item.id !== plan.id
-      );
-
-    gymPrograms.activePlanId =
-      gymPrograms.plans[0].id;
-
-    saveGymPrograms();
-    renderGymPanel();
+    showSiteConfirm(
+      `Excluir ${plan.name}?`,
+      () => {
+        gymPrograms.plans =
+          gymPrograms.plans.filter(
+            item => item.id !== plan.id
+          );
+        gymPrograms.activePlanId = gymPrograms.plans[0].id;
+        saveGymPrograms();
+        renderGymPanel();
+        showSiteMessage(`${plan.name} foi excluído.`, "success");
+      },
+      { title: "Excluir treino", icon: "🗑️", confirmText: "Excluir" }
+    );
   }
 
   function setupGymHub() {
@@ -5166,7 +5307,7 @@ document.addEventListener("DOMContentLoaded", () => {
       );
 
     if (alreadyExists) {
-      alert("Esse exercício já está neste treino.");
+      showSiteMessage("Esse exercício já está neste treino.", "info");
       return;
     }
 
@@ -7776,7 +7917,7 @@ document.addEventListener("DOMContentLoaded", () => {
     document
       .getElementById("lfGymHistoryTab")
       ?.addEventListener("click", () => {
-        alert("O histórico detalhado de treinos entra na próxima evolução.");
+        showSiteMessage("O histórico detalhado de treinos entra na próxima evolução.", "info");
       });
 
     document
@@ -7916,24 +8057,22 @@ document.addEventListener("DOMContentLoaded", () => {
     document
       .getElementById("lfPlanMenu")
       ?.addEventListener("click", () => {
-        if (confirm(`Excluir ${plan.name}?`)) {
-          deleteActiveGymPlan();
-          showGymRoot();
-        }
+        deleteActiveGymPlan();
       });
 
     document
       .getElementById("lfPlanSummaryTab")
       ?.addEventListener("click", () => {
-        alert(
-          `${plan.name}: ${plan.exercises.length} exercícios cadastrados.`
+        showSiteMessage(
+          `${plan.name}: ${plan.exercises.length} exercícios cadastrados.`,
+          "info"
         );
       });
 
     document
       .getElementById("lfPlanHistoryTab")
       ?.addEventListener("click", () => {
-        alert("Histórico detalhado deste treino entra na próxima versão.");
+        showSiteMessage("Histórico detalhado deste treino entra na próxima versão.", "info");
       });
 
     updateWorkoutTimerDisplay();
@@ -8064,13 +8203,13 @@ document.addEventListener("DOMContentLoaded", () => {
           exercise.primaryMuscle
             ? gymLabelMuscle(exercise.primaryMuscle)
             : "Grupo muscular principal";
-        alert(`${exercise.name}: ${muscle}.`);
+        showSiteMessage(`${exercise.name}: ${muscle}.`, "info");
       });
 
     document
       .getElementById("lfExerciseHistoryTab")
       ?.addEventListener("click", () => {
-        alert("Histórico de carga deste exercício entra na próxima evolução.");
+        showSiteMessage("Histórico de carga deste exercício entra na próxima evolução.", "info");
       });
 
     document
@@ -9098,8 +9237,9 @@ document.addEventListener("DOMContentLoaded", () => {
           "click",
           () => {
 
-            alert(
-              item.message
+            showSiteMessage(
+              item.message,
+              "info"
             );
           }
         );
