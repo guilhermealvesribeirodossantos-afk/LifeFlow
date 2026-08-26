@@ -1,13 +1,13 @@
 document.addEventListener("DOMContentLoaded", () => {
 
   // =====================================================
-  // LIFEFLOW V2.2
-  // ROTINA + AGENDA 12x36 + CENTRAL PMMG
+  // LIFEFLOW V2.3
+  // ROTINA + AGENDA + CENTRAL PMMG + AULAS REAIS
   // =====================================================
 
 
   // =====================================================
-  // CONFIGURAÇÃO DA ESCALA 12x36
+  // CONFIGURAÇÃO 12x36
   // =====================================================
 
   const WORK_ANCHOR = new Date(2026, 7, 24);
@@ -20,13 +20,11 @@ document.addEventListener("DOMContentLoaded", () => {
   // =====================================================
 
   function startOfDay(date) {
-
     return new Date(
       date.getFullYear(),
       date.getMonth(),
       date.getDate()
     );
-
   }
 
 
@@ -46,7 +44,6 @@ document.addEventListener("DOMContentLoaded", () => {
       ).padStart(2, "0");
 
     return `${year}-${month}-${day}`;
-
   }
 
 
@@ -57,17 +54,20 @@ document.addEventListener("DOMContentLoaded", () => {
       a.getMonth() === b.getMonth() &&
       a.getDate() === b.getDate()
     );
-
   }
 
 
   function isWorkDay(date) {
 
     const anchor =
-      startOfDay(WORK_ANCHOR);
+      startOfDay(
+        WORK_ANCHOR
+      );
 
     const current =
-      startOfDay(date);
+      startOfDay(
+        date
+      );
 
     const difference =
       Math.round(
@@ -78,13 +78,8 @@ document.addEventListener("DOMContentLoaded", () => {
     return (
       ((difference % 2) + 2) % 2
     ) === 0;
-
   }
 
-
-  // =====================================================
-  // SAUDAÇÃO
-  // =====================================================
 
   function getGreeting() {
 
@@ -100,12 +95,11 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     return "Boa noite.";
-
   }
 
 
   // =====================================================
-  // ROTINA DE TRABALHO
+  // ROTINA - TRABALHO
   // =====================================================
 
   const workTasks = [
@@ -198,7 +192,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
   // =====================================================
-  // ROTINA DE FOLGA
+  // ROTINA - FOLGA
   // =====================================================
 
   const offTasks = [
@@ -319,7 +313,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
   // =====================================================
-  // ESTADO DE HOJE
+  // ESTADO DA ROTINA
   // =====================================================
 
   const todayKey =
@@ -338,13 +332,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
   let state = {
-
     completed: [],
-
     water: 0,
-
     xp: 0
-
   };
 
 
@@ -361,7 +351,6 @@ document.addEventListener("DOMContentLoaded", () => {
         ...state,
         ...JSON.parse(saved)
       };
-
     }
 
   } catch (error) {
@@ -370,7 +359,6 @@ document.addEventListener("DOMContentLoaded", () => {
       "Erro ao carregar rotina:",
       error
     );
-
   }
 
 
@@ -381,7 +369,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     state.completed =
       state.done;
-
   }
 
 
@@ -392,13 +379,8 @@ document.addEventListener("DOMContentLoaded", () => {
   ) {
 
     state.completed = [];
-
   }
 
-
-  // =====================================================
-  // SALVAR ROTINA
-  // =====================================================
 
   function saveState() {
 
@@ -406,33 +388,11 @@ document.addEventListener("DOMContentLoaded", () => {
       storageKey,
       JSON.stringify(state)
     );
-
   }
 
 
   // =====================================================
   // HOME
-  // =====================================================
-
-  function renderHome() {
-
-    renderHeader();
-
-    renderTasks();
-
-    renderProgress();
-
-    renderWater();
-
-    renderNextTask();
-
-    renderPMMGHome();
-
-  }
-
-
-  // =====================================================
-  // CABEÇALHO
   // =====================================================
 
   function renderHeader() {
@@ -454,7 +414,6 @@ document.addEventListener("DOMContentLoaded", () => {
             year: "numeric"
           }
         );
-
     }
 
 
@@ -467,7 +426,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
       welcomeTitle.textContent =
         getGreeting();
-
     }
 
 
@@ -482,7 +440,6 @@ document.addEventListener("DOMContentLoaded", () => {
         workDay
           ? "Hoje é dia de trabalho. Vamos manter o ritmo sem exagerar."
           : "Hoje é dia de folga. Um bom dia para avançar nos seus objetivos.";
-
     }
 
 
@@ -497,7 +454,6 @@ document.addEventListener("DOMContentLoaded", () => {
         workDay
           ? "TRABALHO"
           : "FOLGA";
-
     }
 
 
@@ -512,7 +468,6 @@ document.addEventListener("DOMContentLoaded", () => {
         workDay
           ? "Trabalho • 08:00–20:00"
           : "Dia de folga";
-
     }
 
 
@@ -527,7 +482,6 @@ document.addEventListener("DOMContentLoaded", () => {
         workDay
           ? "Rotina de trabalho"
           : "Rotina de folga";
-
     }
 
 
@@ -542,15 +496,9 @@ document.addEventListener("DOMContentLoaded", () => {
         workDay
           ? "Dia de trabalho: estudo leve é opcional. Sono e recuperação continuam sendo prioridade."
           : "Dia de folga: teoria pela manhã e revisão/questões à tarde.";
-
     }
-
   }
 
-
-  // =====================================================
-  // TAREFAS
-  // =====================================================
 
   function renderTasks() {
 
@@ -622,66 +570,56 @@ document.addEventListener("DOMContentLoaded", () => {
         `;
 
 
-        const button =
-          item.querySelector(
+        item
+          .querySelector(
             ".check"
-          );
+          )
+          .addEventListener(
+            "click",
+            () => {
 
+              if (
+                state.completed.includes(
+                  index
+                )
+              ) {
 
-        button.addEventListener(
-          "click",
-          () => {
+                state.completed =
+                  state.completed.filter(
+                    item =>
+                      item !== index
+                  );
 
-            if (
-              state.completed.includes(
-                index
-              )
-            ) {
+                state.xp =
+                  Math.max(
+                    0,
+                    state.xp - 10
+                  );
 
-              state.completed =
-                state.completed.filter(
-                  item =>
-                    item !== index
+              } else {
+
+                state.completed.push(
+                  index
                 );
 
-              state.xp =
-                Math.max(
-                  0,
-                  state.xp - 10
-                );
+                state.xp += 10;
+              }
 
-            } else {
 
-              state.completed.push(
-                index
-              );
+              saveState();
 
-              state.xp += 10;
-
+              renderHome();
             }
-
-
-            saveState();
-
-            renderHome();
-
-          }
-        );
+          );
 
 
         list.appendChild(
           item
         );
-
       }
     );
-
   }
 
-
-  // =====================================================
-  // PRÓXIMA TAREFA
-  // =====================================================
 
   function renderNextTask() {
 
@@ -720,7 +658,6 @@ document.addEventListener("DOMContentLoaded", () => {
     ) {
 
       return;
-
     }
 
 
@@ -736,7 +673,6 @@ document.addEventListener("DOMContentLoaded", () => {
         "Todas as tarefas foram concluídas.";
 
       return;
-
     }
 
 
@@ -748,13 +684,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     description.textContent =
       next.description;
-
   }
 
-
-  // =====================================================
-  // PROGRESSO
-  // =====================================================
 
   function renderProgress() {
 
@@ -803,18 +734,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
     if (progressPct) {
-
       progressPct.textContent =
         `${percentage}%`;
-
     }
 
 
     if (progressText) {
-
       progressText.textContent =
         `${percentage}%`;
-
     }
 
 
@@ -822,7 +749,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
       doneCount.textContent =
         `${completed} de ${total} concluídas`;
-
     }
 
 
@@ -830,23 +756,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
       progressBar.style.width =
         `${percentage}%`;
-
     }
 
 
     if (xp) {
-
       xp.textContent =
         `${state.xp} XP`;
-
     }
-
   }
 
-
-  // =====================================================
-  // ÁGUA
-  // =====================================================
 
   function renderWater() {
 
@@ -879,7 +797,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
       waterText.textContent =
         `${liters} L`;
-
     }
 
 
@@ -887,7 +804,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
       waterGoalText.textContent =
         `${liters} / 4 L`;
-
     }
 
 
@@ -906,9 +822,18 @@ document.addEventListener("DOMContentLoaded", () => {
 
       waterFill.style.width =
         `${percentage}%`;
-
     }
+  }
 
+
+  function renderHome() {
+
+    renderHeader();
+    renderTasks();
+    renderProgress();
+    renderWater();
+    renderNextTask();
+    renderPMMGHome();
   }
 
 
@@ -937,12 +862,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
             saveState();
-
             renderWater();
-
           }
         );
-
       }
     );
 
@@ -962,12 +884,9 @@ document.addEventListener("DOMContentLoaded", () => {
         state.water = 0;
 
         saveState();
-
         renderWater();
-
       }
     );
-
   }
 
 
@@ -984,16 +903,12 @@ document.addEventListener("DOMContentLoaded", () => {
       () => {
 
         state.completed = [];
-
         state.xp = 0;
 
         saveState();
-
         renderHome();
-
       }
     );
-
   }
 
 
@@ -1018,7 +933,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
   const monthNames = [
-
     "Janeiro",
     "Fevereiro",
     "Março",
@@ -1031,7 +945,6 @@ document.addEventListener("DOMContentLoaded", () => {
     "Outubro",
     "Novembro",
     "Dezembro"
-
   ];
 
 
@@ -1041,7 +954,6 @@ document.addEventListener("DOMContentLoaded", () => {
       document.getElementById(
         "calendarGrid"
       );
-
 
     if (!grid) {
       return;
@@ -1070,7 +982,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
       monthElement.textContent =
         monthNames[month];
-
     }
 
 
@@ -1078,7 +989,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
       yearElement.textContent =
         year;
-
     }
 
 
@@ -1112,15 +1022,12 @@ document.addEventListener("DOMContentLoaded", () => {
           "div"
         );
 
-
       empty.className =
         "calendar-day empty";
-
 
       grid.appendChild(
         empty
       );
-
     }
 
 
@@ -1139,7 +1046,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
       const work =
-        isWorkDay(date);
+        isWorkDay(
+          date
+        );
 
 
       const button =
@@ -1170,7 +1079,6 @@ document.addEventListener("DOMContentLoaded", () => {
         button.classList.add(
           "today"
         );
-
       }
 
 
@@ -1184,7 +1092,6 @@ document.addEventListener("DOMContentLoaded", () => {
         button.classList.add(
           "selected"
         );
-
       }
 
 
@@ -1214,9 +1121,7 @@ document.addEventListener("DOMContentLoaded", () => {
           selectedCalendarDate =
             new Date(date);
 
-
           renderCalendar();
-
         }
       );
 
@@ -1224,14 +1129,11 @@ document.addEventListener("DOMContentLoaded", () => {
       grid.appendChild(
         button
       );
-
     }
 
 
     renderSelectedDay();
-
     renderNextDays();
-
   }
 
 
@@ -1266,7 +1168,6 @@ document.addEventListener("DOMContentLoaded", () => {
     ) {
 
       return;
-
     }
 
 
@@ -1352,10 +1253,8 @@ document.addEventListener("DOMContentLoaded", () => {
         list.appendChild(
           item
         );
-
       }
     );
-
   }
 
 
@@ -1390,7 +1289,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
       const work =
-        isWorkDay(date);
+        isWorkDay(
+          date
+        );
 
 
       const item =
@@ -1408,7 +1309,6 @@ document.addEventListener("DOMContentLoaded", () => {
         <div>
 
           <strong>
-
             ${
               date.toLocaleDateString(
                 "pt-BR",
@@ -1417,11 +1317,9 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
               )
             }
-
           </strong>
 
           <span>
-
             ${
               date.toLocaleDateString(
                 "pt-BR",
@@ -1431,7 +1329,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
               )
             }
-
           </span>
 
         </div>
@@ -1458,9 +1355,7 @@ document.addEventListener("DOMContentLoaded", () => {
       list.appendChild(
         item
       );
-
     }
-
   }
 
 
@@ -1483,12 +1378,9 @@ document.addEventListener("DOMContentLoaded", () => {
             1
           );
 
-
         renderCalendar();
-
       }
     );
-
   }
 
 
@@ -1511,21 +1403,18 @@ document.addEventListener("DOMContentLoaded", () => {
             1
           );
 
-
         renderCalendar();
-
       }
     );
-
   }
 
 
   // =====================================================
-  // CENTRAL PMMG
+  // BANCO PMMG
   // =====================================================
 
   const PMMG_STORAGE =
-    "lifeflow-pmmg-v22";
+    "lifeflow-pmmg-v23";
 
 
   const pmmgSubjects = [
@@ -1535,8 +1424,7 @@ document.addEventListener("DOMContentLoaded", () => {
       name: "Português",
       icon: "📚",
       description:
-        "Interpretação, gramática e domínio da língua.",
-      progress: 0
+        "Interpretação, gramática e domínio da língua."
     },
 
     {
@@ -1544,8 +1432,7 @@ document.addEventListener("DOMContentLoaded", () => {
       name: "Matemática",
       icon: "🧮",
       description:
-        "Base matemática e raciocínio.",
-      progress: 0
+        "Base matemática e raciocínio."
     },
 
     {
@@ -1553,8 +1440,7 @@ document.addEventListener("DOMContentLoaded", () => {
       name: "Direito",
       icon: "⚖️",
       description:
-        "Fundamentos jurídicos para a prova.",
-      progress: 0
+        "Fundamentos jurídicos para a prova."
     },
 
     {
@@ -1562,8 +1448,7 @@ document.addEventListener("DOMContentLoaded", () => {
       name: "Legislação",
       icon: "📜",
       description:
-        "Normas, leis e conteúdos específicos.",
-      progress: 0
+        "Normas e conteúdos específicos."
     },
 
     {
@@ -1571,8 +1456,7 @@ document.addEventListener("DOMContentLoaded", () => {
       name: "Informática",
       icon: "💻",
       description:
-        "Conhecimentos essenciais de informática.",
-      progress: 0
+        "Conhecimentos essenciais de informática."
     },
 
     {
@@ -1580,16 +1464,492 @@ document.addEventListener("DOMContentLoaded", () => {
       name: "Atualidades",
       icon: "🌎",
       description:
-        "Temas importantes e conhecimentos gerais.",
-      progress: 0
+        "Conhecimentos gerais e temas relevantes."
     }
 
   ];
 
 
+  // =====================================================
+  // AULAS DE PORTUGUÊS
+  // =====================================================
+
+  const portugueseLessons = [
+
+    {
+      id: "pt01",
+
+      number: 1,
+
+      title:
+        "Interpretação de Texto",
+
+      description:
+        "Aprenda a localizar informações e compreender corretamente o texto.",
+
+      content: `
+
+        <h3>O que é interpretação de texto?</h3>
+
+        <p>
+          Interpretar um texto significa compreender a mensagem que o autor transmite.
+          Em provas, você deve responder com base no texto apresentado, evitando usar
+          opiniões pessoais que não estejam sustentadas pelo conteúdo.
+        </p>
+
+        <div class="lesson-tip">
+
+          <strong>REGRA DE OURO</strong>
+
+          <span>
+            Se a questão disser “Segundo o texto”, a resposta deve estar sustentada
+            pelo próprio texto.
+          </span>
+
+        </div>
+
+        <h3>Informação explícita</h3>
+
+        <p>
+          É aquela que aparece diretamente escrita no texto. Você não precisa fazer
+          uma dedução complexa: basta localizar a informação.
+        </p>
+
+        <div class="lesson-example">
+          Texto: “Marcos chegou ao trabalho às oito horas.”<br><br>
+          Pergunta: “Que horas Marcos chegou ao trabalho?”<br><br>
+          Resposta: oito horas.
+        </div>
+
+        <h3>Informação implícita</h3>
+
+        <p>
+          É aquela que não aparece de forma direta, mas pode ser concluída pelas
+          pistas fornecidas pelo texto.
+        </p>
+
+        <div class="lesson-example">
+          “Rafael fechou rapidamente as janelas e, minutos depois, ouviu trovões.”
+          <br><br>
+          Podemos inferir que havia sinais de chuva ou temporal.
+        </div>
+
+        <h3>Tema do texto</h3>
+
+        <p>
+          O tema representa o assunto principal tratado. Para encontrá-lo, observe
+          quais ideias aparecem repetidamente e qual assunto conecta todo o texto.
+        </p>
+
+        <h3>Como resolver melhor?</h3>
+
+        <ul>
+          <li>Leia primeiro o comando da questão.</li>
+          <li>Volte ao texto e procure evidências.</li>
+          <li>Evite alternativas exageradas.</li>
+          <li>Não invente informações.</li>
+          <li>Compare todas as opções antes de marcar.</li>
+        </ul>
+
+        <div class="lesson-tip">
+
+          <strong>PMMG</strong>
+
+          <span>
+            Em interpretação, muitas alternativas parecem verdadeiras no mundo real,
+            mas apenas uma corresponde ao que o texto realmente diz.
+          </span>
+
+        </div>
+
+      `,
+
+      questions: [
+
+        {
+          question:
+            "Em uma questão que pergunta “Segundo o texto...”, qual deve ser a principal referência do candidato?",
+
+          options: [
+            "Sua experiência pessoal.",
+            "As informações apresentadas pelo próprio texto.",
+            "A alternativa mais longa.",
+            "Aquilo que normalmente acontece na vida real."
+          ],
+
+          correct: 1
+        },
+
+        {
+          question:
+            "Qual definição descreve melhor uma informação implícita?",
+
+          options: [
+            "Uma informação sem relação com o texto.",
+            "Uma informação presente somente no título.",
+            "Uma informação concluída a partir de pistas do texto.",
+            "Uma informação sempre copiada literalmente."
+          ],
+
+          correct: 2
+        },
+
+        {
+          question:
+            "Leia: “Rafael entrou em casa, fechou rapidamente as janelas e, minutos depois, ouviu trovões.” Qual inferência é mais adequada?",
+
+          options: [
+            "Rafael quebrou uma janela.",
+            "Havia sinais de chuva ou temporal.",
+            "Rafael estava atrasado.",
+            "A casa estava sem energia."
+          ],
+
+          correct: 1
+        },
+
+        {
+          question:
+            "Se um texto fala sobre benefícios dos exercícios, riscos do sedentarismo e importância de se manter ativo, qual é o tema mais adequado?",
+
+          options: [
+            "Atividade física e saúde.",
+            "História dos esportes.",
+            "Construção de academias.",
+            "Alimentação vegetariana."
+          ],
+
+          correct: 0
+        },
+
+        {
+          question:
+            "Qual atitude deve ser evitada ao interpretar uma questão?",
+
+          options: [
+            "Voltar ao texto.",
+            "Buscar evidências.",
+            "Comparar alternativas.",
+            "Inventar informações que não aparecem no texto."
+          ],
+
+          correct: 3
+        }
+
+      ]
+
+    },
+
+
+    {
+      id: "pt02",
+
+      number: 2,
+
+      title:
+        "Ideia Principal e Inferência",
+
+      description:
+        "Aprenda a identificar o núcleo da mensagem e tirar conclusões coerentes.",
+
+      content: `
+
+        <h3>Ideia principal</h3>
+
+        <p>
+          A ideia principal é aquilo que o autor deseja comunicar de forma central.
+          Detalhes, exemplos e explicações ajudam a desenvolver essa ideia.
+        </p>
+
+        <div class="lesson-tip">
+
+          <strong>PERGUNTA-CHAVE</strong>
+
+          <span>
+            Se eu tivesse que explicar esse texto em apenas uma frase, o que eu diria?
+          </span>
+
+        </div>
+
+        <h3>Ideia principal x detalhes</h3>
+
+        <p>
+          Um texto pode possuir muitas informações, mas nem todas têm o mesmo peso.
+          Exemplos e dados podem servir apenas para comprovar ou explicar a mensagem principal.
+        </p>
+
+        <div class="lesson-example">
+          Um texto apresenta vários exemplos de pessoas que melhoraram a saúde após
+          praticar exercícios. A ideia principal pode ser a importância da atividade
+          física para a saúde.
+        </div>
+
+        <h3>Inferência</h3>
+
+        <p>
+          Inferir é chegar a uma conclusão lógica usando pistas presentes no texto.
+          A conclusão não pode ser inventada: ela precisa ser compatível com as informações fornecidas.
+        </p>
+
+        <h3>Cuidado com conclusões exageradas</h3>
+
+        <p>
+          Palavras como “sempre”, “nunca”, “todos” e “somente” podem transformar
+          uma alternativa razoável em uma afirmação exagerada.
+        </p>
+
+        <ul>
+          <li>Procure o assunto central.</li>
+          <li>Separe exemplos da ideia principal.</li>
+          <li>Observe relações de causa e consequência.</li>
+          <li>Desconfie de afirmações absolutas.</li>
+        </ul>
+
+      `,
+
+      questions: [
+
+        {
+          question:
+            "O que representa a ideia principal de um texto?",
+
+          options: [
+            "Um detalhe secundário.",
+            "A mensagem central desenvolvida pelo autor.",
+            "Qualquer exemplo citado.",
+            "A opinião do leitor."
+          ],
+
+          correct: 1
+        },
+
+        {
+          question:
+            "Qual alternativa descreve corretamente uma inferência?",
+
+          options: [
+            "Uma conclusão baseada nas pistas do texto.",
+            "Uma informação inventada pelo leitor.",
+            "Uma frase obrigatoriamente copiada.",
+            "Uma opinião sem relação com o conteúdo."
+          ],
+
+          correct: 0
+        },
+
+        {
+          question:
+            "Exemplos apresentados em um texto normalmente podem servir para:",
+
+          options: [
+            "Eliminar a ideia principal.",
+            "Desenvolver ou comprovar uma ideia.",
+            "Substituir completamente o tema.",
+            "Confundir obrigatoriamente o leitor."
+          ],
+
+          correct: 1
+        },
+
+        {
+          question:
+            "Em questões de interpretação, por que palavras como “sempre” e “nunca” exigem atenção?",
+
+          options: [
+            "Porque são erros gramaticais.",
+            "Porque podem tornar a alternativa excessivamente absoluta.",
+            "Porque nunca aparecem em provas.",
+            "Porque significam a mesma coisa."
+          ],
+
+          correct: 1
+        },
+
+        {
+          question:
+            "Para encontrar a ideia principal, uma boa estratégia é perguntar:",
+
+          options: [
+            "Qual palavra é a maior?",
+            "Quantas linhas existem?",
+            "Qual mensagem resume melhor o texto?",
+            "Qual alternativa tem mais palavras?"
+          ],
+
+          correct: 2
+        }
+
+      ]
+
+    },
+
+
+    {
+      id: "pt03",
+
+      number: 3,
+
+      title:
+        "Tipologia Textual",
+
+      description:
+        "Conheça narração, descrição, dissertação e outras estruturas.",
+
+      content: `
+
+        <h3>O que é tipologia textual?</h3>
+
+        <p>
+          Tipologia textual é a forma básica de organização de um texto.
+          Entre os tipos mais comuns estão narração, descrição, dissertação,
+          exposição e injunção.
+        </p>
+
+        <h3>Narração</h3>
+
+        <p>
+          Apresenta acontecimentos, geralmente envolvendo personagens,
+          tempo, espaço e ações.
+        </p>
+
+        <h3>Descrição</h3>
+
+        <p>
+          Apresenta características de pessoas, objetos, lugares ou situações.
+        </p>
+
+        <h3>Dissertação</h3>
+
+        <p>
+          Desenvolve ideias e argumentos sobre determinado assunto.
+        </p>
+
+        <h3>Injunção</h3>
+
+        <p>
+          Orienta o leitor a realizar uma ação, como ocorre em instruções e manuais.
+        </p>
+
+        <div class="lesson-tip">
+
+          <strong>DICA</strong>
+
+          <span>
+            Observe qual é a finalidade predominante do texto.
+          </span>
+
+        </div>
+
+      `,
+
+      questions: [
+
+        {
+          question:
+            "Qual tipologia textual apresenta acontecimentos envolvendo ações e personagens?",
+
+          options: [
+            "Narração.",
+            "Descrição.",
+            "Injunção.",
+            "Exposição."
+          ],
+
+          correct: 0
+        },
+
+        {
+          question:
+            "Um texto que apresenta características de um lugar é predominantemente:",
+
+          options: [
+            "Narrativo.",
+            "Descritivo.",
+            "Injuntivo.",
+            "Argumentativo."
+          ],
+
+          correct: 1
+        },
+
+        {
+          question:
+            "Receitas e manuais costumam apresentar forte característica:",
+
+          options: [
+            "Descritiva.",
+            "Narrativa.",
+            "Injuntiva.",
+            "Poética."
+          ],
+
+          correct: 2
+        },
+
+        {
+          question:
+            "A dissertação geralmente desenvolve:",
+
+          options: [
+            "Somente personagens.",
+            "Ideias e argumentos.",
+            "Apenas instruções.",
+            "Somente características físicas."
+          ],
+
+          correct: 1
+        },
+
+        {
+          question:
+            "Para identificar a tipologia predominante, deve-se observar principalmente:",
+
+          options: [
+            "O número de palavras.",
+            "A finalidade e organização do texto.",
+            "Somente o título.",
+            "A quantidade de parágrafos."
+          ],
+
+          correct: 1
+        }
+
+      ]
+
+    }
+
+  ];
+
+
+  // =====================================================
+  // OUTRAS MATÉRIAS
+  // =====================================================
+
+  const subjectLessons = {
+
+    portugues:
+      portugueseLessons,
+
+    matematica: [],
+
+    direito: [],
+
+    legislacao: [],
+
+    informatica: [],
+
+    atualidades: []
+
+  };
+
+
+  // =====================================================
+  // ESTADO PMMG
+  // =====================================================
+
   let pmmgState = {
 
-    subjects: {}
+    lessons: {}
 
   };
 
@@ -1608,45 +1968,44 @@ document.addEventListener("DOMContentLoaded", () => {
         ...pmmgState,
         ...JSON.parse(saved)
       };
-
     }
 
   } catch (error) {
 
     console.log(
-      "Erro ao carregar PMMG:",
+      "Erro PMMG:",
       error
     );
-
   }
 
 
   if (
-    !pmmgState.subjects
+    !pmmgState.lessons
   ) {
 
-    pmmgState.subjects = {};
-
+    pmmgState.lessons = {};
   }
 
 
-  pmmgSubjects.forEach(
-    subject => {
+  portugueseLessons.forEach(
+    lesson => {
 
       if (
-        typeof
-        pmmgState.subjects[
-          subject.id
-        ] !==
-        "number"
+        !pmmgState.lessons[
+          lesson.id
+        ]
       ) {
 
-        pmmgState.subjects[
-          subject.id
-        ] = 0;
+        pmmgState.lessons[
+          lesson.id
+        ] = {
 
+          bestScore: 0,
+
+          passed: false
+
+        };
       }
-
     }
   );
 
@@ -1659,24 +2018,116 @@ document.addEventListener("DOMContentLoaded", () => {
         pmmgState
       )
     );
+  }
 
+
+  // =====================================================
+  // PROGRESSO DAS AULAS
+  // =====================================================
+
+  function getLessonData(
+    lessonId
+  ) {
+
+    return (
+      pmmgState.lessons[
+        lessonId
+      ] || {
+        bestScore: 0,
+        passed: false
+      }
+    );
+  }
+
+
+  function isLessonUnlocked(
+    lessons,
+    index
+  ) {
+
+    if (index === 0) {
+      return true;
+    }
+
+
+    const previous =
+      lessons[index - 1];
+
+
+    return (
+      getLessonData(
+        previous.id
+      ).bestScore >= 70
+    );
   }
 
 
   function getSubjectProgress(
-    subject
+    subjectId
   ) {
 
-    return Math.max(
-      0,
-      Math.min(
-        100,
-        pmmgState.subjects[
-          subject.id
-        ] || 0
-      )
-    );
+    const lessons =
+      subjectLessons[
+        subjectId
+      ] || [];
 
+
+    if (
+      lessons.length === 0
+    ) {
+
+      return 0;
+    }
+
+
+    const total =
+      lessons.reduce(
+        (
+          sum,
+          lesson
+        ) => {
+
+          const data =
+            getLessonData(
+              lesson.id
+            );
+
+          return (
+            sum +
+            (
+              data.passed
+                ? 100
+                : data.bestScore
+            )
+          );
+        },
+        0
+      );
+
+
+    return Math.round(
+      total /
+      lessons.length
+    );
+  }
+
+
+  function getSubjectCompletedLessons(
+    subjectId
+  ) {
+
+    const lessons =
+      subjectLessons[
+        subjectId
+      ] || [];
+
+
+    return lessons.filter(
+      lesson =>
+        getLessonData(
+          lesson.id
+        ).passed
+    ).length;
   }
 
 
@@ -1685,13 +2136,11 @@ document.addEventListener("DOMContentLoaded", () => {
   ) {
 
     if (index === 0) {
-
       return true;
-
     }
 
 
-    const previousSubject =
+    const previous =
       pmmgSubjects[
         index - 1
       ];
@@ -1699,10 +2148,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
     return (
       getSubjectProgress(
-        previousSubject
+        previous.id
       ) >= 70
     );
-
   }
 
 
@@ -1716,7 +2164,7 @@ document.addEventListener("DOMContentLoaded", () => {
         ) =>
           sum +
           getSubjectProgress(
-            subject
+            subject.id
           ),
         0
       );
@@ -1726,7 +2174,6 @@ document.addEventListener("DOMContentLoaded", () => {
       total /
       pmmgSubjects.length
     );
-
   }
 
 
@@ -1735,10 +2182,9 @@ document.addEventListener("DOMContentLoaded", () => {
     return pmmgSubjects.filter(
       subject =>
         getSubjectProgress(
-          subject
+          subject.id
         ) >= 100
     ).length;
-
   }
 
 
@@ -1751,38 +2197,40 @@ document.addEventListener("DOMContentLoaded", () => {
       i++
     ) {
 
+      if (
+        !isSubjectUnlocked(
+          i
+        )
+      ) {
+
+        continue;
+      }
+
+
       const subject =
         pmmgSubjects[i];
 
 
       if (
-        !isSubjectUnlocked(i)
-      ) {
-
-        continue;
-
-      }
-
-
-      if (
         getSubjectProgress(
-          subject
+          subject.id
         ) < 100
       ) {
 
         return subject;
-
       }
-
     }
 
 
     return pmmgSubjects[
       pmmgSubjects.length - 1
     ];
-
   }
 
+
+  // =====================================================
+  // RENDER PMMG
+  // =====================================================
 
   function renderPMMGHome() {
 
@@ -1806,7 +2254,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
       text.textContent =
         `${progress}%`;
-
     }
 
 
@@ -1814,9 +2261,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       bar.style.width =
         `${progress}%`;
-
     }
-
   }
 
 
@@ -1848,7 +2293,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
       overallText.textContent =
         `${overall}%`;
-
     }
 
 
@@ -1856,7 +2300,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
       overallBar.style.width =
         `${overall}%`;
-
     }
 
 
@@ -1864,11 +2307,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
       completedCount.textContent =
         getCompletedSubjects();
-
     }
 
 
-    const currentSubject =
+    const current =
       getCurrentSubject();
 
 
@@ -1887,31 +2329,19 @@ document.addEventListener("DOMContentLoaded", () => {
     if (todaySubject) {
 
       todaySubject.textContent =
-        currentSubject.name;
-
+        current.name;
     }
 
 
     if (todayDescription) {
 
-      const progress =
-        getSubjectProgress(
-          currentSubject
-        );
-
-
       todayDescription.textContent =
-        progress === 0
-          ? `Comece seus estudos de ${currentSubject.name}.`
-          : `Você está com ${progress}% em ${currentSubject.name}. Continue avançando.`;
-
+        `Progresso atual em ${current.name}: ${getSubjectProgress(current.id)}%.`;
     }
 
 
     renderPMMGSubjects();
-
     renderPMMGHome();
-
   }
 
 
@@ -1924,9 +2354,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
     if (!list) {
-
       return;
-
     }
 
 
@@ -1941,7 +2369,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const progress =
           getSubjectProgress(
-            subject
+            subject.id
           );
 
 
@@ -1953,7 +2381,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
         let statusText =
           "BLOQUEADA";
-
 
         let statusClass =
           "";
@@ -1978,9 +2405,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
             statusClass =
               "active";
-
           }
-
         }
 
 
@@ -2070,13 +2495,13 @@ document.addEventListener("DOMContentLoaded", () => {
           >
 
             ${
-              unlocked
-                ? progress === 0
-                  ? "Começar matéria"
-                  : progress >= 100
-                    ? "Revisar matéria"
-                    : "Continuar matéria"
-                : "🔒 Complete 70% da matéria anterior"
+              !unlocked
+                ? "🔒 Complete 70% da matéria anterior"
+                : subject.id === "portugues"
+                  ? progress === 0
+                    ? "Começar matéria"
+                    : "Abrir matéria"
+                  : "Conteúdo em desenvolvimento"
             }
 
           </button>
@@ -2090,119 +2515,807 @@ document.addEventListener("DOMContentLoaded", () => {
           );
 
 
-        if (unlocked) {
+        if (
+          unlocked &&
+          subject.id === "portugues"
+        ) {
 
           action.addEventListener(
             "click",
             () => {
 
               openSubject(
-                subject
+                subject.id
               );
-
             }
           );
-
         }
 
 
         list.appendChild(
           card
         );
-
       }
     );
-
   }
 
 
   // =====================================================
-  // SIMULAÇÃO DE EVOLUÇÃO DA MATÉRIA
+  // TELA DA MATÉRIA
   // =====================================================
-  //
-  // Nesta versão ainda não abrimos aulas reais.
-  // O botão aumenta o progresso para testar
-  // todo o sistema de desbloqueio.
-  //
-  // Na próxima evolução conectaremos
-  // aulas e provas reais.
-  // =====================================================
+
+  let currentSubjectId =
+    "portugues";
+
 
   function openSubject(
-    subject
+    subjectId
   ) {
 
-    const current =
+    const lessons =
+      subjectLessons[
+        subjectId
+      ];
+
+
+    if (
+      !lessons ||
+      lessons.length === 0
+    ) {
+
+      alert(
+        "As aulas desta matéria ainda serão adicionadas."
+      );
+
+      return;
+    }
+
+
+    currentSubjectId =
+      subjectId;
+
+
+    showScreen(
+      "subjectScreen"
+    );
+
+
+    renderSubjectScreen();
+
+
+    window.scrollTo(
+      0,
+      0
+    );
+  }
+
+
+  function renderSubjectScreen() {
+
+    const subject =
+      pmmgSubjects.find(
+        item =>
+          item.id ===
+          currentSubjectId
+      );
+
+
+    const lessons =
+      subjectLessons[
+        currentSubjectId
+      ] || [];
+
+
+    if (!subject) {
+      return;
+    }
+
+
+    document.getElementById(
+      "subjectScreenTitle"
+    ).textContent =
+      subject.name;
+
+
+    document.getElementById(
+      "subjectScreenDescription"
+    ).textContent =
+      subject.description;
+
+
+    document.getElementById(
+      "subjectProgressTitle"
+    ).textContent =
+      subject.name;
+
+
+    const progress =
       getSubjectProgress(
-        subject
+        currentSubjectId
       );
 
 
-    if (
-      current >= 100
-    ) {
+    document.getElementById(
+      "subjectOverallPercent"
+    ).textContent =
+      `${progress}%`;
 
-      alert(
-        `${subject.name} já está concluída. A área completa de revisão será adicionada na próxima evolução.`
+
+    document.getElementById(
+      "subjectOverallBar"
+    ).style.width =
+      `${progress}%`;
+
+
+    document.getElementById(
+      "subjectLessonsTotal"
+    ).textContent =
+      lessons.length;
+
+
+    document.getElementById(
+      "subjectLessonsCompleted"
+    ).textContent =
+      getSubjectCompletedLessons(
+        currentSubjectId
       );
 
+
+    renderLessons();
+  }
+
+
+  function renderLessons() {
+
+    const list =
+      document.getElementById(
+        "lessonsList"
+      );
+
+
+    if (!list) {
       return;
-
     }
 
 
-    const confirmed =
-      confirm(
-        `Abrir ${subject.name}?\n\nNesta versão de teste, cada avanço adiciona 10% ao progresso da matéria.`
-      );
+    const lessons =
+      subjectLessons[
+        currentSubjectId
+      ] || [];
 
 
-    if (!confirmed) {
+    list.innerHTML = "";
 
+
+    lessons.forEach(
+      (
+        lesson,
+        index
+      ) => {
+
+        const data =
+          getLessonData(
+            lesson.id
+          );
+
+
+        const unlocked =
+          isLessonUnlocked(
+            lessons,
+            index
+          );
+
+
+        let statusText =
+          "BLOQUEADA";
+
+        let statusClass =
+          "";
+
+
+        if (unlocked) {
+
+          if (
+            data.passed
+          ) {
+
+            statusText =
+              "CONCLUÍDA";
+
+            statusClass =
+              "completed";
+
+          } else {
+
+            statusText =
+              "LIBERADA";
+
+            statusClass =
+              "available";
+          }
+        }
+
+
+        const card =
+          document.createElement(
+            "article"
+          );
+
+
+        card.className =
+          `lesson-card ${
+            !unlocked
+              ? "locked"
+              : ""
+          } ${
+            data.passed
+              ? "completed"
+              : ""
+          }`;
+
+
+        card.innerHTML = `
+
+          <div class="lesson-card-top">
+
+            <div class="lesson-card-left">
+
+              <div class="lesson-number-badge">
+                ${String(
+                  lesson.number
+                ).padStart(2, "0")}
+              </div>
+
+              <div>
+
+                <h4>
+                  ${lesson.title}
+                </h4>
+
+                <p>
+                  ${lesson.description}
+                </p>
+
+              </div>
+
+            </div>
+
+            <span
+              class="lesson-status ${statusClass}"
+            >
+              ${statusText}
+            </span>
+
+          </div>
+
+
+          <div class="lesson-score-row">
+
+            <span>
+              Melhor nota
+            </span>
+
+            <strong>
+              ${data.bestScore}%
+            </strong>
+
+          </div>
+
+
+          <button
+            class="lesson-action ${
+              unlocked
+                ? "primary"
+                : ""
+            }"
+            type="button"
+            ${
+              unlocked
+                ? ""
+                : "disabled"
+            }
+          >
+
+            ${
+              unlocked
+                ? data.passed
+                  ? "Revisar aula"
+                  : data.bestScore > 0
+                    ? "Tentar novamente"
+                    : "Começar aula"
+                : "🔒 Tire 70% na aula anterior"
+            }
+
+          </button>
+
+        `;
+
+
+        const action =
+          card.querySelector(
+            ".lesson-action"
+          );
+
+
+        if (unlocked) {
+
+          action.addEventListener(
+            "click",
+            () => {
+
+              openLesson(
+                lesson.id
+              );
+            }
+          );
+        }
+
+
+        list.appendChild(
+          card
+        );
+      }
+    );
+  }
+
+
+  // =====================================================
+  // TELA DA AULA
+  // =====================================================
+
+  let currentLessonId =
+    null;
+
+
+  function getCurrentLesson() {
+
+    const lessons =
+      subjectLessons[
+        currentSubjectId
+      ] || [];
+
+
+    return lessons.find(
+      lesson =>
+        lesson.id ===
+        currentLessonId
+    );
+  }
+
+
+  function openLesson(
+    lessonId
+  ) {
+
+    currentLessonId =
+      lessonId;
+
+
+    const lesson =
+      getCurrentLesson();
+
+
+    if (!lesson) {
       return;
-
     }
 
 
-    const newProgress =
-      Math.min(
-        100,
-        current + 10
-      );
+    showScreen(
+      "lessonScreen"
+    );
 
 
-    pmmgState.subjects[
-      subject.id
-    ] =
-      newProgress;
+    document.getElementById(
+      "lessonNumber"
+    ).textContent =
+      `AULA ${String(
+        lesson.number
+      ).padStart(2, "0")}`;
 
 
-    savePMMG();
+    document.getElementById(
+      "lessonTitle"
+    ).textContent =
+      lesson.title;
 
-    renderPMMG();
+
+    document.getElementById(
+      "lessonSubtitle"
+    ).textContent =
+      lesson.description;
 
 
-    if (
-      newProgress === 70
-    ) {
+    document.getElementById(
+      "lessonContent"
+    ).innerHTML =
+      lesson.content;
 
-      alert(
-        `🎯 ${subject.name}: 70% atingidos!\n\nA próxima matéria foi desbloqueada.`
-      );
 
+    document.getElementById(
+      "quizSection"
+    ).classList.add(
+      "hidden"
+    );
+
+
+    document.getElementById(
+      "quizResult"
+    ).classList.add(
+      "hidden"
+    );
+
+
+    document.getElementById(
+      "startQuizButton"
+    ).classList.remove(
+      "hidden"
+    );
+
+
+    window.scrollTo(
+      0,
+      0
+    );
+  }
+
+
+  // =====================================================
+  // PROVA
+  // =====================================================
+
+  function renderQuiz() {
+
+    const lesson =
+      getCurrentLesson();
+
+
+    if (!lesson) {
+      return;
     }
 
 
-    if (
-      newProgress === 100
-    ) {
-
-      alert(
-        `🏆 ${subject.name} concluída!`
+    const container =
+      document.getElementById(
+        "quizQuestions"
       );
 
+
+    container.innerHTML = "";
+
+
+    lesson.questions.forEach(
+      (
+        question,
+        index
+      ) => {
+
+        const card =
+          document.createElement(
+            "div"
+          );
+
+
+        card.className =
+          "quiz-question-card";
+
+
+        let optionsHtml =
+          "";
+
+
+        question.options.forEach(
+          (
+            option,
+            optionIndex
+          ) => {
+
+            optionsHtml += `
+
+              <label class="quiz-option">
+
+                <input
+                  type="radio"
+                  name="question-${index}"
+                  value="${optionIndex}"
+                >
+
+                <span>
+                  ${option}
+                </span>
+
+              </label>
+
+            `;
+          }
+        );
+
+
+        card.innerHTML = `
+
+          <h4>
+            QUESTÃO ${String(
+              index + 1
+            ).padStart(2, "0")}
+            <br><br>
+            ${question.question}
+          </h4>
+
+          ${optionsHtml}
+
+        `;
+
+
+        container.appendChild(
+          card
+        );
+      }
+    );
+  }
+
+
+  const startQuizButton =
+    document.getElementById(
+      "startQuizButton"
+    );
+
+
+  if (startQuizButton) {
+
+    startQuizButton.addEventListener(
+      "click",
+      () => {
+
+        renderQuiz();
+
+
+        document.getElementById(
+          "quizSection"
+        ).classList.remove(
+          "hidden"
+        );
+
+
+        startQuizButton.classList.add(
+          "hidden"
+        );
+
+
+        document.getElementById(
+          "quizSection"
+        ).scrollIntoView({
+          behavior: "smooth"
+        });
+      }
+    );
+  }
+
+
+  const quizForm =
+    document.getElementById(
+      "quizForm"
+    );
+
+
+  if (quizForm) {
+
+    quizForm.addEventListener(
+      "submit",
+      event => {
+
+        event.preventDefault();
+
+
+        const lesson =
+          getCurrentLesson();
+
+
+        if (!lesson) {
+          return;
+        }
+
+
+        let correctAnswers = 0;
+
+        let answered = 0;
+
+
+        lesson.questions.forEach(
+          (
+            question,
+            index
+          ) => {
+
+            const selected =
+              quizForm.querySelector(
+                `input[name="question-${index}"]:checked`
+              );
+
+
+            if (selected) {
+
+              answered++;
+
+
+              if (
+                Number(
+                  selected.value
+                ) ===
+                question.correct
+              ) {
+
+                correctAnswers++;
+              }
+            }
+          }
+        );
+
+
+        if (
+          answered <
+          lesson.questions.length
+        ) {
+
+          alert(
+            "Responda todas as questões antes de finalizar."
+          );
+
+          return;
+        }
+
+
+        const score =
+          Math.round(
+            (
+              correctAnswers /
+              lesson.questions.length
+            ) *
+            100
+          );
+
+
+        const lessonData =
+          getLessonData(
+            lesson.id
+          );
+
+
+        lessonData.bestScore =
+          Math.max(
+            lessonData.bestScore,
+            score
+          );
+
+
+        lessonData.passed =
+          lessonData.bestScore >= 70;
+
+
+        pmmgState.lessons[
+          lesson.id
+        ] =
+          lessonData;
+
+
+        savePMMG();
+
+
+        showQuizResult(
+          score,
+          lessonData.passed
+        );
+
+
+        renderPMMG();
+      }
+    );
+  }
+
+
+  function showQuizResult(
+    score,
+    passed
+  ) {
+
+    const result =
+      document.getElementById(
+        "quizResult"
+      );
+
+
+    const icon =
+      document.getElementById(
+        "quizResultIcon"
+      );
+
+
+    const title =
+      document.getElementById(
+        "quizResultTitle"
+      );
+
+
+    const scoreElement =
+      document.getElementById(
+        "quizScore"
+      );
+
+
+    const message =
+      document.getElementById(
+        "quizResultMessage"
+      );
+
+
+    result.classList.remove(
+      "hidden",
+      "failed"
+    );
+
+
+    scoreElement.textContent =
+      `${score}%`;
+
+
+    if (passed) {
+
+      icon.textContent =
+        "🏆";
+
+      title.textContent =
+        "Aula concluída!";
+
+      message.textContent =
+        "Você atingiu pelo menos 70%. A próxima aula foi desbloqueada.";
+
+    } else {
+
+      result.classList.add(
+        "failed"
+      );
+
+
+      icon.textContent =
+        "📚";
+
+      title.textContent =
+        "Continue estudando";
+
+      message.textContent =
+        "Você precisa de pelo menos 70%. Revise o conteúdo e tente novamente.";
     }
 
+
+    result.scrollIntoView({
+      behavior: "smooth",
+      block: "center"
+    });
+  }
+
+
+  const finishLessonButton =
+    document.getElementById(
+      "finishLessonButton"
+    );
+
+
+  if (finishLessonButton) {
+
+    finishLessonButton.addEventListener(
+      "click",
+      () => {
+
+        showScreen(
+          "subjectScreen"
+        );
+
+        renderSubjectScreen();
+
+        window.scrollTo(
+          0,
+          0
+        );
+      }
+    );
   }
 
 
@@ -2210,56 +3323,58 @@ document.addEventListener("DOMContentLoaded", () => {
   // TELAS
   // =====================================================
 
-  const homeScreen =
-    document.getElementById(
-      "homeScreen"
-    );
+  const screens = [
 
-  const agendaScreen =
-    document.getElementById(
-      "agendaScreen"
-    );
+    "homeScreen",
+    "agendaScreen",
+    "pmmgScreen",
+    "subjectScreen",
+    "lessonScreen"
 
-  const pmmgScreen =
-    document.getElementById(
-      "pmmgScreen"
-    );
-
-
-  const homeButton =
-    document.getElementById(
-      "homeButton"
-    );
-
-  const agendaButton =
-    document.getElementById(
-      "agendaButton"
-    );
-
-  const pmmgButton =
-    document.getElementById(
-      "pmmgButton"
-    );
+  ];
 
 
   function hideAllScreens() {
 
-    [
-      homeScreen,
-      agendaScreen,
-      pmmgScreen
-    ]
-      .filter(Boolean)
-      .forEach(
-        screen => {
+    screens.forEach(
+      id => {
+
+        const screen =
+          document.getElementById(
+            id
+          );
+
+
+        if (screen) {
 
           screen.classList.add(
             "hidden"
           );
-
         }
+      }
+    );
+  }
+
+
+  function showScreen(
+    id
+  ) {
+
+    hideAllScreens();
+
+
+    const screen =
+      document.getElementById(
+        id
       );
 
+
+    if (screen) {
+
+      screen.classList.remove(
+        "hidden"
+      );
+    }
   }
 
 
@@ -2275,120 +3390,104 @@ document.addEventListener("DOMContentLoaded", () => {
           button.classList.remove(
             "active"
           );
-
         }
       );
-
   }
 
 
   function showHome() {
 
-    hideAllScreens();
-
-    if (homeScreen) {
-
-      homeScreen.classList.remove(
-        "hidden"
-      );
-
-    }
-
+    showScreen(
+      "homeScreen"
+    );
 
     clearNav();
 
 
-    if (homeButton) {
-
-      homeButton.classList.add(
-        "active"
+    const button =
+      document.getElementById(
+        "homeButton"
       );
 
+
+    if (button) {
+
+      button.classList.add(
+        "active"
+      );
     }
 
 
     renderHome();
 
-
     window.scrollTo(
       0,
       0
     );
-
   }
 
 
   function showAgenda() {
 
-    hideAllScreens();
-
-
-    if (agendaScreen) {
-
-      agendaScreen.classList.remove(
-        "hidden"
-      );
-
-    }
-
+    showScreen(
+      "agendaScreen"
+    );
 
     clearNav();
 
 
-    if (agendaButton) {
-
-      agendaButton.classList.add(
-        "active"
+    const button =
+      document.getElementById(
+        "agendaButton"
       );
 
+
+    if (button) {
+
+      button.classList.add(
+        "active"
+      );
     }
 
 
     renderCalendar();
 
-
     window.scrollTo(
       0,
       0
     );
-
   }
 
 
   function showPMMG() {
 
-    hideAllScreens();
-
-
-    if (pmmgScreen) {
-
-      pmmgScreen.classList.remove(
-        "hidden"
-      );
-
-    }
-
+    showScreen(
+      "pmmgScreen"
+    );
 
     clearNav();
 
 
-    if (pmmgButton) {
-
-      pmmgButton.classList.add(
-        "active"
+    const button =
+      document.getElementById(
+        "pmmgButton"
       );
 
+
+    if (button) {
+
+      button.classList.add(
+        "active"
+      );
     }
 
 
     renderPMMG();
 
-
     window.scrollTo(
       0,
       0
     );
-
   }
 
 
@@ -2396,138 +3495,127 @@ document.addEventListener("DOMContentLoaded", () => {
   // NAVEGAÇÃO
   // =====================================================
 
-  if (homeButton) {
-
-    homeButton.addEventListener(
-      "click",
-      showHome
-    );
-
-  }
+  document.getElementById(
+    "homeButton"
+  )?.addEventListener(
+    "click",
+    showHome
+  );
 
 
-  if (agendaButton) {
-
-    agendaButton.addEventListener(
-      "click",
-      showAgenda
-    );
-
-  }
+  document.getElementById(
+    "agendaButton"
+  )?.addEventListener(
+    "click",
+    showAgenda
+  );
 
 
-  if (pmmgButton) {
-
-    pmmgButton.addEventListener(
-      "click",
-      showPMMG
-    );
-
-  }
+  document.getElementById(
+    "pmmgButton"
+  )?.addEventListener(
+    "click",
+    showPMMG
+  );
 
 
-  const areaPMMG =
-    document.getElementById(
-      "areaPMMG"
-    );
+  document.getElementById(
+    "areaPMMG"
+  )?.addEventListener(
+    "click",
+    showPMMG
+  );
 
 
-  if (areaPMMG) {
-
-    areaPMMG.addEventListener(
-      "click",
-      showPMMG
-    );
-
-  }
+  document.getElementById(
+    "openPMMGButton"
+  )?.addEventListener(
+    "click",
+    showPMMG
+  );
 
 
-  const openPMMGButton =
-    document.getElementById(
-      "openPMMGButton"
-    );
+  document.getElementById(
+    "continueStudyButton"
+  )?.addEventListener(
+    "click",
+    () => {
+
+      const subject =
+        getCurrentSubject();
 
 
-  if (openPMMGButton) {
-
-    openPMMGButton.addEventListener(
-      "click",
-      showPMMG
-    );
-
-  }
-
-
-  const continueStudyButton =
-    document.getElementById(
-      "continueStudyButton"
-    );
-
-
-  if (continueStudyButton) {
-
-    continueStudyButton.addEventListener(
-      "click",
-      () => {
-
-        const current =
-          getCurrentSubject();
+      if (
+        subject.id ===
+        "portugues"
+      ) {
 
         openSubject(
-          current
+          "portugues"
         );
 
-      }
-    );
+      } else {
 
-  }
-
-
-  // =====================================================
-  // BOTÃO PROGRESSO
-  // =====================================================
-
-  const progressButton =
-    document.getElementById(
-      "progressButton"
-    );
-
-
-  if (progressButton) {
-
-    progressButton.addEventListener(
-      "click",
-      () => {
-
-        showHome();
-
-
-        setTimeout(
-          () => {
-
-            const section =
-              document.getElementById(
-                "progressSection"
-              );
-
-
-            if (section) {
-
-              section.scrollIntoView({
-                behavior: "smooth",
-                block: "center"
-              });
-
-            }
-
-          },
-          100
+        alert(
+          "As aulas desta matéria serão adicionadas em breve."
         );
-
       }
-    );
+    }
+  );
 
-  }
+
+  document.getElementById(
+    "backToPMMGButton"
+  )?.addEventListener(
+    "click",
+    showPMMG
+  );
+
+
+  document.getElementById(
+    "backToSubjectButton"
+  )?.addEventListener(
+    "click",
+    () => {
+
+      showScreen(
+        "subjectScreen"
+      );
+
+      renderSubjectScreen();
+
+      window.scrollTo(
+        0,
+        0
+      );
+    }
+  );
+
+
+  document.getElementById(
+    "progressButton"
+  )?.addEventListener(
+    "click",
+    () => {
+
+      showHome();
+
+
+      setTimeout(
+        () => {
+
+          document.getElementById(
+            "progressSection"
+          )?.scrollIntoView({
+            behavior: "smooth",
+            block: "center"
+          });
+
+        },
+        100
+      );
+    }
+  );
 
 
   // =====================================================
@@ -2535,9 +3623,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // =====================================================
 
   renderHome();
-
   renderCalendar();
-
   renderPMMG();
 
 });
