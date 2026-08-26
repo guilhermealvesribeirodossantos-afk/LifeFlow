@@ -111,7 +111,6 @@ button:active {
 .app-header,
 .app-main {
   width: min(100%, 780px);
-
   margin: 0 auto;
 }
 
@@ -134,19 +133,14 @@ button:active {
     8px;
 
   display: flex;
-
   justify-content: space-between;
-
   align-items: center;
-
   gap: 16px;
 }
 
 .brand-area {
   display: flex;
-
   align-items: center;
-
   gap: 12px;
 }
 
@@ -157,7 +151,6 @@ button:active {
   border-radius: 15px;
 
   display: grid;
-
   place-items: center;
 
   background:
@@ -170,7 +163,6 @@ button:active {
   color: #06120c;
 
   font-size: 14px;
-
   font-weight: 950;
 
   box-shadow:
@@ -179,15 +171,11 @@ button:active {
 }
 
 .brand-kicker {
-  margin:
-    0
-    0
-    3px;
+  margin: 0 0 3px;
 
   color: var(--primary);
 
   font-size: 10px;
-
   font-weight: 900;
 
   letter-spacing: 1.6px;
@@ -208,7 +196,6 @@ button:active {
   height: 43px;
 
   display: grid;
-
   place-items: center;
 
   border:
@@ -266,15 +253,11 @@ button:active {
 }
 
 .today-text {
-  margin:
-    0
-    0
-    8px;
+  margin: 0 0 8px;
 
   color: var(--muted);
 
   font-size: 12px;
-
   font-weight: 700;
 
   text-transform: capitalize;
@@ -296,10 +279,7 @@ button:active {
 }
 
 .welcome-subtitle {
-  margin:
-    9px
-    0
-    0;
+  margin: 9px 0 0;
 
   color: var(--text-soft);
 
@@ -319,7 +299,6 @@ button:active {
   color: var(--primary);
 
   font-size: 10px;
-
   font-weight: 900;
 
   letter-spacing: 1.45px;
@@ -361,11 +340,8 @@ button:active {
 
 .next-top {
   display: flex;
-
   justify-content: space-between;
-
   align-items: flex-start;
-
   gap: 15px;
 }
 
@@ -386,7 +362,6 @@ button:active {
   flex-shrink: 0;
 
   display: grid;
-
   place-items: center;
 
   border-radius: 14px;
@@ -474,7 +449,6 @@ button:active {
   height: 31px;
 
   display: grid;
-
   place-items: center;
 
   border-radius: 10px;
@@ -553,12 +527,11 @@ button:active {
   font-weight: 900;
 }
 
-.progress-track {
+.progress-track,
+.pmmg-progress-track {
   width: 100%;
 
   height: 9px;
-
-  margin-top: 20px;
 
   overflow: hidden;
 
@@ -567,7 +540,12 @@ button:active {
   background: #24303b;
 }
 
-.progress-bar {
+.progress-track {
+  margin-top: 20px;
+}
+
+.progress-bar,
+.pmmg-progress-bar {
   width: 0%;
 
   height: 100%;
@@ -842,7 +820,7 @@ button:active {
 
 
 /* =========================
-   PMMG
+   PMMG HOME
 ========================= */
 
 .pmmg-card {
@@ -894,67 +872,55 @@ button:active {
   line-height: 1.45;
 }
 
-.subjects {
+.pmmg-home-progress {
   margin-top: 18px;
-
-  display: flex;
-
-  flex-direction: column;
-
-  gap: 7px;
 }
 
-.subject-item {
+.pmmg-home-progress-head {
   display: flex;
+
+  justify-content: space-between;
 
   align-items: center;
 
-  gap: 11px;
+  margin-bottom: 8px;
 
-  padding: 11px;
+  font-size: 10px;
 
-  border:
-    1px solid
-    var(--line-soft);
-
-  border-radius: 14px;
-
-  background: var(--card-3);
+  color: var(--muted);
 }
 
-.subject-number {
-  width: 30px;
-  height: 30px;
-
-  display: grid;
-
-  place-items: center;
-
-  border-radius: 10px;
-
-  background: #17232d;
-
+.pmmg-home-progress-head strong {
   color: var(--primary);
-
-  font-size: 9px;
-
-  font-weight: 950;
-}
-
-.subject-item strong {
-  display: block;
 
   font-size: 12px;
 }
 
-.subject-item small {
-  display: block;
+.main-action-button {
+  width: 100%;
 
-  margin-top: 2px;
+  margin-top: 16px;
 
-  color: var(--muted);
+  padding: 13px;
 
-  font-size: 10px;
+  border: none;
+
+  border-radius: 14px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #49e09a,
+      #26bd79
+    );
+
+  color: #06120c;
+
+  font-size: 12px;
+
+  font-weight: 900;
+
+  cursor: pointer;
 }
 
 
@@ -1029,7 +995,7 @@ button:active {
 
 
 /* =========================
-   AGENDA
+   TÍTULO DAS TELAS
 ========================= */
 
 .screen-title {
@@ -1056,7 +1022,14 @@ button:active {
   color: var(--muted);
 
   font-size: 13px;
+
+  line-height: 1.45;
 }
+
+
+/* =========================
+   AGENDA
+========================= */
 
 .calendar-toolbar {
   padding: 14px;
@@ -1291,11 +1264,6 @@ button:active {
     translateY(-1px);
 }
 
-
-/* =========================
-   DETALHES DA AGENDA
-========================= */
-
 .agenda-details {
   padding: 18px;
 
@@ -1409,11 +1377,6 @@ button:active {
   line-height: 1.35;
 }
 
-
-/* =========================
-   PRÓXIMOS DIAS
-========================= */
-
 .next-days-section {
   margin-bottom: 16px;
 }
@@ -1484,6 +1447,372 @@ button:active {
   background: var(--off-bg);
 
   color: var(--off);
+}
+
+
+/* =========================
+   CENTRAL PMMG
+========================= */
+
+.pmmg-dashboard {
+  padding: 18px;
+
+  margin-bottom: 12px;
+}
+
+.pmmg-dashboard-top {
+  display: flex;
+
+  justify-content: space-between;
+
+  align-items: flex-start;
+
+  gap: 18px;
+}
+
+.pmmg-dashboard h3 {
+  margin: 0;
+
+  font-size: 20px;
+}
+
+.pmmg-big-progress {
+  min-width: 82px;
+
+  padding: 10px 12px;
+
+  border:
+    1px solid
+    var(--line-soft);
+
+  border-radius: 15px;
+
+  background: var(--card-3);
+
+  text-align: center;
+}
+
+.pmmg-big-progress strong {
+  display: block;
+
+  color: var(--primary);
+
+  font-size: 20px;
+}
+
+.pmmg-big-progress span {
+  display: block;
+
+  margin-top: 2px;
+
+  color: var(--muted);
+
+  font-size: 8px;
+}
+
+.pmmg-dashboard .pmmg-progress-track {
+  margin-top: 18px;
+}
+
+.pmmg-stats-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(3, 1fr);
+
+  gap: 8px;
+
+  margin-top: 14px;
+}
+
+.pmmg-stats-grid > div {
+  padding: 11px;
+
+  border:
+    1px solid
+    var(--line-soft);
+
+  border-radius: 13px;
+
+  background: var(--card-3);
+
+  text-align: center;
+}
+
+.pmmg-stats-grid span {
+  display: block;
+
+  color: var(--muted);
+
+  font-size: 8px;
+}
+
+.pmmg-stats-grid strong {
+  display: block;
+
+  margin-top: 4px;
+
+  font-size: 15px;
+}
+
+.pmmg-today-card {
+  padding: 18px;
+
+  margin-bottom: 22px;
+}
+
+.pmmg-today-card p {
+  margin:
+    10px
+    0
+    0;
+
+  color: var(--muted);
+
+  font-size: 12px;
+
+  line-height: 1.45;
+}
+
+.mission-icon {
+  width: 38px;
+  height: 38px;
+
+  display: grid;
+
+  place-items: center;
+
+  border-radius: 13px;
+
+  background:
+    rgba(73, 224, 154, 0.09);
+
+  font-size: 18px;
+}
+
+.pmmg-subjects-section {
+  margin-bottom: 22px;
+}
+
+.pmmg-subjects-list {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 9px;
+}
+
+.pmmg-subject-card {
+  padding: 15px;
+
+  border:
+    1px solid
+    var(--line-soft);
+
+  border-radius: 18px;
+
+  background:
+    linear-gradient(
+      145deg,
+      #101821,
+      #0b1219
+    );
+}
+
+.pmmg-subject-card.locked {
+  opacity: 0.58;
+}
+
+.pmmg-subject-head {
+  display: flex;
+
+  justify-content: space-between;
+
+  align-items: flex-start;
+
+  gap: 12px;
+}
+
+.pmmg-subject-left {
+  display: flex;
+
+  align-items: center;
+
+  gap: 11px;
+}
+
+.pmmg-subject-icon {
+  width: 40px;
+  height: 40px;
+
+  display: grid;
+
+  place-items: center;
+
+  flex-shrink: 0;
+
+  border-radius: 13px;
+
+  background: #17232d;
+
+  font-size: 18px;
+}
+
+.pmmg-subject-card h4 {
+  margin: 0;
+
+  font-size: 14px;
+}
+
+.pmmg-subject-card p {
+  margin:
+    4px
+    0
+    0;
+
+  color: var(--muted);
+
+  font-size: 10px;
+}
+
+.subject-status {
+  padding:
+    6px
+    8px;
+
+  border-radius: 9px;
+
+  background: #16212b;
+
+  color: var(--muted);
+
+  font-size: 8px;
+
+  font-weight: 900;
+
+  white-space: nowrap;
+}
+
+.subject-status.active {
+  background:
+    rgba(73, 224, 154, 0.1);
+
+  color: var(--primary);
+}
+
+.subject-status.completed {
+  background:
+    var(--primary-dark);
+
+  color: var(--primary);
+}
+
+.pmmg-subject-progress {
+  margin-top: 14px;
+}
+
+.pmmg-subject-progress-head {
+  display: flex;
+
+  justify-content: space-between;
+
+  margin-bottom: 7px;
+
+  color: var(--muted);
+
+  font-size: 9px;
+}
+
+.pmmg-subject-progress-head strong {
+  color: var(--text-soft);
+}
+
+.subject-progress-track {
+  height: 7px;
+
+  overflow: hidden;
+
+  border-radius: 999px;
+
+  background: #24303b;
+}
+
+.subject-progress-fill {
+  height: 100%;
+
+  border-radius: 999px;
+
+  background:
+    linear-gradient(
+      90deg,
+      #49e09a,
+      #73f2b8
+    );
+}
+
+.subject-action {
+  width: 100%;
+
+  margin-top: 12px;
+
+  padding: 10px;
+
+  border:
+    1px solid
+    var(--line);
+
+  border-radius: 12px;
+
+  background: var(--card-3);
+
+  color: var(--text-soft);
+
+  font-size: 10px;
+
+  font-weight: 850;
+
+  cursor: pointer;
+}
+
+.subject-action.primary {
+  border-color:
+    rgba(73, 224, 154, 0.25);
+
+  background:
+    rgba(73, 224, 154, 0.08);
+
+  color: var(--primary);
+}
+
+.subject-action:disabled {
+  cursor: not-allowed;
+
+  opacity: 0.6;
+}
+
+.study-rule-card {
+  padding: 18px;
+
+  margin-bottom: 15px;
+}
+
+.study-rule-card h3 {
+  margin: 0;
+
+  font-size: 18px;
+}
+
+.study-rule-card p {
+  margin:
+    8px
+    0
+    0;
+
+  color: var(--muted);
+
+  font-size: 11px;
+
+  line-height: 1.5;
 }
 
 
@@ -1646,6 +1975,14 @@ button:active {
     bottom: 5px;
 
     font-size: 6px;
+  }
+
+  .pmmg-dashboard-top {
+    gap: 10px;
+  }
+
+  .pmmg-big-progress {
+    min-width: 70px;
   }
 
 }
