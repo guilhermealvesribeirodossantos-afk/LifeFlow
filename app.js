@@ -4199,7 +4199,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
   // =====================================================
-  // LIFEFLOW 2.8 — ACADEMIA VISUAL / BIBLIOTECA 800+
+  // LIFEFLOW 2.9 — MENU LATERAL + ACADEMIA EM PASTAS
   // =====================================================
 
   const gymStorageKey = "lifeflow-gym-v26";
@@ -7387,6 +7387,13 @@ document.addEventListener("DOMContentLoaded", () => {
       .getElementById("gymButton")
       ?.classList.add("active");
 
+    if (
+      typeof gymFolderView === "undefined" ||
+      !gymFolderView
+    ) {
+      gymFolderView = "root";
+    }
+
     renderGymPanel();
 
     window.scrollTo(0, 0);
@@ -7422,8 +7429,1528 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
 
+
+  // =====================================================
+  // LIFEFLOW 2.9 — SMART DRAWER + ACADEMIA EM PASTAS
+  // Layout inspirado no mockup aprovado pelo usuário
+  // =====================================================
+
+  let gymFolderView = "root";
+  let gymOpenExerciseId = null;
+
+  function setupSmartDrawer() {
+    if (document.getElementById("lifeflowDrawer")) return;
+
+    const drawerOverlay = document.createElement("div");
+    drawerOverlay.id = "lifeflowDrawerOverlay";
+    drawerOverlay.className = "lf-drawer-overlay";
+
+    const drawer = document.createElement("aside");
+    drawer.id = "lifeflowDrawer";
+    drawer.className = "lf-drawer";
+
+    drawer.innerHTML = `
+      <div class="lf-drawer-head">
+        <div>
+          <span>MENU</span>
+          <strong>LifeFlow</strong>
+        </div>
+        <button id="lfDrawerClose" type="button" aria-label="Fechar menu">×</button>
+      </div>
+
+      <div class="lf-drawer-nav">
+        <button class="lf-drawer-item active" data-drawer-go="home">
+          <span>⌂</span><strong>Início</strong>
+        </button>
+
+        <div class="lf-drawer-group">
+          <button class="lf-drawer-item lf-drawer-parent" id="lfGymGroupButton" type="button">
+            <span>🏋️</span><strong>Academia</strong><b>⌃</b>
+          </button>
+
+          <div class="lf-drawer-submenu" id="lfGymSubmenu">
+            ${gymPrograms.plans.map(plan => `
+              <button type="button" data-drawer-plan="${escapeGymHtml(plan.id)}">
+                ${escapeGymHtml(plan.name)}
+              </button>
+            `).join("")}
+            <button type="button" data-drawer-go="gym">Meus Treinos</button>
+          </div>
+        </div>
+
+        <button class="lf-drawer-item" data-drawer-go="sleep">
+          <span>🌙</span><strong>Sono</strong>
+        </button>
+
+        <button class="lf-drawer-item" data-drawer-go="study">
+          <span>📖</span><strong>Estudos</strong>
+        </button>
+
+        <button class="lf-drawer-item" data-drawer-go="agenda">
+          <span>◫</span><strong>Agenda</strong>
+        </button>
+
+        <button class="lf-drawer-item" data-drawer-go="progress">
+          <span>◒</span><strong>Estatísticas</strong>
+        </button>
+      </div>
+    `;
+
+    const edgeHandle = document.createElement("button");
+    edgeHandle.id = "lfDrawerHandle";
+    edgeHandle.className = "lf-drawer-handle";
+    edgeHandle.type = "button";
+    edgeHandle.setAttribute("aria-label", "Abrir menu lateral");
+    edgeHandle.innerHTML = `<span>‹</span>`;
+
+    document.body.appendChild(drawerOverlay);
+    document.body.appendChild(drawer);
+    document.body.appendChild(edgeHandle);
+
+    const openDrawer = () => {
+      drawer.classList.add("open");
+      drawerOverlay.classList.add("open");
+      edgeHandle.classList.add("hidden-handle");
+      document.body.classList.add("lf-drawer-open");
+    };
+
+    const closeDrawer = () => {
+      drawer.classList.remove("open");
+      drawerOverlay.classList.remove("open");
+      edgeHandle.classList.remove("hidden-handle");
+      document.body.classList.remove("lf-drawer-open");
+    };
+
+    window.openLifeFlowDrawer = openDrawer;
+    window.closeLifeFlowDrawer = closeDrawer;
+
+    edgeHandle.addEventListener("click", openDrawer);
+    drawerOverlay.addEventListener("click", closeDrawer);
+    document.getElementById("lfDrawerClose")?.addEventListener("click", closeDrawer);
+
+    document
+      .getElementById("lfGymGroupButton")
+      ?.addEventListener("click", () => {
+        document
+          .getElementById("lfGymSubmenu")
+          ?.classList.toggle("collapsed");
+      });
+
+    document
+      .querySelectorAll("[data-drawer-go]")
+      .forEach(button => {
+        button.addEventListener("click", () => {
+          const go = button.dataset.drawerGo;
+
+          if (go === "home") showHome();
+          if (go === "agenda") showAgenda();
+          if (go === "study") showStudy();
+          if (go === "sleep") showSleep();
+          if (go === "gym") showGymRoot();
+          if (go === "progress") showProgress();
+
+          closeDrawer();
+        });
+      });
+
+    document
+      .querySelectorAll("[data-drawer-plan]")
+      .forEach(button => {
+        button.addEventListener("click", () => {
+          const planId = button.dataset.drawerPlan;
+
+          if (
+            gymPrograms.plans.some(plan => plan.id === planId)
+          ) {
+            gymPrograms.activePlanId = planId;
+            saveGymPrograms();
+          }
+
+          showGymPlan(planId);
+          closeDrawer();
+        });
+      });
+
+    // Swipe from the right edge to open; swipe right to close.
+    let touchStartX = null;
+    let touchStartY = null;
+
+    document.addEventListener(
+      "touchstart",
+      event => {
+        const touch = event.touches?.[0];
+        if (!touch) return;
+
+        touchStartX = touch.clientX;
+        touchStartY = touch.clientY;
+      },
+      { passive: true }
+    );
+
+    document.addEventListener(
+      "touchend",
+      event => {
+        if (touchStartX === null) return;
+
+        const touch = event.changedTouches?.[0];
+        if (!touch) return;
+
+        const dx = touch.clientX - touchStartX;
+        const dy = touch.clientY - touchStartY;
+        const width = window.innerWidth;
+
+        if (
+          Math.abs(dx) > 55 &&
+          Math.abs(dx) > Math.abs(dy)
+        ) {
+          // Start near right edge and swipe left.
+          if (
+            touchStartX > width - 70 &&
+            dx < -55
+          ) {
+            openDrawer();
+          }
+
+          // Drawer open and swipe right.
+          if (
+            drawer.classList.contains("open") &&
+            dx > 55
+          ) {
+            closeDrawer();
+          }
+        }
+
+        touchStartX = null;
+        touchStartY = null;
+      },
+      { passive: true }
+    );
+  }
+
+  function showGymRoot() {
+    gymFolderView = "root";
+    gymOpenExerciseId = null;
+    showGym();
+  }
+
+  function showGymPlan(planId) {
+    const plan =
+      gymPrograms.plans.find(item => item.id === planId);
+
+    if (plan) {
+      gymPrograms.activePlanId = plan.id;
+      saveGymPrograms();
+    }
+
+    gymFolderView = "plan";
+    gymOpenExerciseId = null;
+
+    showGym();
+  }
+
+  function showGymExercise(exerciseId) {
+    gymOpenExerciseId = exerciseId;
+    gymFolderView = "exercise";
+    showGym();
+  }
+
+  function getGymExerciseById(exerciseId) {
+    const plan = getActiveGymPlan();
+    return plan?.exercises.find(
+      exercise => exercise.id === exerciseId
+    ) || null;
+  }
+
+  function getGymPlanFolderIcon(plan) {
+    return "📁";
+  }
+
+  function renderGymFolderRoot() {
+    const screen = document.getElementById("gymScreen");
+    if (!screen) return;
+
+    screen.innerHTML = `
+      <div class="lf-gym-topbar">
+        <button
+          type="button"
+          class="lf-icon-btn"
+          onclick="window.openLifeFlowDrawer?.()"
+          aria-label="Abrir menu"
+        >☰</button>
+
+        <div>
+          <span>ACADEMIA</span>
+          <h2>Seus treinos</h2>
+        </div>
+
+        <button
+          id="lfGymCreatePlan"
+          type="button"
+          class="lf-icon-btn"
+          aria-label="Novo treino"
+        >＋</button>
+      </div>
+
+      <div class="lf-gym-tabs">
+        <button class="active" type="button">TREINOS</button>
+        <button id="lfGymLibraryTab" type="button">EXERCÍCIOS</button>
+        <button type="button" id="lfGymHistoryTab">HISTÓRICO</button>
+        <button type="button" id="lfGymStatsTab">ESTATÍSTICAS</button>
+      </div>
+
+      <section class="lf-folder-section">
+        <span class="lf-kicker">PASTAS DE TREINOS</span>
+
+        <div class="lf-folder-list">
+          ${gymPrograms.plans.map(plan => `
+            <button
+              type="button"
+              class="lf-folder-card"
+              data-folder-plan="${escapeGymHtml(plan.id)}"
+            >
+              <div class="lf-folder-icon">${getGymPlanFolderIcon(plan)}</div>
+              <div class="lf-folder-copy">
+                <strong>${escapeGymHtml(plan.name)}</strong>
+                <span>${escapeGymHtml(plan.focus || "Treino personalizado")}</span>
+                <small>${plan.exercises.length} exercícios</small>
+              </div>
+              <b>›</b>
+            </button>
+          `).join("")}
+
+          <button
+            type="button"
+            class="lf-folder-card lf-folder-new"
+            id="lfGymNewFolder"
+          >
+            <div class="lf-folder-icon">＋</div>
+            <div class="lf-folder-copy">
+              <strong>Meus Treinos</strong>
+              <span>Crie novas divisões do seu jeito</span>
+              <small>Personalizado</small>
+            </div>
+            <b>›</b>
+          </button>
+        </div>
+      </section>
+
+      <section class="lf-gym-quick">
+        <div>
+          <span>CRONÔMETRO</span>
+          <strong id="gymWorkoutTimer">${formatTimer(currentWorkoutSeconds())}</strong>
+        </div>
+        <button id="gymStartWorkout" type="button">▶ Iniciar treino</button>
+      </section>
+    `;
+
+    document
+      .querySelectorAll("[data-folder-plan]")
+      .forEach(button => {
+        button.addEventListener("click", () => {
+          showGymPlan(button.dataset.folderPlan);
+        });
+      });
+
+    document
+      .getElementById("lfGymNewFolder")
+      ?.addEventListener("click", createGymPlan);
+
+    document
+      .getElementById("lfGymCreatePlan")
+      ?.addEventListener("click", createGymPlan);
+
+    document
+      .getElementById("gymStartWorkout")
+      ?.addEventListener("click", () => {
+        startWorkoutTimer();
+        showGymPlan(getActiveGymPlan()?.id);
+      });
+
+    document
+      .getElementById("lfGymLibraryTab")
+      ?.addEventListener("click", () => {
+        gymFolderView = "library";
+        renderGymOrganizedPanel();
+      });
+
+    document
+      .getElementById("lfGymHistoryTab")
+      ?.addEventListener("click", () => {
+        alert("O histórico detalhado de treinos entra na próxima evolução.");
+      });
+
+    document
+      .getElementById("lfGymStatsTab")
+      ?.addEventListener("click", showProgress);
+
+    updateWorkoutTimerDisplay();
+  }
+
+  function renderGymPlanFolder() {
+    const screen = document.getElementById("gymScreen");
+    const plan = getActiveGymPlan();
+    if (!screen || !plan) return;
+
+    const progress = getGymSessionProgress();
+
+    screen.innerHTML = `
+      <div class="lf-detail-header">
+        <button
+          type="button"
+          class="lf-back-btn"
+          id="lfBackGymRoot"
+        >‹</button>
+
+        <div>
+          <h2>${escapeGymHtml(plan.name)}</h2>
+          <span>${escapeGymHtml(plan.focus || "Treino personalizado")}</span>
+        </div>
+
+        <button
+          type="button"
+          class="lf-more-btn"
+          id="lfPlanMenu"
+        >⋮</button>
+      </div>
+
+      <div class="lf-gym-tabs lf-detail-tabs">
+        <button class="active" type="button">EXERCÍCIOS</button>
+        <button type="button" id="lfPlanSummaryTab">RESUMO</button>
+        <button type="button" id="lfPlanHistoryTab">HISTÓRICO</button>
+      </div>
+
+      <section class="lf-plan-timer-strip">
+        <div>
+          <span>TEMPO DE TREINO</span>
+          <strong id="gymWorkoutTimer">${formatTimer(currentWorkoutSeconds())}</strong>
+        </div>
+
+        <div class="lf-plan-timer-actions">
+          <button id="gymStartWorkout" type="button">▶</button>
+          <button id="gymPauseWorkout" type="button">Ⅱ</button>
+        </div>
+      </section>
+
+      <section class="lf-plan-exercises">
+        ${plan.exercises.length
+          ? plan.exercises.map((exercise, index) => {
+              const completedSets =
+                Number(progress[exercise.id] || 0);
+
+              return `
+                <button
+                  type="button"
+                  class="lf-exercise-row"
+                  data-open-exercise="${escapeGymHtml(exercise.id)}"
+                >
+                  <div class="lf-ex-thumb">
+                    ${
+                      exercise.image
+                        ? `<img src="${escapeGymHtml(exercise.image)}" alt="${escapeGymHtml(exercise.name)}" loading="lazy">`
+                        : `<span>🏋️</span>`
+                    }
+                  </div>
+
+                  <div class="lf-ex-copy">
+                    <strong>${index + 1} ${escapeGymHtml(exercise.name)}</strong>
+                    <span>${exercise.sets} séries • ${escapeGymHtml(exercise.reps)} reps</span>
+                    <small>${exercise.rest}s descanso • ${completedSets}/${exercise.sets} feitas</small>
+                  </div>
+
+                  <b>›</b>
+                </button>
+              `;
+            }).join("")
+          : `
+            <div class="lf-empty-folder">
+              <span>📂</span>
+              <strong>Treino vazio</strong>
+              <p>Adicione exercícios pela biblioteca.</p>
+              <button id="lfEmptyLibrary" type="button">Abrir biblioteca</button>
+            </div>
+          `
+        }
+      </section>
+
+      <button
+        type="button"
+        class="lf-floating-add"
+        id="lfAddExerciseToPlan"
+      >＋ Adicionar exercício</button>
+    `;
+
+    document
+      .getElementById("lfBackGymRoot")
+      ?.addEventListener("click", showGymRoot);
+
+    document
+      .querySelectorAll("[data-open-exercise]")
+      .forEach(button => {
+        button.addEventListener("click", () => {
+          showGymExercise(button.dataset.openExercise);
+        });
+      });
+
+    document
+      .getElementById("gymStartWorkout")
+      ?.addEventListener("click", startWorkoutTimer);
+
+    document
+      .getElementById("gymPauseWorkout")
+      ?.addEventListener("click", pauseWorkoutTimer);
+
+    document
+      .getElementById("lfAddExerciseToPlan")
+      ?.addEventListener("click", () => {
+        gymFolderView = "library";
+        renderGymOrganizedPanel();
+      });
+
+    document
+      .getElementById("lfEmptyLibrary")
+      ?.addEventListener("click", () => {
+        gymFolderView = "library";
+        renderGymOrganizedPanel();
+      });
+
+    document
+      .getElementById("lfPlanMenu")
+      ?.addEventListener("click", () => {
+        if (confirm(`Excluir ${plan.name}?`)) {
+          deleteActiveGymPlan();
+          showGymRoot();
+        }
+      });
+
+    document
+      .getElementById("lfPlanSummaryTab")
+      ?.addEventListener("click", () => {
+        alert(
+          `${plan.name}: ${plan.exercises.length} exercícios cadastrados.`
+        );
+      });
+
+    document
+      .getElementById("lfPlanHistoryTab")
+      ?.addEventListener("click", () => {
+        alert("Histórico detalhado deste treino entra na próxima versão.");
+      });
+
+    updateWorkoutTimerDisplay();
+    updateGymTimerButtons();
+  }
+
+  function renderGymExerciseDetail() {
+    const screen = document.getElementById("gymScreen");
+    const exercise = getGymExerciseById(gymOpenExerciseId);
+    const plan = getActiveGymPlan();
+
+    if (!screen || !exercise || !plan) {
+      showGymPlan(plan?.id);
+      return;
+    }
+
+    const progress = getGymSessionProgress();
+    const completedSets =
+      Number(progress[exercise.id] || 0);
+
+    screen.innerHTML = `
+      <div class="lf-detail-header">
+        <button
+          type="button"
+          class="lf-back-btn"
+          id="lfBackGymPlan"
+        >‹</button>
+
+        <div class="lf-ex-title-head">
+          <h2>${escapeGymHtml(exercise.name)}</h2>
+          <span>${escapeGymHtml(plan.name)}</span>
+        </div>
+
+        <button
+          type="button"
+          class="lf-more-btn"
+          id="lfExerciseMore"
+        >⋮</button>
+      </div>
+
+      <div class="lf-gym-tabs lf-detail-tabs">
+        <button class="active" type="button">EXECUÇÃO</button>
+        <button type="button" id="lfMusclesTab">MÚSCULOS</button>
+        <button type="button" id="lfExerciseHistoryTab">HISTÓRICO</button>
+      </div>
+
+      <section class="lf-exercise-hero">
+        <div class="lf-exercise-big-media">
+          ${
+            exercise.image
+              ? `<img src="${escapeGymHtml(exercise.image)}" alt="${escapeGymHtml(exercise.name)} início">`
+              : `<div class="lf-big-placeholder">🏋️</div>`
+          }
+
+          ${
+            exercise.image2
+              ? `<img src="${escapeGymHtml(exercise.image2)}" alt="${escapeGymHtml(exercise.name)} final">`
+              : ""
+          }
+        </div>
+      </section>
+
+      <section class="lf-guidance-card">
+        <span class="lf-kicker">COMO EXECUTAR</span>
+
+        <div class="lf-guidance-list">
+          <div><i>✓</i><p>${escapeGymHtml(exercise.posture || "Mantenha postura estável e confortável.")}</p></div>
+          <div><i>✓</i><p>${escapeGymHtml(exercise.execution || "Execute o movimento de forma controlada.")}</p></div>
+        </div>
+
+        <span class="lf-kicker lf-tip-title">DICAS</span>
+
+        <div class="lf-guidance-list">
+          <div><i>✓</i><p>Use uma carga que permita manter a técnica.</p></div>
+          <div><i>✓</i><p>Controle a descida e evite impulso.</p></div>
+          <div><i>✓</i><p>${escapeGymHtml(exercise.mistakes || "Evite compensações e dor incomum.")}</p></div>
+        </div>
+      </section>
+
+      <section class="lf-exercise-prescription">
+        <div><span>SÉRIES</span><strong>${completedSets}/${exercise.sets}</strong></div>
+        <div><span>REPS</span><strong>${escapeGymHtml(exercise.reps)}</strong></div>
+        <div><span>DESCANSO</span><strong>${exercise.rest}s</strong></div>
+      </section>
+
+      <section class="lf-exercise-action">
+        <button
+          type="button"
+          id="lfCompleteSet"
+        >
+          ▶ ${completedSets >= exercise.sets ? "Reiniciar exercício" : "Concluir série"}
+        </button>
+
+        <div class="lf-rest-inline">
+          <span>Descanso</span>
+          <strong id="gymRestTimer">${formatTimer(restRemaining)}</strong>
+          <button id="lfRestPlus" type="button">+15s</button>
+        </div>
+      </section>
+    `;
+
+    document
+      .getElementById("lfBackGymPlan")
+      ?.addEventListener("click", () => {
+        showGymPlan(plan.id);
+      });
+
+    document
+      .getElementById("lfCompleteSet")
+      ?.addEventListener("click", () => {
+        completeGymSet(exercise.id);
+
+        gymOpenExerciseId = exercise.id;
+        gymFolderView = "exercise";
+        renderGymOrganizedPanel();
+      });
+
+    document
+      .getElementById("lfRestPlus")
+      ?.addEventListener("click", () => {
+        addRestTime(15);
+      });
+
+    document
+      .getElementById("lfMusclesTab")
+      ?.addEventListener("click", () => {
+        const muscle =
+          exercise.primaryMuscle
+            ? gymLabelMuscle(exercise.primaryMuscle)
+            : "Grupo muscular principal";
+        alert(`${exercise.name}: ${muscle}.`);
+      });
+
+    document
+      .getElementById("lfExerciseHistoryTab")
+      ?.addEventListener("click", () => {
+        alert("Histórico de carga deste exercício entra na próxima evolução.");
+      });
+
+    document
+      .getElementById("lfExerciseMore")
+      ?.addEventListener("click", () => {
+        deleteGymExercise(exercise.id);
+        showGymPlan(plan.id);
+      });
+
+    updateRestTimerDisplay();
+  }
+
+  function renderGymLibraryOrganized() {
+    const screen = document.getElementById("gymScreen");
+    if (!screen) return;
+
+    screen.innerHTML = `
+      <div class="lf-detail-header">
+        <button
+          type="button"
+          class="lf-back-btn"
+          id="lfBackLibrary"
+        >‹</button>
+
+        <div>
+          <h2>Exercícios</h2>
+          <span>Biblioteca visual</span>
+        </div>
+
+        <button
+          type="button"
+          class="lf-more-btn"
+          onclick="window.openLifeFlowDrawer?.()"
+        >☰</button>
+      </div>
+
+      <section
+        id="gymExerciseLibrarySection"
+        class="gym-library-section lf-library-clean"
+      >
+        <div class="gym-library-heading">
+          <div>
+            <span>BIBLIOTECA VISUAL</span>
+            <h3>Todos os exercícios</h3>
+            <p>Pesquise e adicione ao ${escapeGymHtml(getActiveGymPlan()?.name || "treino")}.</p>
+          </div>
+
+          <strong id="gymLibraryCount">Carregando...</strong>
+        </div>
+
+        <div class="gym-library-filters">
+          <input
+            id="gymLibrarySearch"
+            type="search"
+            placeholder="Buscar exercício, músculo..."
+            autocomplete="off"
+          >
+
+          <select id="gymLibraryMuscle">
+            <option value="">Todos os músculos</option>
+            ${
+              gymLibraryLoaded
+                ? getGymLibraryUnique("primaryMuscles")
+                    .map(value => `
+                      <option value="${escapeGymHtml(value)}">
+                        ${escapeGymHtml(gymLabelMuscle(value))}
+                      </option>
+                    `).join("")
+                : ""
+            }
+          </select>
+
+          <select id="gymLibraryEquipment">
+            <option value="">Todos os equipamentos</option>
+            ${
+              gymLibraryLoaded
+                ? getGymLibraryUnique("equipment")
+                    .map(value => `
+                      <option value="${escapeGymHtml(value)}">
+                        ${escapeGymHtml(gymLabelEquipment(value))}
+                      </option>
+                    `).join("")
+                : ""
+            }
+          </select>
+
+          <select id="gymLibraryCategory">
+            <option value="">Todas as categorias</option>
+            ${
+              gymLibraryLoaded
+                ? getGymLibraryUnique("category")
+                    .map(value => `
+                      <option value="${escapeGymHtml(value)}">
+                        ${escapeGymHtml(gymLabelCategory(value))}
+                      </option>
+                    `).join("")
+                : ""
+            }
+          </select>
+        </div>
+
+        <div id="gymLibraryResults" class="gym-library-results">
+          <div class="gym-library-status">
+            <span>⏳</span>
+            <strong>Carregando biblioteca...</strong>
+          </div>
+        </div>
+      </section>
+    `;
+
+    document
+      .getElementById("lfBackLibrary")
+      ?.addEventListener("click", showGymRoot);
+
+    setupGymLibraryControls();
+
+    if (!gymLibraryLoaded) {
+      loadGymExerciseLibrary();
+    } else {
+      renderGymLibrary();
+    }
+  }
+
+  function renderGymOrganizedPanel() {
+    if (gymFolderView === "root") {
+      renderGymFolderRoot();
+      return;
+    }
+
+    if (gymFolderView === "plan") {
+      renderGymPlanFolder();
+      return;
+    }
+
+    if (gymFolderView === "exercise") {
+      renderGymExerciseDetail();
+      return;
+    }
+
+    if (gymFolderView === "library") {
+      renderGymLibraryOrganized();
+      return;
+    }
+
+    renderGymFolderRoot();
+  }
+
+  function injectOrganizedLayoutStyles() {
+    if (document.getElementById("lifeflowOrganizedStyles")) return;
+
+    const style = document.createElement("style");
+    style.id = "lifeflowOrganizedStyles";
+
+    style.textContent = `
+      :root {
+        --lf-accent: #64e79b;
+        --lf-card: #0d0e10;
+        --lf-card-2: #121316;
+        --lf-line: rgba(255,255,255,.075);
+      }
+
+      .lf-drawer-overlay {
+        position: fixed;
+        inset: 0;
+        z-index: 10000;
+        background: rgba(0,0,0,.62);
+        backdrop-filter: blur(5px);
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity .24s ease, visibility .24s ease;
+      }
+
+      .lf-drawer-overlay.open {
+        opacity: 1;
+        visibility: visible;
+      }
+
+      .lf-drawer {
+        position: fixed;
+        z-index: 10001;
+        top: 0;
+        right: 0;
+        width: min(84vw, 360px);
+        height: 100dvh;
+        padding: max(18px, env(safe-area-inset-top)) 16px max(18px, env(safe-area-inset-bottom));
+        box-sizing: border-box;
+        border-left: 1px solid rgba(255,255,255,.08);
+        background:
+          radial-gradient(circle at 80% 0%, rgba(100,231,155,.055), transparent 28%),
+          #0c0d0f;
+        box-shadow: -30px 0 80px rgba(0,0,0,.65);
+        transform: translateX(103%);
+        transition: transform .3s cubic-bezier(.22,.9,.3,1);
+        overflow-y: auto;
+      }
+
+      .lf-drawer.open {
+        transform: translateX(0);
+      }
+
+      .lf-drawer-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        min-height: 54px;
+        padding: 0 4px 14px;
+        border-bottom: 1px solid var(--lf-line);
+      }
+
+      .lf-drawer-head span {
+        display: block;
+        color: #777b80;
+        font-size: 9px;
+        font-weight: 900;
+        letter-spacing: 1.2px;
+      }
+
+      .lf-drawer-head strong {
+        display: block;
+        margin-top: 3px;
+        color: #f3f3f3;
+        font-size: 18px;
+      }
+
+      .lf-drawer-head button,
+      .lf-icon-btn,
+      .lf-back-btn,
+      .lf-more-btn {
+        display: grid;
+        place-items: center;
+        border: 1px solid var(--lf-line);
+        background: rgba(255,255,255,.025);
+        color: #dadbdd;
+        cursor: pointer;
+        touch-action: manipulation;
+      }
+
+      .lf-drawer-head button {
+        width: 42px;
+        height: 42px;
+        border-radius: 13px;
+        font-size: 25px;
+      }
+
+      .lf-drawer-nav {
+        display: grid;
+        gap: 7px;
+        margin-top: 15px;
+      }
+
+      .lf-drawer-item {
+        width: 100%;
+        min-height: 52px;
+        display: grid;
+        grid-template-columns: 30px 1fr auto;
+        align-items: center;
+        gap: 8px;
+        border: 0;
+        border-radius: 14px;
+        background: transparent;
+        color: #d3d4d6;
+        padding: 0 12px;
+        text-align: left;
+        cursor: pointer;
+        touch-action: manipulation;
+      }
+
+      .lf-drawer-item.active {
+        background: rgba(100,231,155,.075);
+        color: var(--lf-accent);
+      }
+
+      .lf-drawer-item > span {
+        font-size: 19px;
+      }
+
+      .lf-drawer-item strong {
+        font-size: 13px;
+        font-weight: 800;
+      }
+
+      .lf-drawer-parent b {
+        font-size: 12px;
+      }
+
+      .lf-drawer-submenu {
+        display: grid;
+        margin: 0 0 4px 49px;
+        border-left: 1px solid rgba(255,255,255,.08);
+      }
+
+      .lf-drawer-submenu.collapsed {
+        display: none;
+      }
+
+      .lf-drawer-submenu button {
+        min-height: 41px;
+        border: 0;
+        background: transparent;
+        color: #a0a2a5;
+        padding: 0 13px;
+        text-align: left;
+        font-size: 11px;
+        cursor: pointer;
+      }
+
+      .lf-drawer-handle {
+        position: fixed;
+        z-index: 9998;
+        top: 50%;
+        right: 0;
+        width: 22px;
+        height: 70px;
+        transform: translateY(-50%);
+        border: 1px solid rgba(100,231,155,.22);
+        border-right: 0;
+        border-radius: 16px 0 0 16px;
+        background: rgba(20,90,51,.62);
+        color: var(--lf-accent);
+        backdrop-filter: blur(12px);
+        box-shadow: -8px 0 28px rgba(0,0,0,.35);
+        cursor: pointer;
+        transition: opacity .2s ease;
+      }
+
+      .lf-drawer-handle.hidden-handle {
+        opacity: 0;
+        pointer-events: none;
+      }
+
+      .lf-drawer-handle span {
+        font-size: 22px;
+      }
+
+      body.lf-drawer-open {
+        overflow: hidden;
+      }
+
+      /* Academia raiz = somente pastas */
+      .lf-gym-topbar,
+      .lf-detail-header {
+        display: grid;
+        grid-template-columns: 44px 1fr 44px;
+        align-items: center;
+        gap: 10px;
+        margin: 2px 0 12px;
+      }
+
+      .lf-gym-topbar > div,
+      .lf-detail-header > div {
+        min-width: 0;
+      }
+
+      .lf-gym-topbar > div > span {
+        color: var(--lf-accent);
+        font-size: 8px;
+        font-weight: 950;
+        letter-spacing: 1px;
+      }
+
+      .lf-gym-topbar h2,
+      .lf-detail-header h2 {
+        margin: 2px 0 0;
+        color: #f3f3f4;
+        font-size: 21px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .lf-detail-header > div > span {
+        display: block;
+        margin-top: 2px;
+        color: #777a7f;
+        font-size: 9px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .lf-icon-btn,
+      .lf-back-btn,
+      .lf-more-btn {
+        width: 44px;
+        height: 44px;
+        border-radius: 13px;
+        font-size: 19px;
+      }
+
+      .lf-gym-tabs {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 0;
+        margin: 8px 0 18px;
+        border-bottom: 1px solid rgba(255,255,255,.06);
+      }
+
+      .lf-gym-tabs button {
+        min-height: 40px;
+        border: 0;
+        border-bottom: 2px solid transparent;
+        background: transparent;
+        color: #777a7f;
+        font-size: 8px;
+        font-weight: 900;
+        cursor: pointer;
+      }
+
+      .lf-gym-tabs button.active {
+        border-bottom-color: var(--lf-accent);
+        color: var(--lf-accent);
+      }
+
+      .lf-detail-tabs {
+        grid-template-columns: repeat(3, 1fr);
+      }
+
+      .lf-kicker {
+        display: block;
+        color: var(--lf-accent);
+        font-size: 8px;
+        font-weight: 950;
+        letter-spacing: 1.2px;
+      }
+
+      .lf-folder-list {
+        display: grid;
+        gap: 10px;
+        margin-top: 10px;
+      }
+
+      .lf-folder-card {
+        width: 100%;
+        min-height: 92px;
+        display: grid;
+        grid-template-columns: 52px 1fr 24px;
+        align-items: center;
+        gap: 12px;
+        border: 1px solid var(--lf-line);
+        border-radius: 18px;
+        background:
+          linear-gradient(145deg, rgba(18,19,22,.98), rgba(10,10,12,.98));
+        color: inherit;
+        padding: 12px;
+        text-align: left;
+        cursor: pointer;
+        touch-action: manipulation;
+      }
+
+      .lf-folder-icon {
+        display: grid;
+        place-items: center;
+        width: 52px;
+        height: 52px;
+        border: 1px solid rgba(100,231,155,.1);
+        border-radius: 14px;
+        background: rgba(100,231,155,.05);
+        font-size: 28px;
+      }
+
+      .lf-folder-copy {
+        min-width: 0;
+      }
+
+      .lf-folder-copy strong,
+      .lf-folder-copy span,
+      .lf-folder-copy small {
+        display: block;
+      }
+
+      .lf-folder-copy strong {
+        color: #ececed;
+        font-size: 15px;
+      }
+
+      .lf-folder-copy span {
+        margin-top: 3px;
+        color: #777a7f;
+        font-size: 9px;
+      }
+
+      .lf-folder-copy small {
+        margin-top: 7px;
+        color: #5f6267;
+        font-size: 8px;
+      }
+
+      .lf-folder-card > b {
+        color: #6f7277;
+        font-size: 22px;
+      }
+
+      .lf-folder-new {
+        opacity: .88;
+      }
+
+      .lf-gym-quick,
+      .lf-plan-timer-strip {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-top: 16px;
+        border: 1px solid var(--lf-line);
+        border-radius: 17px;
+        background: rgba(255,255,255,.02);
+        padding: 13px;
+      }
+
+      .lf-gym-quick span,
+      .lf-plan-timer-strip span {
+        display: block;
+        color: #6d7075;
+        font-size: 7px;
+        font-weight: 900;
+      }
+
+      .lf-gym-quick strong,
+      .lf-plan-timer-strip strong {
+        display: block;
+        margin-top: 3px;
+        color: #e9e9eb;
+        font-size: 18px;
+        font-variant-numeric: tabular-nums;
+      }
+
+      .lf-gym-quick button,
+      .lf-floating-add,
+      .lf-empty-folder button {
+        min-height: 44px;
+        border: 1px solid rgba(100,231,155,.18);
+        border-radius: 12px;
+        background: rgba(100,231,155,.07);
+        color: var(--lf-accent);
+        padding: 0 14px;
+        font-size: 9px;
+        font-weight: 900;
+        cursor: pointer;
+      }
+
+      .lf-plan-timer-actions {
+        display: flex;
+        gap: 7px;
+      }
+
+      .lf-plan-timer-actions button {
+        width: 42px;
+        height: 42px;
+        border: 1px solid rgba(255,255,255,.07);
+        border-radius: 11px;
+        background: #0d0e10;
+        color: #d2d3d5;
+      }
+
+      .lf-plan-exercises {
+        display: grid;
+        gap: 8px;
+        margin-top: 12px;
+      }
+
+      .lf-exercise-row {
+        width: 100%;
+        display: grid;
+        grid-template-columns: 66px 1fr 18px;
+        align-items: center;
+        gap: 10px;
+        min-height: 78px;
+        border: 1px solid var(--lf-line);
+        border-radius: 14px;
+        background: #0e0f11;
+        color: inherit;
+        padding: 7px;
+        text-align: left;
+        cursor: pointer;
+        touch-action: manipulation;
+      }
+
+      .lf-ex-thumb {
+        width: 66px;
+        height: 62px;
+        overflow: hidden;
+        display: grid;
+        place-items: center;
+        border-radius: 10px;
+        background: #151619;
+      }
+
+      .lf-ex-thumb img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      .lf-ex-thumb span {
+        font-size: 22px;
+      }
+
+      .lf-ex-copy {
+        min-width: 0;
+      }
+
+      .lf-ex-copy strong,
+      .lf-ex-copy span,
+      .lf-ex-copy small {
+        display: block;
+      }
+
+      .lf-ex-copy strong {
+        color: #ececee;
+        font-size: 11px;
+      }
+
+      .lf-ex-copy span {
+        margin-top: 4px;
+        color: #85888c;
+        font-size: 8px;
+      }
+
+      .lf-ex-copy small {
+        margin-top: 3px;
+        color: #62656a;
+        font-size: 7px;
+      }
+
+      .lf-exercise-row > b {
+        color: #66696e;
+        font-size: 18px;
+      }
+
+      .lf-floating-add {
+        width: 100%;
+        margin-top: 12px;
+        min-height: 50px;
+      }
+
+      .lf-empty-folder {
+        display: grid;
+        place-items: center;
+        gap: 7px;
+        min-height: 210px;
+        border: 1px dashed rgba(255,255,255,.08);
+        border-radius: 17px;
+        color: #777a7f;
+        text-align: center;
+      }
+
+      .lf-empty-folder > span {
+        font-size: 35px;
+      }
+
+      .lf-empty-folder strong {
+        color: #d7d8da;
+      }
+
+      .lf-empty-folder p {
+        margin: 0;
+        font-size: 9px;
+      }
+
+      .lf-exercise-big-media {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        overflow: hidden;
+        min-height: 190px;
+        border-radius: 18px;
+        background: #121315;
+      }
+
+      .lf-exercise-big-media img,
+      .lf-big-placeholder {
+        width: 100%;
+        height: 100%;
+        min-height: 190px;
+        object-fit: cover;
+      }
+
+      .lf-big-placeholder {
+        display: grid;
+        place-items: center;
+        font-size: 48px;
+      }
+
+      .lf-guidance-card {
+        margin-top: 14px;
+        border: 1px solid var(--lf-line);
+        border-radius: 18px;
+        background: #0e0f11;
+        padding: 14px;
+      }
+
+      .lf-guidance-list {
+        display: grid;
+        gap: 9px;
+        margin-top: 10px;
+      }
+
+      .lf-guidance-list > div {
+        display: grid;
+        grid-template-columns: 20px 1fr;
+        gap: 8px;
+        align-items: start;
+      }
+
+      .lf-guidance-list i {
+        display: grid;
+        place-items: center;
+        width: 18px;
+        height: 18px;
+        border: 1px solid rgba(100,231,155,.2);
+        border-radius: 50%;
+        color: var(--lf-accent);
+        font-style: normal;
+        font-size: 8px;
+      }
+
+      .lf-guidance-list p {
+        margin: 0;
+        color: #a0a2a5;
+        font-size: 9px;
+        line-height: 1.6;
+      }
+
+      .lf-tip-title {
+        margin-top: 18px;
+      }
+
+      .lf-exercise-prescription {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 7px;
+        margin-top: 12px;
+      }
+
+      .lf-exercise-prescription > div {
+        border: 1px solid var(--lf-line);
+        border-radius: 13px;
+        background: #0e0f11;
+        padding: 10px;
+      }
+
+      .lf-exercise-prescription span {
+        display: block;
+        color: #686b70;
+        font-size: 7px;
+        font-weight: 900;
+      }
+
+      .lf-exercise-prescription strong {
+        display: block;
+        margin-top: 4px;
+        color: #ebebed;
+        font-size: 13px;
+      }
+
+      .lf-exercise-action {
+        display: grid;
+        gap: 9px;
+        margin-top: 12px;
+      }
+
+      .lf-exercise-action > button {
+        min-height: 52px;
+        border: 1px solid rgba(100,231,155,.2);
+        border-radius: 14px;
+        background: rgba(100,231,155,.09);
+        color: var(--lf-accent);
+        font-weight: 900;
+        cursor: pointer;
+      }
+
+      .lf-rest-inline {
+        display: grid;
+        grid-template-columns: 1fr auto auto;
+        align-items: center;
+        gap: 8px;
+        border: 1px solid var(--lf-line);
+        border-radius: 13px;
+        background: #0e0f11;
+        padding: 9px 11px;
+      }
+
+      .lf-rest-inline span {
+        color: #707378;
+        font-size: 8px;
+        font-weight: 900;
+      }
+
+      .lf-rest-inline strong {
+        color: #e8e8ea;
+        font-size: 16px;
+        font-variant-numeric: tabular-nums;
+      }
+
+      .lf-rest-inline button {
+        min-height: 38px;
+        border: 1px solid rgba(255,255,255,.07);
+        border-radius: 10px;
+        background: #151619;
+        color: #bbbcc0;
+      }
+
+      .lf-library-clean {
+        margin-top: 0 !important;
+      }
+
+      /* Academia e Sono saem do menu inferior e ficam no drawer */
+      #gymButton,
+      #sleepButton {
+        display: none !important;
+      }
+
+      /* Mais espaço para não ficar coberto pelo nav no celular */
+      .lifeflow-gym-screen,
+      .lifeflow-sleep-screen {
+        padding-bottom: 105px !important;
+      }
+
+      @media (max-width: 520px) {
+        .lf-drawer {
+          width: min(86vw, 350px);
+        }
+
+        .lf-drawer-handle {
+          height: 64px;
+        }
+
+        .lf-gym-tabs button {
+          font-size: 7px;
+        }
+
+        .lf-folder-card {
+          min-height: 88px;
+        }
+
+        .lf-gym-quick {
+          align-items: stretch;
+          flex-direction: column;
+        }
+
+        .lf-gym-quick button {
+          width: 100%;
+          min-height: 48px;
+        }
+
+        .lf-exercise-row {
+          grid-template-columns: 72px 1fr 16px;
+          min-height: 84px;
+        }
+
+        .lf-ex-thumb {
+          width: 72px;
+          height: 68px;
+        }
+
+        .lf-exercise-big-media {
+          min-height: 180px;
+        }
+
+        .lf-exercise-big-media img,
+        .lf-big-placeholder {
+          min-height: 180px;
+        }
+      }
+    `;
+
+    document.head.appendChild(style);
+  }
+
+  // Override only the Gym render path. Existing data/timers/library stay intact.
+  const _lifeFlowLegacyRenderGymPanel = renderGymPanel;
+
+  renderGymPanel = function () {
+    renderGymOrganizedPanel();
+  };
+
+
   setupSleepHub();
   setupGymHub();
+  setupSmartDrawer();
+  injectOrganizedLayoutStyles();
 
   // =====================================================
   // NAVEGAÇÃO
@@ -7475,7 +9002,7 @@ document.addEventListener("DOMContentLoaded", () => {
     )
     ?.addEventListener(
       "click",
-      showGym
+      showGymRoot
     );
 
 
@@ -7509,19 +9036,21 @@ document.addEventListener("DOMContentLoaded", () => {
     );
 
 
+  document
+    .getElementById(
+      "academyAreaButton"
+    )
+    ?.addEventListener(
+      "click",
+      showGymRoot
+    );
+
+
   // =====================================================
   // ÁREAS EM DESENVOLVIMENTO
   // =====================================================
 
   const developmentButtons = [
-
-    {
-      id:
-        "academyAreaButton",
-
-      message:
-        "A área Academia será uma das próximas evoluções do LifeFlow."
-    },
 
     {
       id:
