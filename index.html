@@ -19,15 +19,20 @@
 
   <div class="app-shell">
 
-    <!-- TOPO -->
+    <!-- =========================
+         CABEÇALHO
+    ========================== -->
+
     <header class="app-header">
 
       <div class="brand-area">
+
         <div class="brand-icon">
           LF
         </div>
 
         <div>
+
           <p class="brand-kicker">
             SUA CENTRAL PESSOAL
           </p>
@@ -35,11 +40,14 @@
           <h1>
             LifeFlow
           </h1>
+
         </div>
+
       </div>
 
       <button
         class="profile-button"
+        type="button"
         aria-label="Perfil"
       >
         👤
@@ -48,10 +56,17 @@
     </header>
 
 
-    <!-- CONTEÚDO -->
-    <main class="app-main">
+    <!-- =========================
+         TELA PRINCIPAL
+    ========================== -->
+
+    <main
+      id="homeScreen"
+      class="app-main"
+    >
 
       <!-- SAUDAÇÃO -->
+
       <section class="welcome-section">
 
         <p
@@ -69,18 +84,20 @@
           id="welcomeSubtitle"
           class="welcome-subtitle"
         >
-          Organizando o seu dia.
+          Organizando seu dia.
         </p>
 
       </section>
 
 
       <!-- PRÓXIMA ATIVIDADE -->
+
       <section class="next-card card">
 
         <div class="next-top">
 
           <div>
+
             <span class="section-label">
               PRÓXIMA ATIVIDADE
             </span>
@@ -88,6 +105,7 @@
             <h3 id="nextTaskTitle">
               Carregando...
             </h3>
+
           </div>
 
           <div class="next-icon">
@@ -96,9 +114,11 @@
 
         </div>
 
+
         <div class="next-info">
 
           <div>
+
             <span>
               Horário
             </span>
@@ -106,9 +126,12 @@
             <strong id="nextTaskTime">
               --:--
             </strong>
+
           </div>
 
+
           <div>
+
             <span>
               Detalhes
             </span>
@@ -116,6 +139,7 @@
             <strong id="nextTaskDescription">
               Organizando rotina
             </strong>
+
           </div>
 
         </div>
@@ -124,6 +148,7 @@
 
 
       <!-- RESUMO -->
+
       <section class="overview-grid">
 
         <article class="overview-card card">
@@ -133,6 +158,7 @@
           </div>
 
           <div>
+
             <span>
               Rotina
             </span>
@@ -140,6 +166,7 @@
             <strong id="progressPct">
               0%
             </strong>
+
           </div>
 
         </article>
@@ -152,6 +179,7 @@
           </div>
 
           <div>
+
             <span>
               Água
             </span>
@@ -159,6 +187,7 @@
             <strong id="waterText">
               0,0 L
             </strong>
+
           </div>
 
         </article>
@@ -171,6 +200,7 @@
           </div>
 
           <div>
+
             <span>
               XP
             </span>
@@ -178,6 +208,7 @@
             <strong id="xp">
               0 XP
             </strong>
+
           </div>
 
         </article>
@@ -185,12 +216,17 @@
       </section>
 
 
-      <!-- PROGRESSO PRINCIPAL -->
-      <section class="progress-card card">
+      <!-- PROGRESSO -->
+
+      <section
+        id="progressSection"
+        class="progress-card card"
+      >
 
         <div class="card-header">
 
           <div>
+
             <span class="section-label">
               PROGRESSO DO DIA
             </span>
@@ -198,6 +234,7 @@
             <h3 id="dayTitle">
               Hoje
             </h3>
+
           </div>
 
           <span
@@ -211,10 +248,12 @@
 
 
         <div class="progress-track">
+
           <div
             id="progressBar"
             class="progress-bar"
           ></div>
+
         </div>
 
 
@@ -234,11 +273,13 @@
 
 
       <!-- ROTINA -->
+
       <section class="routine-section">
 
         <div class="section-heading">
 
           <div>
+
             <span class="section-label">
               SUA ROTINA
             </span>
@@ -246,11 +287,13 @@
             <h3 id="routineHeading">
               Tarefas de hoje
             </h3>
+
           </div>
 
           <button
             class="text-button"
             id="resetTasks"
+            type="button"
           >
             Resetar
           </button>
@@ -267,11 +310,13 @@
 
 
       <!-- HIDRATAÇÃO -->
+
       <section class="water-card card">
 
         <div class="card-header">
 
           <div>
+
             <span class="section-label">
               HIDRATAÇÃO
             </span>
@@ -279,6 +324,7 @@
             <h3>
               Meta diária
             </h3>
+
           </div>
 
           <strong
@@ -292,10 +338,12 @@
 
 
         <div class="water-track">
+
           <div
             id="waterFill"
             class="water-fill"
           ></div>
+
         </div>
 
 
@@ -304,6 +352,7 @@
           <button
             class="water-button"
             data-water="250"
+            type="button"
           >
             +250 ml
           </button>
@@ -311,6 +360,7 @@
           <button
             class="water-button primary"
             data-water="500"
+            type="button"
           >
             +500 ml
           </button>
@@ -318,6 +368,7 @@
           <button
             class="water-button reset"
             id="resetWater"
+            type="button"
           >
             Zerar
           </button>
@@ -328,7 +379,11 @@
 
 
       <!-- PMMG -->
-      <section class="pmmg-card card">
+
+      <section
+        id="pmmgSection"
+        class="pmmg-card card"
+      >
 
         <div class="pmmg-top">
 
@@ -347,7 +402,7 @@
             </h3>
 
             <p id="studyText">
-              Preparando seu plano de estudo.
+              Preparando seu plano de estudos.
             </p>
 
           </div>
@@ -364,6 +419,7 @@
             </span>
 
             <div>
+
               <strong>
                 Português
               </strong>
@@ -371,6 +427,7 @@
               <small>
                 Interpretação e gramática
               </small>
+
             </div>
 
           </div>
@@ -383,6 +440,7 @@
             </span>
 
             <div>
+
               <strong>
                 Matemática
               </strong>
@@ -390,6 +448,7 @@
               <small>
                 Base e raciocínio
               </small>
+
             </div>
 
           </div>
@@ -402,6 +461,7 @@
             </span>
 
             <div>
+
               <strong>
                 Direito
               </strong>
@@ -409,6 +469,7 @@
               <small>
                 Fundamentos
               </small>
+
             </div>
 
           </div>
@@ -419,11 +480,13 @@
 
 
       <!-- ÁREAS -->
+
       <section class="areas-section">
 
         <div class="section-heading">
 
           <div>
+
             <span class="section-label">
               LIFE FLOW
             </span>
@@ -431,6 +494,7 @@
             <h3>
               Áreas da sua vida
             </h3>
+
           </div>
 
         </div>
@@ -438,32 +502,51 @@
 
         <div class="areas-grid">
 
-          <button class="area-card">
+          <button
+            class="area-card"
+            type="button"
+          >
             <span>🏋️</span>
             Academia
           </button>
 
-          <button class="area-card">
+          <button
+            class="area-card"
+            id="areaPMMG"
+            type="button"
+          >
             <span>👮</span>
             PMMG
           </button>
 
-          <button class="area-card">
+          <button
+            class="area-card"
+            type="button"
+          >
             <span>🥘</span>
             Alimentação
           </button>
 
-          <button class="area-card">
+          <button
+            class="area-card"
+            type="button"
+          >
             <span>👧</span>
             Família
           </button>
 
-          <button class="area-card">
+          <button
+            class="area-card"
+            type="button"
+          >
             <span>🏍️</span>
             Moto
           </button>
 
-          <button class="area-card">
+          <button
+            class="area-card"
+            type="button"
+          >
             <span>🧴</span>
             Cuidados
           </button>
@@ -475,10 +558,201 @@
     </main>
 
 
-    <!-- MENU INFERIOR -->
+    <!-- =========================
+         AGENDA
+    ========================== -->
+
+    <main
+      id="agendaScreen"
+      class="app-main screen hidden"
+    >
+
+      <section class="screen-title">
+
+        <div>
+
+          <span class="section-label">
+            PLANEJAMENTO
+          </span>
+
+          <h2>
+            Agenda 12x36
+          </h2>
+
+          <p>
+            Veja automaticamente seus dias de trabalho e folga.
+          </p>
+
+        </div>
+
+      </section>
+
+
+      <!-- NAVEGAÇÃO DO MÊS -->
+
+      <section class="calendar-toolbar card">
+
+        <button
+          id="prevMonth"
+          class="calendar-arrow"
+          type="button"
+        >
+          ‹
+        </button>
+
+
+        <div class="calendar-title-area">
+
+          <strong id="calendarMonth">
+            Mês
+          </strong>
+
+          <span id="calendarYear">
+            2026
+          </span>
+
+        </div>
+
+
+        <button
+          id="nextMonth"
+          class="calendar-arrow"
+          type="button"
+        >
+          ›
+        </button>
+
+      </section>
+
+
+      <!-- LEGENDA -->
+
+      <div class="calendar-legend">
+
+        <span>
+          <i class="legend-dot work-dot"></i>
+          Trabalho
+        </span>
+
+        <span>
+          <i class="legend-dot off-dot"></i>
+          Folga
+        </span>
+
+        <span>
+          <i class="legend-dot today-dot"></i>
+          Hoje
+        </span>
+
+      </div>
+
+
+      <!-- DIAS DA SEMANA -->
+
+      <div class="calendar-weekdays">
+
+        <span>DOM</span>
+        <span>SEG</span>
+        <span>TER</span>
+        <span>QUA</span>
+        <span>QUI</span>
+        <span>SEX</span>
+        <span>SÁB</span>
+
+      </div>
+
+
+      <!-- CALENDÁRIO -->
+
+      <div
+        id="calendarGrid"
+        class="calendar-grid"
+      ></div>
+
+
+      <!-- DIA SELECIONADO -->
+
+      <section class="agenda-details card">
+
+        <span class="section-label">
+          DIA SELECIONADO
+        </span>
+
+        <div class="selected-date-header">
+
+          <div>
+
+            <h3 id="selectedDateTitle">
+              Selecione um dia
+            </h3>
+
+            <p id="selectedDateType">
+              —
+            </p>
+
+          </div>
+
+          <span
+            id="selectedDayBadge"
+            class="selected-day-badge"
+          >
+            —
+          </span>
+
+        </div>
+
+
+        <div
+          id="selectedDayTasks"
+          class="selected-day-tasks"
+        ></div>
+
+      </section>
+
+
+      <!-- PRÓXIMOS DIAS -->
+
+      <section class="next-days-section">
+
+        <div class="section-heading">
+
+          <div>
+
+            <span class="section-label">
+              PRÓXIMOS DIAS
+            </span>
+
+            <h3>
+              Sua escala
+            </h3>
+
+          </div>
+
+        </div>
+
+
+        <div
+          id="nextDaysList"
+          class="next-days-list"
+        ></div>
+
+      </section>
+
+    </main>
+
+
+    <!-- =========================
+         MENU INFERIOR
+    ========================== -->
+
     <nav class="bottom-nav">
 
-      <button class="nav-item active">
+      <button
+        class="nav-item active"
+        id="homeButton"
+        type="button"
+      >
+
         <span class="nav-icon">
           🏠
         </span>
@@ -486,13 +760,16 @@
         <span>
           Hoje
         </span>
+
       </button>
 
 
       <button
         class="nav-item"
         id="agendaButton"
+        type="button"
       >
+
         <span class="nav-icon">
           📅
         </span>
@@ -500,13 +777,16 @@
         <span>
           Agenda
         </span>
+
       </button>
 
 
       <button
         class="nav-item"
         id="pmmgButton"
+        type="button"
       >
+
         <span class="nav-icon">
           👮
         </span>
@@ -514,13 +794,16 @@
         <span>
           PMMG
         </span>
+
       </button>
 
 
       <button
         class="nav-item"
         id="progressButton"
+        type="button"
       >
+
         <span class="nav-icon">
           📊
         </span>
@@ -528,6 +811,7 @@
         <span>
           Progresso
         </span>
+
       </button>
 
     </nav>
