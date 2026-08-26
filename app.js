@@ -1745,52 +1745,88 @@ document.addEventListener("DOMContentLoaded", () => {
           </div>
         </div>
 
-        <form id="sleepForm" class="sleep-form">
-          <label>
-            <span>Hora que dormiu</span>
-            <input
-              id="sleepBedtime"
-              type="text"
-              inputmode="numeric"
-              maxlength="5"
-              placeholder="22:30"
-              value="${bedtime}"
-              autocomplete="off"
-              required
-            >
-          </label>
+        <div id="sleepControls" class="sleep-controls">
 
-          <label>
-            <span>Hora que acordou</span>
-            <input
-              id="sleepWakeTime"
-              type="text"
-              inputmode="numeric"
-              maxlength="5"
-              placeholder="05:30"
-              value="${wakeTime}"
-              autocomplete="off"
-              required
-            >
-          </label>
+          <div class="sleep-time-control">
+            <span class="sleep-control-label">Hora que dormiu</span>
 
-          <label class="sleep-quality-label">
-            <span>Qualidade do sono</span>
-            <select id="sleepQuality">
-              <option value="ruim" ${quality === "ruim" ? "selected" : ""}>Ruim</option>
-              <option value="regular" ${quality === "regular" ? "selected" : ""}>Regular</option>
-              <option value="boa" ${quality === "boa" ? "selected" : ""}>Boa</option>
-              <option value="excelente" ${quality === "excelente" ? "selected" : ""}>Excelente</option>
-            </select>
-          </label>
+            <div class="sleep-stepper">
+              <button
+                type="button"
+                class="sleep-step-button"
+                data-sleep-target="bedtime"
+                data-sleep-delta="-15"
+              >−15</button>
+
+              <strong
+                id="sleepBedtimeDisplay"
+                data-value="${bedtime}"
+              >${bedtime}</strong>
+
+              <button
+                type="button"
+                class="sleep-step-button"
+                data-sleep-target="bedtime"
+                data-sleep-delta="15"
+              >+15</button>
+            </div>
+          </div>
+
+          <div class="sleep-time-control">
+            <span class="sleep-control-label">Hora que acordou</span>
+
+            <div class="sleep-stepper">
+              <button
+                type="button"
+                class="sleep-step-button"
+                data-sleep-target="wake"
+                data-sleep-delta="-15"
+              >−15</button>
+
+              <strong
+                id="sleepWakeDisplay"
+                data-value="${wakeTime}"
+              >${wakeTime}</strong>
+
+              <button
+                type="button"
+                class="sleep-step-button"
+                data-sleep-target="wake"
+                data-sleep-delta="15"
+              >+15</button>
+            </div>
+          </div>
+
+          <div class="sleep-quality-control">
+            <span class="sleep-control-label">Qualidade do sono</span>
+
+            <div class="sleep-quality-buttons">
+              ${[
+                ["ruim", "Ruim"],
+                ["regular", "Regular"],
+                ["boa", "Boa"],
+                ["excelente", "Excelente"]
+              ].map(([value, label]) => `
+                <button
+                  type="button"
+                  class="sleep-quality-button ${quality === value ? "active" : ""}"
+                  data-sleep-quality="${value}"
+                >
+                  ${label}
+                </button>
+              `).join("")}
+            </div>
+          </div>
 
           <button
+            id="sleepSaveButton"
             class="sleep-save-button"
-            type="submit"
+            type="button"
           >
             Salvar sono de hoje
           </button>
-        </form>
+
+        </div>
 
         <div class="sleep-week-heading">
           <div>
@@ -1864,78 +1900,113 @@ document.addEventListener("DOMContentLoaded", () => {
       </div>
     `;
 
-    const form =
-      document.getElementById("sleepForm");
+    function addMinutesToTime(value, delta) {
+      const current =
+        timeStringToMinutes(value);
 
-    if (form) {
-      const bedtimeInput =
-        document.getElementById("sleepBedtime");
+      if (current === null) {
+        return value;
+      }
 
-      const wakeInput =
-        document.getElementById("sleepWakeTime");
+      let adjusted =
+        (current + delta) % (24 * 60);
 
-      [bedtimeInput, wakeInput]
-        .filter(Boolean)
-        .forEach(input => {
-          input.addEventListener(
-            "input",
-            () => {
-              const cursorAtEnd =
-                input.selectionStart === input.value.length;
+      if (adjusted < 0) {
+        adjusted += 24 * 60;
+      }
 
-              input.value =
-                normalizeTimeInput(input.value);
+      const hours =
+        Math.floor(adjusted / 60);
 
-              if (cursorAtEnd) {
-                input.setSelectionRange(
-                  input.value.length,
-                  input.value.length
-                );
-              }
-            }
-          );
+      const minutes =
+        adjusted % 60;
 
-          input.addEventListener(
-            "focus",
-            () => input.select()
-          );
-        });
+      return `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}`;
+    }
 
-      form.addEventListener(
-        "submit",
-        event => {
-          event.preventDefault();
+    let selectedQuality = quality;
 
+    document
+      .querySelectorAll("[data-sleep-target]")
+      .forEach(button => {
+        button.addEventListener(
+          "click",
+          () => {
+            const target =
+              button.dataset.sleepTarget;
+
+            const delta =
+              Number(button.dataset.sleepDelta);
+
+            const display =
+              target === "bedtime"
+                ? document.getElementById("sleepBedtimeDisplay")
+                : document.getElementById("sleepWakeDisplay");
+
+            if (!display) return;
+
+            const current =
+              display.dataset.value ||
+              display.textContent.trim();
+
+            const next =
+              addMinutesToTime(current, delta);
+
+            display.dataset.value = next;
+            display.textContent = next;
+          }
+        );
+      });
+
+    document
+      .querySelectorAll("[data-sleep-quality]")
+      .forEach(button => {
+        button.addEventListener(
+          "click",
+          () => {
+            selectedQuality =
+              button.dataset.sleepQuality;
+
+            document
+              .querySelectorAll("[data-sleep-quality]")
+              .forEach(item =>
+                item.classList.remove("active")
+              );
+
+            button.classList.add("active");
+          }
+        );
+      });
+
+    document
+      .getElementById("sleepSaveButton")
+      ?.addEventListener(
+        "click",
+        () => {
           const bedtimeValue =
-            document.getElementById("sleepBedtime")?.value;
+            document
+              .getElementById("sleepBedtimeDisplay")
+              ?.dataset.value;
 
           const wakeValue =
-            document.getElementById("sleepWakeTime")?.value;
+            document
+              .getElementById("sleepWakeDisplay")
+              ?.dataset.value;
 
-          const qualityValue =
-            document.getElementById("sleepQuality")?.value;
-
-          if (
-            !isValidTimeInput(bedtimeValue) ||
-            !isValidTimeInput(wakeValue)
-          ) {
-            alert(
-              "Digite os horários no formato HH:MM. Exemplo: 22:30 e 05:30."
-            );
+          if (!bedtimeValue || !wakeValue) {
             return;
           }
 
           saveTodaySleep(
             bedtimeValue,
             wakeValue,
-            qualityValue || "regular"
+            selectedQuality || "regular"
           );
 
           renderSleepPanel();
           renderHistoryProgressPanel();
         }
       );
-    }
   }
 
   function injectSleepStyles() {
@@ -2187,6 +2258,80 @@ document.addEventListener("DOMContentLoaded", () => {
         line-height: 1.55;
       }
 
+      .sleep-controls {
+        display: grid;
+        gap: 10px;
+        margin-top: 13px;
+      }
+
+      .sleep-time-control,
+      .sleep-quality-control {
+        border: 1px solid rgba(255,255,255,.065);
+        border-radius: 16px;
+        background: rgba(255,255,255,.022);
+        padding: 11px;
+      }
+
+      .sleep-control-label {
+        display: block;
+        margin-bottom: 8px;
+        color: #73737b;
+        font-size: 8px;
+        font-weight: 900;
+        letter-spacing: .5px;
+        text-transform: uppercase;
+      }
+
+      .sleep-stepper {
+        display: grid;
+        grid-template-columns: 1fr 1.2fr 1fr;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .sleep-stepper strong {
+        min-height: 44px;
+        display: grid;
+        place-items: center;
+        border: 1px solid rgba(145,124,255,.16);
+        border-radius: 13px;
+        background: rgba(145,124,255,.055);
+        color: #eeeaff;
+        font-size: 18px;
+        letter-spacing: .5px;
+      }
+
+      .sleep-step-button,
+      .sleep-quality-button {
+        min-height: 44px;
+        border: 1px solid rgba(255,255,255,.08);
+        border-radius: 13px;
+        background: #0d0d0f;
+        color: #b9b9c0;
+        font-size: 10px;
+        font-weight: 900;
+        cursor: pointer;
+        touch-action: manipulation;
+      }
+
+      .sleep-step-button:active,
+      .sleep-quality-button:active {
+        transform: scale(.97);
+      }
+
+      .sleep-quality-buttons {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 7px;
+      }
+
+      .sleep-quality-button.active {
+        border-color: rgba(145,124,255,.30);
+        background: rgba(145,124,255,.12);
+        color: #d9d1ff;
+        box-shadow: inset 0 0 0 1px rgba(145,124,255,.04);
+      }
+
       @media (max-width: 520px) {
         .sleep-card {
           padding: 15px;
@@ -2212,6 +2357,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
         .sleep-week-metrics {
           grid-template-columns: 1fr;
+        }
+
+        .sleep-quality-buttons {
+          grid-template-columns: repeat(2, 1fr);
+        }
+
+        .sleep-step-button {
+          min-height: 48px;
+          font-size: 11px;
         }
       }
     `;
