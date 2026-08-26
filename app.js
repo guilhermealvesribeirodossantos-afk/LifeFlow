@@ -4199,7 +4199,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
   // =====================================================
-  // LIFEFLOW 2.7 — ACADEMIA COMPLETA / TREINOS PERSONALIZADOS
+  // LIFEFLOW 2.8 — ACADEMIA VISUAL / BIBLIOTECA 800+
   // =====================================================
 
   const gymStorageKey = "lifeflow-gym-v26";
@@ -4577,13 +4577,23 @@ document.addEventListener("DOMContentLoaded", () => {
   function renderGymExerciseImage(exercise) {
     if (exercise.image) {
       return `
-        <div class="gym-exercise-media">
+        <div class="gym-exercise-media gym-exercise-media-pair">
           <img
             src="${escapeGymHtml(exercise.image)}"
-            alt="Referência visual de ${escapeGymHtml(exercise.name)}"
+            alt="Início de ${escapeGymHtml(exercise.name)}"
             loading="lazy"
-            onerror="this.parentElement.classList.add('image-error');this.remove();"
+            onerror="this.style.display='none';"
           >
+          ${
+            exercise.image2
+              ? `<img
+                  src="${escapeGymHtml(exercise.image2)}"
+                  alt="Final de ${escapeGymHtml(exercise.name)}"
+                  loading="lazy"
+                  onerror="this.style.display='none';"
+                >`
+              : ""
+          }
           <div class="gym-image-fallback">
             <span>🏋️</span>
             <small>Imagem indisponível</small>
@@ -4597,7 +4607,7 @@ document.addEventListener("DOMContentLoaded", () => {
         <div class="gym-image-placeholder">
           <span>🏋️</span>
           <strong>${escapeGymHtml(exercise.name)}</strong>
-          <small>Adicione uma foto no editor</small>
+          <small>Escolha pela biblioteca visual</small>
         </div>
       </div>
     `;
@@ -4849,6 +4859,585 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
+
+  // =====================================================
+  // LIFEFLOW 2.8 — BIBLIOTECA VISUAL DE EXERCÍCIOS
+  // Base pública: free-exercise-db (800+ exercícios)
+  // =====================================================
+
+  const gymLibraryUrl =
+    "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/dist/exercises.json";
+
+  const gymLibraryImageBase =
+    "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/";
+
+  let gymExerciseLibrary = [];
+  let gymLibraryLoaded = false;
+  let gymLibraryLoading = false;
+  let gymLibraryError = "";
+
+  const gymMuscleLabels = {
+    abdominals: "Abdômen",
+    abductors: "Abdutores",
+    adductors: "Adutores",
+    biceps: "Bíceps",
+    calves: "Panturrilhas",
+    chest: "Peito",
+    forearms: "Antebraços",
+    glutes: "Glúteos",
+    hamstrings: "Posteriores",
+    lats: "Dorsais",
+    "lower back": "Lombar",
+    "middle back": "Costas",
+    neck: "Pescoço",
+    quadriceps: "Quadríceps",
+    shoulders: "Ombros",
+    traps: "Trapézio",
+    triceps: "Tríceps"
+  };
+
+  const gymEquipmentLabels = {
+    "body only": "Peso corporal",
+    "e-z curl bar": "Barra EZ",
+    barbell: "Barra",
+    cable: "Cabo",
+    dumbbell: "Halteres",
+    "exercise ball": "Bola",
+    "foam roll": "Rolo",
+    kettlebells: "Kettlebell",
+    machine: "Máquina",
+    bands: "Elástico",
+    other: "Outros"
+  };
+
+  const gymCategoryLabels = {
+    strength: "Musculação",
+    stretching: "Alongamento",
+    cardio: "Cardio",
+    plyometrics: "Pliometria",
+    strongman: "Strongman",
+    powerlifting: "Powerlifting",
+    "olympic weightlifting": "Levantamento olímpico"
+  };
+
+  function gymLabelMuscle(value) {
+    return gymMuscleLabels[value] || value || "Outros";
+  }
+
+  function gymLabelEquipment(value) {
+    return gymEquipmentLabels[value] || value || "Sem equipamento";
+  }
+
+  function gymLabelCategory(value) {
+    return gymCategoryLabels[value] || value || "Outros";
+  }
+
+  function getGymLibraryImage(path) {
+    if (!path) return "";
+    return gymLibraryImageBase + path;
+  }
+
+  function getSuggestedPrescription(exercise) {
+    const category = exercise?.category || "strength";
+    const level = exercise?.level || "beginner";
+
+    if (category === "stretching") {
+      return {
+        sets: 2,
+        reps: "20–30s",
+        rest: 30
+      };
+    }
+
+    if (category === "cardio") {
+      return {
+        sets: 1,
+        reps: "10–20 min",
+        rest: 60
+      };
+    }
+
+    if (
+      category === "powerlifting" ||
+      category === "olympic weightlifting"
+    ) {
+      return {
+        sets: 3,
+        reps: "3–6",
+        rest: 120
+      };
+    }
+
+    if (level === "advanced") {
+      return {
+        sets: 3,
+        reps: "6–10",
+        rest: 90
+      };
+    }
+
+    return {
+      sets: 3,
+      reps: "8–12",
+      rest: 60
+    };
+  }
+
+  function getGenericPostureTip(exercise) {
+    const muscle =
+      gymLabelMuscle(exercise?.primaryMuscles?.[0]);
+
+    const equipment =
+      gymLabelEquipment(exercise?.equipment);
+
+    return `Mantenha o tronco estável, articulações alinhadas e movimento controlado. Foque em ${muscle.toLowerCase()} e ajuste ${equipment.toLowerCase()} para uma amplitude confortável.`;
+  }
+
+  function getGenericExecutionTip(exercise) {
+    const instructions =
+      Array.isArray(exercise?.instructions)
+        ? exercise.instructions
+        : [];
+
+    if (instructions.length) {
+      return `Execute lentamente, sem impulso. A referência original deste exercício possui ${instructions.length} etapas; use a imagem inicial/final como guia visual e mantenha controle em toda a amplitude.`;
+    }
+
+    return "Faça a fase de ida e de volta com controle, respirando normalmente e sem perder o alinhamento.";
+  }
+
+  function getGenericMistakeTip(exercise) {
+    return "Evite compensar com balanço do corpo, encurtar a amplitude por excesso de carga ou continuar caso apareça dor incomum.";
+  }
+
+  async function loadGymExerciseLibrary() {
+    if (gymLibraryLoaded || gymLibraryLoading) return;
+
+    gymLibraryLoading = true;
+    gymLibraryError = "";
+
+    try {
+      const response = await fetch(gymLibraryUrl);
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
+
+      const data = await response.json();
+
+      gymExerciseLibrary =
+        Array.isArray(data)
+          ? data
+          : [];
+
+      gymLibraryLoaded = true;
+    } catch (error) {
+      console.log("Erro ao carregar biblioteca:", error);
+      gymLibraryError =
+        "Não foi possível carregar a biblioteca agora. Verifique sua internet e tente novamente.";
+    } finally {
+      gymLibraryLoading = false;
+
+      if (
+        document.getElementById("gymScreen") &&
+        !document.getElementById("gymLibraryMuscle")?.options.length
+      ) {
+        renderGymPanel();
+      } else {
+        renderGymLibrary();
+      }
+    }
+  }
+
+  function getGymLibraryFilters() {
+    const search =
+      document
+        .getElementById("gymLibrarySearch")
+        ?.value
+        .trim()
+        .toLowerCase() || "";
+
+    const muscle =
+      document
+        .getElementById("gymLibraryMuscle")
+        ?.value || "";
+
+    const equipment =
+      document
+        .getElementById("gymLibraryEquipment")
+        ?.value || "";
+
+    const category =
+      document
+        .getElementById("gymLibraryCategory")
+        ?.value || "";
+
+    return {
+      search,
+      muscle,
+      equipment,
+      category
+    };
+  }
+
+  function filteredGymLibrary() {
+    const filters = getGymLibraryFilters();
+
+    return gymExerciseLibrary.filter(exercise => {
+      const haystack = [
+        exercise.name,
+        exercise.id,
+        exercise.equipment,
+        exercise.category,
+        ...(exercise.primaryMuscles || []),
+        ...(exercise.secondaryMuscles || [])
+      ]
+        .join(" ")
+        .toLowerCase();
+
+      if (
+        filters.search &&
+        !haystack.includes(filters.search)
+      ) {
+        return false;
+      }
+
+      if (
+        filters.muscle &&
+        !(exercise.primaryMuscles || [])
+          .includes(filters.muscle)
+      ) {
+        return false;
+      }
+
+      if (
+        filters.equipment &&
+        exercise.equipment !== filters.equipment
+      ) {
+        return false;
+      }
+
+      if (
+        filters.category &&
+        exercise.category !== filters.category
+      ) {
+        return false;
+      }
+
+      return true;
+    });
+  }
+
+  function getGymLibraryUnique(field) {
+    const values = new Set();
+
+    gymExerciseLibrary.forEach(exercise => {
+      const value = exercise[field];
+
+      if (Array.isArray(value)) {
+        value.forEach(item => {
+          if (item) values.add(item);
+        });
+      } else if (value) {
+        values.add(value);
+      }
+    });
+
+    return [...values].sort();
+  }
+
+  function addLibraryExerciseToPlan(exerciseId) {
+    const source =
+      gymExerciseLibrary.find(
+        item => item.id === exerciseId
+      );
+
+    const plan = getActiveGymPlan();
+
+    if (!source || !plan) return;
+
+    const prescription =
+      getSuggestedPrescription(source);
+
+    const alreadyExists =
+      plan.exercises.some(
+        item =>
+          item.libraryId === source.id
+      );
+
+    if (alreadyExists) {
+      alert("Esse exercício já está neste treino.");
+      return;
+    }
+
+    plan.exercises.push({
+      id: makeGymId("exercise"),
+      libraryId: source.id,
+      name: source.name,
+      sets: prescription.sets,
+      reps: prescription.reps,
+      load: 0,
+      rest: prescription.rest,
+      image:
+        getGymLibraryImage(
+          source.images?.[0] || ""
+        ),
+      image2:
+        getGymLibraryImage(
+          source.images?.[1] || ""
+        ),
+      posture:
+        getGenericPostureTip(source),
+      execution:
+        getGenericExecutionTip(source),
+      mistakes:
+        getGenericMistakeTip(source),
+      primaryMuscle:
+        source.primaryMuscles?.[0] || "",
+      equipment:
+        source.equipment || "",
+      category:
+        source.category || ""
+    });
+
+    saveGymPrograms();
+    renderGymPanel();
+
+    setTimeout(() => {
+      document
+        .getElementById("gymExerciseLibrarySection")
+        ?.scrollIntoView({
+          behavior: "smooth",
+          block: "start"
+        });
+    }, 50);
+  }
+
+  function renderGymLibrary() {
+    const container =
+      document.getElementById("gymLibraryResults");
+
+    const count =
+      document.getElementById("gymLibraryCount");
+
+    if (!container) return;
+
+    if (gymLibraryLoading) {
+      container.innerHTML = `
+        <div class="gym-library-status">
+          <span>⏳</span>
+          <strong>Carregando biblioteca...</strong>
+        </div>
+      `;
+      return;
+    }
+
+    if (gymLibraryError) {
+      container.innerHTML = `
+        <div class="gym-library-status error">
+          <span>⚠️</span>
+          <strong>${escapeGymHtml(gymLibraryError)}</strong>
+          <button
+            id="gymLibraryRetry"
+            type="button"
+          >
+            Tentar novamente
+          </button>
+        </div>
+      `;
+
+      document
+        .getElementById("gymLibraryRetry")
+        ?.addEventListener(
+          "click",
+          loadGymExerciseLibrary
+        );
+
+      return;
+    }
+
+    if (!gymLibraryLoaded) {
+      return;
+    }
+
+    const filtered =
+      filteredGymLibrary();
+
+    if (count) {
+      count.textContent =
+        `${filtered.length} de ${gymExerciseLibrary.length} exercícios`;
+    }
+
+    const limit = 60;
+    const visible =
+      filtered.slice(0, limit);
+
+    if (!visible.length) {
+      container.innerHTML = `
+        <div class="gym-library-status">
+          <span>🔎</span>
+          <strong>Nenhum exercício encontrado.</strong>
+        </div>
+      `;
+      return;
+    }
+
+    container.innerHTML = `
+      ${visible.map(exercise => {
+        const prescription =
+          getSuggestedPrescription(exercise);
+
+        const image1 =
+          getGymLibraryImage(
+            exercise.images?.[0] || ""
+          );
+
+        const image2 =
+          getGymLibraryImage(
+            exercise.images?.[1] || ""
+          );
+
+        return `
+          <article class="gym-library-card">
+            <div class="gym-library-visual">
+              ${
+                image1
+                  ? `<img
+                      src="${escapeGymHtml(image1)}"
+                      alt="${escapeGymHtml(exercise.name)} início"
+                      loading="lazy"
+                    >`
+                  : `<div class="gym-library-placeholder">🏋️</div>`
+              }
+
+              ${
+                image2
+                  ? `<img
+                      src="${escapeGymHtml(image2)}"
+                      alt="${escapeGymHtml(exercise.name)} final"
+                      loading="lazy"
+                    >`
+                  : ""
+              }
+            </div>
+
+            <div class="gym-library-body">
+              <div class="gym-library-tags">
+                <span>
+                  ${escapeGymHtml(
+                    gymLabelMuscle(
+                      exercise.primaryMuscles?.[0]
+                    )
+                  )}
+                </span>
+                <span>
+                  ${escapeGymHtml(
+                    gymLabelEquipment(
+                      exercise.equipment
+                    )
+                  )}
+                </span>
+              </div>
+
+              <h4>${escapeGymHtml(exercise.name)}</h4>
+
+              <p>
+                ${escapeGymHtml(
+                  gymLabelCategory(
+                    exercise.category
+                  )
+                )}
+                •
+                ${escapeGymHtml(exercise.level || "—")}
+              </p>
+
+              <div class="gym-library-prescription">
+                <div>
+                  <span>Séries</span>
+                  <strong>${prescription.sets}</strong>
+                </div>
+                <div>
+                  <span>Reps</span>
+                  <strong>${escapeGymHtml(prescription.reps)}</strong>
+                </div>
+                <div>
+                  <span>Descanso</span>
+                  <strong>${prescription.rest}s</strong>
+                </div>
+              </div>
+
+              <details class="gym-library-details">
+                <summary>Ver dicas</summary>
+                <p>
+                  <strong>Postura:</strong>
+                  ${escapeGymHtml(
+                    getGenericPostureTip(exercise)
+                  )}
+                </p>
+                <p>
+                  <strong>Execução:</strong>
+                  ${escapeGymHtml(
+                    getGenericExecutionTip(exercise)
+                  )}
+                </p>
+              </details>
+
+              <button
+                type="button"
+                class="gym-library-add"
+                data-library-add="${escapeGymHtml(exercise.id)}"
+              >
+                ＋ Adicionar ao ${escapeGymHtml(getActiveGymPlan()?.name || "treino")}
+              </button>
+            </div>
+          </article>
+        `;
+      }).join("")}
+
+      ${
+        filtered.length > limit
+          ? `<p class="gym-library-limit-note">
+              Mostrando os primeiros ${limit}. Use a busca ou os filtros para encontrar qualquer exercício da biblioteca.
+            </p>`
+          : ""
+      }
+    `;
+
+    document
+      .querySelectorAll("[data-library-add]")
+      .forEach(button => {
+        button.addEventListener(
+          "click",
+          () => {
+            addLibraryExerciseToPlan(
+              button.dataset.libraryAdd
+            );
+          }
+        );
+      });
+  }
+
+  function setupGymLibraryControls() {
+    [
+      "gymLibrarySearch",
+      "gymLibraryMuscle",
+      "gymLibraryEquipment",
+      "gymLibraryCategory"
+    ].forEach(id => {
+      const element =
+        document.getElementById(id);
+
+      if (!element) return;
+
+      element.addEventListener(
+        id === "gymLibrarySearch"
+          ? "input"
+          : "change",
+        renderGymLibrary
+      );
+    });
+  }
+
   function renderGymPanel() {
     const screen =
       document.getElementById("gymScreen");
@@ -5074,6 +5663,94 @@ document.addEventListener("DOMContentLoaded", () => {
         </div>
       </section>
 
+
+      <section
+        id="gymExerciseLibrarySection"
+        class="gym-library-section"
+      >
+        <div class="gym-library-heading">
+          <div>
+            <span>BIBLIOTECA VISUAL</span>
+            <h3>Todos os exercícios</h3>
+            <p>
+              Pesquise na base pública com mais de 800 exercícios e imagens.
+            </p>
+          </div>
+
+          <strong id="gymLibraryCount">
+            Carregando...
+          </strong>
+        </div>
+
+        <div class="gym-library-filters">
+          <input
+            id="gymLibrarySearch"
+            type="search"
+            placeholder="Buscar exercício, músculo..."
+            autocomplete="off"
+          >
+
+          <select id="gymLibraryMuscle">
+            <option value="">Todos os músculos</option>
+            ${
+              gymLibraryLoaded
+                ? getGymLibraryUnique("primaryMuscles")
+                    .map(value => `
+                      <option value="${escapeGymHtml(value)}">
+                        ${escapeGymHtml(gymLabelMuscle(value))}
+                      </option>
+                    `)
+                    .join("")
+                : ""
+            }
+          </select>
+
+          <select id="gymLibraryEquipment">
+            <option value="">Todos os equipamentos</option>
+            ${
+              gymLibraryLoaded
+                ? getGymLibraryUnique("equipment")
+                    .map(value => `
+                      <option value="${escapeGymHtml(value)}">
+                        ${escapeGymHtml(gymLabelEquipment(value))}
+                      </option>
+                    `)
+                    .join("")
+                : ""
+            }
+          </select>
+
+          <select id="gymLibraryCategory">
+            <option value="">Todas as categorias</option>
+            ${
+              gymLibraryLoaded
+                ? getGymLibraryUnique("category")
+                    .map(value => `
+                      <option value="${escapeGymHtml(value)}">
+                        ${escapeGymHtml(gymLabelCategory(value))}
+                      </option>
+                    `)
+                    .join("")
+                : ""
+            }
+          </select>
+        </div>
+
+        <div
+          id="gymLibraryResults"
+          class="gym-library-results"
+        >
+          <div class="gym-library-status">
+            <span>⏳</span>
+            <strong>Carregando biblioteca...</strong>
+          </div>
+        </div>
+
+        <p class="gym-library-credit">
+          Imagens e dados: Free Exercise DB • base pública.
+        </p>
+      </section>
+
       <section class="gym-editor-card">
         <div class="gym-section-heading">
           <div>
@@ -5257,6 +5934,14 @@ document.addEventListener("DOMContentLoaded", () => {
     updateWorkoutTimerDisplay();
     updateRestTimerDisplay();
     updateGymTimerButtons();
+
+    setupGymLibraryControls();
+
+    if (!gymLibraryLoaded) {
+      loadGymExerciseLibrary();
+    } else {
+      renderGymLibrary();
+    }
   }
 
 
@@ -5815,6 +6500,242 @@ document.addEventListener("DOMContentLoaded", () => {
         line-height: 1.5;
       }
 
+
+      .gym-exercise-media-pair {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1px;
+      }
+
+      .gym-exercise-media-pair img {
+        min-width: 0;
+      }
+
+      .gym-library-section {
+        margin: 14px 0;
+        padding: 15px;
+        border: 1px solid rgba(255,255,255,.075);
+        border-radius: 20px;
+        background:
+          radial-gradient(circle at 92% 0%, rgba(106,167,255,.09), transparent 32%),
+          linear-gradient(145deg, rgba(17,17,19,.98), rgba(8,8,9,.98));
+      }
+
+      .gym-library-heading {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 12px;
+      }
+
+      .gym-library-heading span {
+        display: block;
+        color: #6aa7ff;
+        font-size: 8px;
+        font-weight: 950;
+        letter-spacing: .9px;
+      }
+
+      .gym-library-heading h3 {
+        margin: 4px 0 3px;
+        color: #efeff1;
+        font-size: 18px;
+      }
+
+      .gym-library-heading p,
+      .gym-library-credit,
+      .gym-library-limit-note {
+        margin: 0;
+        color: #74747c;
+        font-size: 8px;
+        line-height: 1.5;
+      }
+
+      .gym-library-heading > strong {
+        color: #9dbfff;
+        font-size: 9px;
+        white-space: nowrap;
+      }
+
+      .gym-library-filters {
+        display: grid;
+        grid-template-columns: 1.4fr repeat(3, 1fr);
+        gap: 8px;
+        margin-top: 13px;
+      }
+
+      .gym-library-filters input,
+      .gym-library-filters select {
+        box-sizing: border-box;
+        width: 100%;
+        min-height: 44px;
+        border: 1px solid rgba(255,255,255,.075);
+        border-radius: 12px;
+        outline: none;
+        background: #0d0d0f;
+        color: #dedee1;
+        padding: 0 10px;
+        font: inherit;
+        font-size: 10px;
+      }
+
+      .gym-library-results {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+        margin-top: 12px;
+      }
+
+      .gym-library-card {
+        min-width: 0;
+        overflow: hidden;
+        border: 1px solid rgba(255,255,255,.065);
+        border-radius: 17px;
+        background: rgba(255,255,255,.018);
+      }
+
+      .gym-library-visual {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        aspect-ratio: 16 / 8;
+        overflow: hidden;
+        background: #101012;
+      }
+
+      .gym-library-visual img,
+      .gym-library-placeholder {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      .gym-library-placeholder {
+        display: grid;
+        place-items: center;
+        font-size: 28px;
+      }
+
+      .gym-library-body {
+        padding: 11px;
+      }
+
+      .gym-library-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 5px;
+      }
+
+      .gym-library-tags span {
+        padding: 5px 7px;
+        border: 1px solid rgba(106,167,255,.12);
+        border-radius: 999px;
+        background: rgba(106,167,255,.04);
+        color: #91b7ff;
+        font-size: 7px;
+        font-weight: 850;
+      }
+
+      .gym-library-body h4 {
+        margin: 8px 0 3px;
+        color: #ececee;
+        font-size: 14px;
+      }
+
+      .gym-library-body > p {
+        margin: 0;
+        color: #717179;
+        font-size: 8px;
+      }
+
+      .gym-library-prescription {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 6px;
+        margin-top: 9px;
+      }
+
+      .gym-library-prescription > div {
+        padding: 7px;
+        border: 1px solid rgba(255,255,255,.05);
+        border-radius: 10px;
+        background: rgba(255,255,255,.018);
+      }
+
+      .gym-library-prescription span {
+        display: block;
+        color: #686870;
+        font-size: 6px;
+        text-transform: uppercase;
+      }
+
+      .gym-library-prescription strong {
+        display: block;
+        margin-top: 3px;
+        color: #dcdce0;
+        font-size: 10px;
+      }
+
+      .gym-library-details {
+        margin-top: 8px;
+        border-top: 1px solid rgba(255,255,255,.045);
+      }
+
+      .gym-library-details summary {
+        padding: 9px 0 4px;
+        color: #9aabc4;
+        font-size: 8px;
+        font-weight: 900;
+        cursor: pointer;
+      }
+
+      .gym-library-details p {
+        margin: 6px 0 0;
+        color: #76767f;
+        font-size: 8px;
+        line-height: 1.5;
+      }
+
+      .gym-library-add {
+        width: 100%;
+        min-height: 44px;
+        margin-top: 10px;
+        border: 1px solid rgba(92,230,153,.18);
+        border-radius: 12px;
+        background: rgba(92,230,153,.06);
+        color: #8ae9b6;
+        font-size: 9px;
+        font-weight: 900;
+        cursor: pointer;
+        touch-action: manipulation;
+      }
+
+      .gym-library-status {
+        grid-column: 1 / -1;
+        display: grid;
+        place-items: center;
+        gap: 7px;
+        min-height: 130px;
+        border: 1px dashed rgba(255,255,255,.07);
+        border-radius: 15px;
+        color: #85858d;
+        text-align: center;
+      }
+
+      .gym-library-status button {
+        min-height: 40px;
+        border: 1px solid rgba(255,255,255,.08);
+        border-radius: 11px;
+        background: #111114;
+        color: #d6d6da;
+        padding: 0 14px;
+      }
+
+      .gym-library-credit,
+      .gym-library-limit-note {
+        margin-top: 10px;
+        text-align: center;
+      }
+
       @media (max-width: 520px) {
         .gym-page-header {
           padding: 15px;
@@ -5880,6 +6801,47 @@ document.addEventListener("DOMContentLoaded", () => {
         .gym-editor-grid input,
         .gym-editor-grid textarea {
           font-size: 16px;
+        }
+
+        .gym-library-section {
+          padding: 12px;
+          border-radius: 18px;
+        }
+
+        .gym-library-heading {
+          display: block;
+        }
+
+        .gym-library-heading > strong {
+          display: block;
+          margin-top: 7px;
+        }
+
+        .gym-library-filters {
+          grid-template-columns: 1fr;
+        }
+
+        .gym-library-filters input,
+        .gym-library-filters select {
+          min-height: 48px;
+          font-size: 16px;
+        }
+
+        .gym-library-results {
+          grid-template-columns: 1fr;
+        }
+
+        .gym-library-card {
+          border-radius: 16px;
+        }
+
+        .gym-library-body h4 {
+          font-size: 16px;
+        }
+
+        .gym-library-add {
+          min-height: 50px;
+          font-size: 10px;
         }
       }
     `;
