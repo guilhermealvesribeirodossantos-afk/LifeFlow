@@ -408,6 +408,10 @@ document.addEventListener("DOMContentLoaded", () => {
       storageKey,
       JSON.stringify(state)
     );
+
+    if (typeof syncTodayHistory === "function") {
+      syncTodayHistory();
+    }
   }
 
   // =====================================================
@@ -817,6 +821,595 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
 
+
+
+  // =====================================================
+  // LIFEFLOW 2.3 — HISTÓRICO + PROGRESSO INTELIGENTE
+  // =====================================================
+
+  const historyStorageKey = "lifeflow-history-v23";
+
+  let lifeHistory = {};
+
+  try {
+    const savedHistory =
+      localStorage.getItem(historyStorageKey);
+
+    if (savedHistory) {
+      lifeHistory = JSON.parse(savedHistory) || {};
+    }
+  } catch (error) {
+    console.log("Erro ao carregar histórico:", error);
+    lifeHistory = {};
+  }
+
+  function saveHistory() {
+    localStorage.setItem(
+      historyStorageKey,
+      JSON.stringify(lifeHistory)
+    );
+  }
+
+  function syncTodayHistory() {
+    lifeHistory[todayKey] = {
+      date: todayKey,
+      type: workDay ? "Trabalho" : "Folga",
+      completed: state.completed.length,
+      total: tasks.length,
+      routinePercent: getRoutinePercent(),
+      water: state.water,
+      waterPercent: Math.min(
+        100,
+        Math.round((state.water / 4000) * 100)
+      ),
+      xp: state.xp,
+      updatedAt: new Date().toISOString()
+    };
+
+    saveHistory();
+  }
+
+  function getHistoryDateKey(date) {
+    return getDateKey(date);
+  }
+
+  function getHistoryRange(days, offsetDays = 0) {
+    const result = [];
+
+    for (let i = days - 1; i >= 0; i--) {
+      const date = new Date();
+      date.setHours(12, 0, 0, 0);
+      date.setDate(
+        date.getDate() - i - offsetDays
+      );
+
+      const key = getHistoryDateKey(date);
+      const saved = lifeHistory[key];
+
+      result.push({
+        key,
+        date,
+        routinePercent:
+          saved?.routinePercent || 0,
+        waterPercent:
+          saved?.waterPercent || 0,
+        completed:
+          saved?.completed || 0,
+        total:
+          saved?.total || 0,
+        xp:
+          saved?.xp || 0,
+        hasData: Boolean(saved)
+      });
+    }
+
+    return result;
+  }
+
+  function averageHistory(items, field) {
+    const withData =
+      items.filter(item => item.hasData);
+
+    if (!withData.length) {
+      return 0;
+    }
+
+    return Math.round(
+      withData.reduce(
+        (sum, item) => sum + (item[field] || 0),
+        0
+      ) / withData.length
+    );
+  }
+
+  function sumHistory(items, field) {
+    return items.reduce(
+      (sum, item) => sum + (item[field] || 0),
+      0
+    );
+  }
+
+  function getMonthHistory() {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = now.getMonth();
+    const lastDay =
+      new Date(year, month + 1, 0).getDate();
+
+    const result = [];
+
+    for (let day = 1; day <= lastDay; day++) {
+      const date =
+        new Date(year, month, day, 12);
+
+      if (date > now) {
+        break;
+      }
+
+      const key = getDateKey(date);
+      const saved = lifeHistory[key];
+
+      result.push({
+        key,
+        date,
+        routinePercent:
+          saved?.routinePercent || 0,
+        waterPercent:
+          saved?.waterPercent || 0,
+        completed:
+          saved?.completed || 0,
+        total:
+          saved?.total || 0,
+        xp:
+          saved?.xp || 0,
+        hasData: Boolean(saved)
+      });
+    }
+
+    return result;
+  }
+
+  function renderHistoryProgressPanel() {
+    const progressScreen =
+      document.getElementById("progressScreen");
+
+    if (!progressScreen) return;
+
+    let panel =
+      document.getElementById("historyProgressPanel");
+
+    if (!panel) {
+      panel = document.createElement("section");
+      panel.id = "historyProgressPanel";
+      panel.className = "history-progress-panel";
+
+      const evolutionPanel =
+        document.getElementById("evolutionPanel");
+
+      if (
+        evolutionPanel &&
+        evolutionPanel.parentNode
+      ) {
+        evolutionPanel.parentNode.insertBefore(
+          panel,
+          evolutionPanel.nextSibling
+        );
+      } else {
+        progressScreen.appendChild(panel);
+      }
+    }
+
+    const week = getHistoryRange(7);
+    const previousWeek = getHistoryRange(7, 7);
+    const month = getMonthHistory();
+
+    const weekAverage =
+      averageHistory(week, "routinePercent");
+
+    const previousAverage =
+      averageHistory(
+        previousWeek,
+        "routinePercent"
+      );
+
+    const comparison =
+      weekAverage - previousAverage;
+
+    const waterAverage =
+      averageHistory(week, "waterPercent");
+
+    const perfectDays =
+      week.filter(
+        item =>
+          item.hasData &&
+          item.routinePercent >= 100
+      ).length;
+
+    const completedTasks =
+      sumHistory(week, "completed");
+
+    const weekXp =
+      sumHistory(week, "xp");
+
+    const monthAverage =
+      averageHistory(
+        month,
+        "routinePercent"
+      );
+
+    const monthPerfect =
+      month.filter(
+        item =>
+          item.hasData &&
+          item.routinePercent >= 100
+      ).length;
+
+    let summary =
+      "Continue registrando sua rotina para construir seu histórico.";
+
+    if (week.some(item => item.hasData)) {
+      if (weekAverage >= 85) {
+        summary =
+          `Excelente consistência: sua média dos últimos 7 dias está em ${weekAverage}%.`;
+      } else if (weekAverage >= 60) {
+        summary =
+          `Você está construindo um bom ritmo: média de ${weekAverage}% nos últimos 7 dias.`;
+      } else {
+        summary =
+          `Sua média atual é ${weekAverage}%. Foque em pequenas vitórias para subir essa consistência.`;
+      }
+    }
+
+    const comparisonText =
+      comparison > 0
+        ? `+${comparison}%`
+        : comparison < 0
+          ? `${comparison}%`
+          : "0%";
+
+    const comparisonClass =
+      comparison > 0
+        ? "positive"
+        : comparison < 0
+          ? "negative"
+          : "neutral";
+
+    panel.innerHTML = `
+      <div class="history-card">
+        <div class="history-heading">
+          <div>
+            <span class="history-kicker">PROGRESSO INTELIGENTE</span>
+            <h3>Últimos 7 dias</h3>
+          </div>
+
+          <span class="history-comparison ${comparisonClass}">
+            ${comparisonText}
+          </span>
+        </div>
+
+        <div class="history-chart">
+          ${week.map(item => {
+            const day =
+              item.date
+                .toLocaleDateString(
+                  "pt-BR",
+                  { weekday: "short" }
+                )
+                .replace(".", "")
+                .slice(0, 3);
+
+            const height =
+              item.hasData
+                ? Math.max(6, item.routinePercent)
+                : 4;
+
+            return `
+              <div class="history-bar-column">
+                <div class="history-bar-track">
+                  <div
+                    class="history-bar-fill ${item.routinePercent >= 100 ? "perfect" : ""}"
+                    style="height:${height}%"
+                    title="${item.routinePercent}%"
+                  ></div>
+                </div>
+                <strong>${item.hasData ? item.routinePercent + "%" : "—"}</strong>
+                <span>${day}</span>
+              </div>
+            `;
+          }).join("")}
+        </div>
+
+        <div class="history-metrics">
+          <div>
+            <span>Média semanal</span>
+            <strong>${weekAverage}%</strong>
+          </div>
+          <div>
+            <span>Dias 100%</span>
+            <strong>${perfectDays}</strong>
+          </div>
+          <div>
+            <span>Tarefas</span>
+            <strong>${completedTasks}</strong>
+          </div>
+          <div>
+            <span>Hidratação</span>
+            <strong>${waterAverage}%</strong>
+          </div>
+        </div>
+
+        <div class="history-summary">
+          <span>✨</span>
+          <div>
+            <strong>Resumo da semana</strong>
+            <p>${summary}</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="history-card month-card">
+        <div class="history-heading">
+          <div>
+            <span class="history-kicker">VISÃO MENSAL</span>
+            <h3>${monthNames[new Date().getMonth()]}</h3>
+          </div>
+          <span class="month-badge">
+            ${month.filter(item => item.hasData).length} dias registrados
+          </span>
+        </div>
+
+        <div class="month-metrics">
+          <div>
+            <span>Média</span>
+            <strong>${monthAverage}%</strong>
+          </div>
+          <div>
+            <span>Dias perfeitos</span>
+            <strong>${monthPerfect}</strong>
+          </div>
+          <div>
+            <span>XP da semana</span>
+            <strong>${weekXp}</strong>
+          </div>
+        </div>
+
+        <p class="history-note">
+          O LifeFlow começa a guardar seu histórico a partir desta versão.
+          Quanto mais você usar, mais preciso ficará seu painel.
+        </p>
+      </div>
+    `;
+  }
+
+  function injectHistoryStyles() {
+    if (
+      document.getElementById(
+        "lifeflowHistoryStyles"
+      )
+    ) return;
+
+    const style =
+      document.createElement("style");
+
+    style.id =
+      "lifeflowHistoryStyles";
+
+    style.textContent = `
+      .history-progress-panel {
+        display: grid;
+        gap: 14px;
+        margin: 14px 0;
+      }
+
+      .history-card {
+        border: 1px solid rgba(255,255,255,.085);
+        border-radius: 24px;
+        padding: 18px;
+        background:
+          radial-gradient(circle at 92% 0%, rgba(106,167,255,.09), transparent 30%),
+          linear-gradient(145deg, rgba(20,20,20,.98), rgba(7,7,7,.98));
+        box-shadow: 0 22px 60px rgba(0,0,0,.38);
+      }
+
+      .history-heading {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 12px;
+      }
+
+      .history-kicker {
+        display: block;
+        color: #777;
+        font-size: 9px;
+        font-weight: 950;
+        letter-spacing: 1.1px;
+      }
+
+      .history-heading h3 {
+        margin: 5px 0 0;
+        font-size: 18px;
+        color: #f2f2f2;
+      }
+
+      .history-comparison,
+      .month-badge {
+        border: 1px solid rgba(255,255,255,.08);
+        border-radius: 999px;
+        padding: 7px 10px;
+        font-size: 9px;
+        font-weight: 900;
+      }
+
+      .history-comparison.positive {
+        color: #70edb1;
+        border-color: rgba(85,227,154,.20);
+        background: rgba(85,227,154,.07);
+      }
+
+      .history-comparison.negative {
+        color: #ff8585;
+        border-color: rgba(255,92,92,.18);
+        background: rgba(255,92,92,.06);
+      }
+
+      .history-comparison.neutral,
+      .month-badge {
+        color: #aaa;
+        background: rgba(255,255,255,.03);
+      }
+
+      .history-chart {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 7px;
+        height: 190px;
+        margin-top: 20px;
+        padding-top: 8px;
+      }
+
+      .history-bar-column {
+        min-width: 0;
+        display: grid;
+        grid-template-rows: 1fr auto auto;
+        gap: 5px;
+        text-align: center;
+      }
+
+      .history-bar-track {
+        position: relative;
+        overflow: hidden;
+        min-height: 120px;
+        border-radius: 10px;
+        background: rgba(255,255,255,.035);
+      }
+
+      .history-bar-fill {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        border-radius: 10px;
+        background: linear-gradient(180deg, #6aa7ff, #396fc7);
+        box-shadow: 0 0 18px rgba(106,167,255,.12);
+        transition: height .35s ease;
+      }
+
+      .history-bar-fill.perfect {
+        background: linear-gradient(180deg, #75efb5, #42c982);
+        box-shadow: 0 0 18px rgba(85,227,154,.16);
+      }
+
+      .history-bar-column strong {
+        color: #bdbdbd;
+        font-size: 8px;
+      }
+
+      .history-bar-column span {
+        color: #666;
+        font-size: 8px;
+        font-weight: 850;
+        text-transform: uppercase;
+      }
+
+      .history-metrics,
+      .month-metrics {
+        display: grid;
+        gap: 8px;
+        margin-top: 16px;
+      }
+
+      .history-metrics {
+        grid-template-columns: repeat(4, 1fr);
+      }
+
+      .month-metrics {
+        grid-template-columns: repeat(3, 1fr);
+      }
+
+      .history-metrics > div,
+      .month-metrics > div {
+        border: 1px solid rgba(255,255,255,.06);
+        border-radius: 15px;
+        padding: 10px;
+        background: rgba(255,255,255,.022);
+      }
+
+      .history-metrics span,
+      .month-metrics span {
+        display: block;
+        color: #6f6f6f;
+        font-size: 8px;
+        font-weight: 850;
+        text-transform: uppercase;
+      }
+
+      .history-metrics strong,
+      .month-metrics strong {
+        display: block;
+        margin-top: 4px;
+        color: #ededed;
+        font-size: 15px;
+      }
+
+      .history-summary {
+        display: flex;
+        gap: 10px;
+        margin-top: 14px;
+        padding: 13px;
+        border: 1px solid rgba(231,182,95,.13);
+        border-radius: 16px;
+        background: rgba(231,182,95,.045);
+      }
+
+      .history-summary strong {
+        color: #e9e9e9;
+        font-size: 10px;
+      }
+
+      .history-summary p,
+      .history-note {
+        margin: 4px 0 0;
+        color: #858585;
+        font-size: 9px;
+        line-height: 1.55;
+      }
+
+      .history-note {
+        margin-top: 14px;
+      }
+
+      @media (max-width: 520px) {
+        .history-card {
+          padding: 15px;
+        }
+
+        .history-chart {
+          gap: 4px;
+          height: 175px;
+        }
+
+        .history-metrics {
+          grid-template-columns: repeat(2, 1fr);
+        }
+
+        .month-metrics {
+          grid-template-columns: 1fr;
+        }
+
+        .history-heading {
+          align-items: center;
+        }
+
+        .month-badge {
+          max-width: 115px;
+          text-align: center;
+        }
+      }
+    `;
+
+    document.head.appendChild(style);
+  }
 
   // =====================================================
   // HOME
@@ -2020,6 +2613,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     renderEvolutionPanel();
+    renderHistoryProgressPanel();
   }
 
 
@@ -3235,8 +3829,10 @@ document.addEventListener("DOMContentLoaded", () => {
   // =====================================================
 
   injectEvolutionStyles();
+  injectHistoryStyles();
 
   syncDailyEvolution();
+  syncTodayHistory();
 
   renderHome();
 
