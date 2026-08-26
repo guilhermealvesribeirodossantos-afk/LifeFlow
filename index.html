@@ -8,7 +8,7 @@
     content="width=device-width, initial-scale=1.0, viewport-fit=cover"
   >
 
-  <meta name="theme-color" content="#0d1117">
+  <meta name="theme-color" content="#0b0f14">
 
   <title>LifeFlow</title>
 
@@ -17,387 +17,524 @@
 
 <body>
 
-  <!-- =========================
-       CABEÇALHO
-  ========================== -->
-  <header class="top">
+  <div class="app-shell">
 
-    <div>
-      <p class="eyebrow">MINHA CENTRAL</p>
+    <!-- TOPO -->
+    <header class="app-header">
 
-      <h1>LifeFlow</h1>
+      <div class="brand-area">
+        <div class="brand-icon">
+          LF
+        </div>
 
-      <p id="todayText" class="muted">
-        Carregando data...
-      </p>
-    </div>
+        <div>
+          <p class="brand-kicker">
+            SUA CENTRAL PESSOAL
+          </p>
 
-    <div class="level">
-      NÍVEL
-      <strong id="level">1</strong>
-    </div>
+          <h1>
+            LifeFlow
+          </h1>
+        </div>
+      </div>
 
-  </header>
+      <button
+        class="profile-button"
+        aria-label="Perfil"
+      >
+        👤
+      </button>
+
+    </header>
 
 
-  <!-- =========================
-       CONTEÚDO PRINCIPAL
-  ========================== -->
-  <main>
+    <!-- CONTEÚDO -->
+    <main class="app-main">
 
-    <!-- RESUMO DO DIA -->
-    <section class="hero card">
+      <!-- SAUDAÇÃO -->
+      <section class="welcome-section">
 
-      <div>
-        <span id="dayBadge" class="badge">
-          CARREGANDO...
-        </span>
+        <p
+          id="todayText"
+          class="today-text"
+        >
+          Carregando data...
+        </p>
 
-        <h2 id="dayTitle">
-          Hoje
+        <h2 id="welcomeTitle">
+          Bom dia.
         </h2>
 
-        <p id="nextTask">
-          Organizando seu dia...
+        <p
+          id="welcomeSubtitle"
+          class="welcome-subtitle"
+        >
+          Organizando o seu dia.
         </p>
-      </div>
 
-      <div
-        class="progress-ring"
-        id="progressRing"
-      >
-        <span id="progressPct">0%</span>
-      </div>
-
-    </section>
+      </section>
 
 
-    <!-- =========================
-         ESTATÍSTICAS
-    ========================== -->
-    <section class="stats">
+      <!-- PRÓXIMA ATIVIDADE -->
+      <section class="next-card card">
 
-      <div class="stat card">
-        <span>🔥</span>
+        <div class="next-top">
 
-        <strong id="streak">
-          0
-        </strong>
+          <div>
+            <span class="section-label">
+              PRÓXIMA ATIVIDADE
+            </span>
 
-        <small>
-          sequência
-        </small>
-      </div>
+            <h3 id="nextTaskTitle">
+              Carregando...
+            </h3>
+          </div>
 
+          <div class="next-icon">
+            ⚡
+          </div>
 
-      <div class="stat card">
-        <span>💧</span>
-
-        <strong id="waterText">
-          0,0 L
-        </strong>
-
-        <small>
-          de 4 L
-        </small>
-      </div>
-
-
-      <div class="stat card">
-        <span>⭐</span>
-
-        <strong id="xp">
-          0 XP
-        </strong>
-
-        <small>
-          progresso
-        </small>
-      </div>
-
-    </section>
-
-
-    <!-- =========================
-         ÁGUA
-    ========================== -->
-    <section class="card water-card">
-
-      <div class="section-head">
-
-        <div>
-          <p class="eyebrow">
-            HIDRATAÇÃO
-          </p>
-
-          <h3>
-            Água de hoje
-          </h3>
         </div>
 
-        <button
-          class="secondary"
-          id="resetWater"
-        >
-          Zerar
-        </button>
+        <div class="next-info">
 
-      </div>
+          <div>
+            <span>
+              Horário
+            </span>
 
+            <strong id="nextTaskTime">
+              --:--
+            </strong>
+          </div>
 
-      <div class="water-bar">
+          <div>
+            <span>
+              Detalhes
+            </span>
 
-        <div id="waterFill"></div>
+            <strong id="nextTaskDescription">
+              Organizando rotina
+            </strong>
+          </div>
 
-      </div>
-
-
-      <div class="water-actions">
-
-        <button data-water="250">
-          + 250 ml
-        </button>
-
-        <button data-water="500">
-          + 500 ml
-        </button>
-
-      </div>
-
-    </section>
-
-
-    <!-- =========================
-         ROTINA
-    ========================== -->
-    <section class="card">
-
-      <div class="section-head">
-
-        <div>
-          <p class="eyebrow">
-            MISSÕES DO DIA
-          </p>
-
-          <h3 id="routineHeading">
-            Sua rotina
-          </h3>
         </div>
 
-        <span
-          id="doneCount"
-          class="counter"
-        >
-          0/0
+      </section>
+
+
+      <!-- RESUMO -->
+      <section class="overview-grid">
+
+        <article class="overview-card card">
+
+          <div class="overview-icon">
+            ✓
+          </div>
+
+          <div>
+            <span>
+              Rotina
+            </span>
+
+            <strong id="progressPct">
+              0%
+            </strong>
+          </div>
+
+        </article>
+
+
+        <article class="overview-card card">
+
+          <div class="overview-icon">
+            💧
+          </div>
+
+          <div>
+            <span>
+              Água
+            </span>
+
+            <strong id="waterText">
+              0,0 L
+            </strong>
+          </div>
+
+        </article>
+
+
+        <article class="overview-card card">
+
+          <div class="overview-icon">
+            ⭐
+          </div>
+
+          <div>
+            <span>
+              XP
+            </span>
+
+            <strong id="xp">
+              0 XP
+            </strong>
+          </div>
+
+        </article>
+
+      </section>
+
+
+      <!-- PROGRESSO PRINCIPAL -->
+      <section class="progress-card card">
+
+        <div class="card-header">
+
+          <div>
+            <span class="section-label">
+              PROGRESSO DO DIA
+            </span>
+
+            <h3 id="dayTitle">
+              Hoje
+            </h3>
+          </div>
+
+          <span
+            id="dayBadge"
+            class="day-badge"
+          >
+            CARREGANDO
+          </span>
+
+        </div>
+
+
+        <div class="progress-track">
+          <div
+            id="progressBar"
+            class="progress-bar"
+          ></div>
+        </div>
+
+
+        <div class="progress-footer">
+
+          <span id="doneCount">
+            0 de 0 concluídas
+          </span>
+
+          <strong id="progressText">
+            0%
+          </strong>
+
+        </div>
+
+      </section>
+
+
+      <!-- ROTINA -->
+      <section class="routine-section">
+
+        <div class="section-heading">
+
+          <div>
+            <span class="section-label">
+              SUA ROTINA
+            </span>
+
+            <h3 id="routineHeading">
+              Tarefas de hoje
+            </h3>
+          </div>
+
+          <button
+            class="text-button"
+            id="resetTasks"
+          >
+            Resetar
+          </button>
+
+        </div>
+
+
+        <div
+          id="taskList"
+          class="task-list"
+        ></div>
+
+      </section>
+
+
+      <!-- HIDRATAÇÃO -->
+      <section class="water-card card">
+
+        <div class="card-header">
+
+          <div>
+            <span class="section-label">
+              HIDRATAÇÃO
+            </span>
+
+            <h3>
+              Meta diária
+            </h3>
+          </div>
+
+          <strong
+            id="waterGoalText"
+            class="water-goal"
+          >
+            0 / 4 L
+          </strong>
+
+        </div>
+
+
+        <div class="water-track">
+          <div
+            id="waterFill"
+            class="water-fill"
+          ></div>
+        </div>
+
+
+        <div class="water-buttons">
+
+          <button
+            class="water-button"
+            data-water="250"
+          >
+            +250 ml
+          </button>
+
+          <button
+            class="water-button primary"
+            data-water="500"
+          >
+            +500 ml
+          </button>
+
+          <button
+            class="water-button reset"
+            id="resetWater"
+          >
+            Zerar
+          </button>
+
+        </div>
+
+      </section>
+
+
+      <!-- PMMG -->
+      <section class="pmmg-card card">
+
+        <div class="pmmg-top">
+
+          <div class="pmmg-icon">
+            👮
+          </div>
+
+          <div class="pmmg-content">
+
+            <span class="section-label">
+              PROJETO PMMG
+            </span>
+
+            <h3>
+              Missão de estudos
+            </h3>
+
+            <p id="studyText">
+              Preparando seu plano de estudo.
+            </p>
+
+          </div>
+
+        </div>
+
+
+        <div class="subjects">
+
+          <div class="subject-item">
+
+            <span class="subject-number">
+              01
+            </span>
+
+            <div>
+              <strong>
+                Português
+              </strong>
+
+              <small>
+                Interpretação e gramática
+              </small>
+            </div>
+
+          </div>
+
+
+          <div class="subject-item">
+
+            <span class="subject-number">
+              02
+            </span>
+
+            <div>
+              <strong>
+                Matemática
+              </strong>
+
+              <small>
+                Base e raciocínio
+              </small>
+            </div>
+
+          </div>
+
+
+          <div class="subject-item">
+
+            <span class="subject-number">
+              03
+            </span>
+
+            <div>
+              <strong>
+                Direito
+              </strong>
+
+              <small>
+                Fundamentos
+              </small>
+            </div>
+
+          </div>
+
+        </div>
+
+      </section>
+
+
+      <!-- ÁREAS -->
+      <section class="areas-section">
+
+        <div class="section-heading">
+
+          <div>
+            <span class="section-label">
+              LIFE FLOW
+            </span>
+
+            <h3>
+              Áreas da sua vida
+            </h3>
+          </div>
+
+        </div>
+
+
+        <div class="areas-grid">
+
+          <button class="area-card">
+            <span>🏋️</span>
+            Academia
+          </button>
+
+          <button class="area-card">
+            <span>👮</span>
+            PMMG
+          </button>
+
+          <button class="area-card">
+            <span>🥘</span>
+            Alimentação
+          </button>
+
+          <button class="area-card">
+            <span>👧</span>
+            Família
+          </button>
+
+          <button class="area-card">
+            <span>🏍️</span>
+            Moto
+          </button>
+
+          <button class="area-card">
+            <span>🧴</span>
+            Cuidados
+          </button>
+
+        </div>
+
+      </section>
+
+    </main>
+
+
+    <!-- MENU INFERIOR -->
+    <nav class="bottom-nav">
+
+      <button class="nav-item active">
+        <span class="nav-icon">
+          🏠
         </span>
 
-      </div>
+        <span>
+          Hoje
+        </span>
+      </button>
 
 
-      <!--
-        As tarefas serão colocadas
-        automaticamente pelo app.js
-      -->
-      <div
-        id="taskList"
-        class="task-list"
-      ></div>
-
-    </section>
-
-
-    <!-- =========================
-         PMMG
-    ========================== -->
-    <section class="card pmmg">
-
-      <div class="section-head">
-
-        <div>
-          <p class="eyebrow">
-            PROJETO PMMG
-          </p>
-
-          <h3>
-            Estudos
-          </h3>
-        </div>
+      <button
+        class="nav-item"
+        id="agendaButton"
+      >
+        <span class="nav-icon">
+          📅
+        </span>
 
         <span>
+          Agenda
+        </span>
+      </button>
+
+
+      <button
+        class="nav-item"
+        id="pmmgButton"
+      >
+        <span class="nav-icon">
           👮
         </span>
 
-      </div>
+        <span>
+          PMMG
+        </span>
+      </button>
 
 
-      <p
-        id="studyText"
-        class="muted"
+      <button
+        class="nav-item"
+        id="progressButton"
       >
-        Preparando seu plano de estudos...
-      </p>
-
-
-      <div class="mini-grid">
-
-        <div>
-          <strong>
-            Português
-          </strong>
-
-          <span>
-            Base principal
-          </span>
-        </div>
-
-
-        <div>
-          <strong>
-            Matemática
-          </strong>
-
-          <span>
-            Do zero
-          </span>
-        </div>
-
-
-        <div>
-          <strong>
-            Direito
-          </strong>
-
-          <span>
-            Fundamentos
-          </span>
-        </div>
-
-      </div>
-
-    </section>
-
-
-    <!-- =========================
-         OUTRAS ÁREAS
-    ========================== -->
-    <section class="card">
-
-      <p class="eyebrow">
-        LIFE FLOW
-      </p>
-
-      <h3>
-        Áreas da minha vida
-      </h3>
-
-
-      <div class="chips">
-
-        <span>
-          🏋️ Academia
+        <span class="nav-icon">
+          📊
         </span>
 
         <span>
-          👮 PMMG
+          Progresso
         </span>
+      </button>
 
-        <span>
-          💧 Hidratação
-        </span>
+    </nav>
 
-        <span>
-          🥘 Alimentação
-        </span>
-
-        <span>
-          👧 Minha filha
-        </span>
-
-        <span>
-          🏍️ Projeto da moto
-        </span>
-
-        <span>
-          🧴 Cabelo
-        </span>
-
-        <span>
-          🧼 Skincare
-        </span>
-
-      </div>
-
-    </section>
-
-  </main>
+  </div>
 
 
-  <!-- =========================
-       MENU INFERIOR
-  ========================== -->
-  <nav class="bottom-nav">
-
-    <button class="active">
-
-      🏠
-
-      <span>
-        Hoje
-      </span>
-
-    </button>
-
-
-    <button
-      onclick="alert('Calendário 12x36 será adicionado em breve.')"
-    >
-
-      📅
-
-      <span>
-        Agenda
-      </span>
-
-    </button>
-
-
-    <button
-      onclick="
-        document
-        .querySelector('.pmmg')
-        .scrollIntoView({
-          behavior:'smooth'
-        })
-      "
-    >
-
-      👮
-
-      <span>
-        PMMG
-      </span>
-
-    </button>
-
-
-    <button
-      onclick="alert('Painel de progresso será adicionado em breve.')"
-    >
-
-      📊
-
-      <span>
-        Progresso
-      </span>
-
-    </button>
-
-  </nav>
-
-
-  <!-- =========================
-       JAVASCRIPT
-  ========================== -->
   <script src="app.js"></script>
 
 </body>
