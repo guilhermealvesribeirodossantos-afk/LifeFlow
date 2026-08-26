@@ -1,0 +1,692 @@
+:root {
+  --bg: #090d12;
+  --card: #111821;
+  --card2: #151e29;
+  --text: #f5f7fa;
+  --muted: #91a0b2;
+  --accent: #39d98a;
+  --accent2: #52a8ff;
+  --line: #253140;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background:
+    linear-gradient(
+      180deg,
+      #0b1118,
+      #080b10 60%
+    );
+
+  color: var(--text);
+
+  font-family:
+    Inter,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    Arial,
+    sans-serif;
+
+  padding-bottom: 95px;
+}
+
+
+/* =========================
+   CABEÇALHO
+========================= */
+
+.top {
+  max-width: 760px;
+
+  margin: 0 auto;
+
+  padding:
+    28px
+    18px
+    12px;
+
+  display: flex;
+
+  justify-content: space-between;
+
+  align-items: center;
+
+  gap: 15px;
+}
+
+h1,
+h2,
+h3,
+p {
+  margin: 0;
+}
+
+h1 {
+  font-size: 28px;
+}
+
+h2 {
+  font-size: 24px;
+
+  margin-top: 10px;
+
+  margin-bottom: 6px;
+}
+
+h3 {
+  font-size: 20px;
+}
+
+.eyebrow {
+  margin-bottom: 5px;
+
+  font-size: 11px;
+
+  font-weight: 800;
+
+  letter-spacing: 1.5px;
+
+  color: var(--accent);
+}
+
+.muted {
+  color: var(--muted);
+
+  line-height: 1.5;
+}
+
+.level {
+  flex-shrink: 0;
+
+  padding: 9px 11px;
+
+  border-radius: 12px;
+
+  border: 1px solid var(--line);
+
+  background: var(--card);
+
+  color: var(--muted);
+
+  font-size: 10px;
+}
+
+.level strong {
+  display: block;
+
+  margin-top: 2px;
+
+  color: var(--accent);
+
+  font-size: 18px;
+
+  text-align: center;
+}
+
+
+/* =========================
+   CONTEÚDO
+========================= */
+
+main {
+  max-width: 760px;
+
+  margin: auto;
+
+  padding:
+    8px
+    14px;
+}
+
+.card {
+  margin-bottom: 13px;
+
+  padding: 18px;
+
+  border-radius: 20px;
+
+  border: 1px solid var(--line);
+
+  background:
+    linear-gradient(
+      145deg,
+      var(--card2),
+      var(--card)
+    );
+
+  box-shadow:
+    0
+    10px
+    30px
+    rgba(0, 0, 0, 0.2);
+}
+
+
+/* =========================
+   RESUMO DO DIA
+========================= */
+
+.hero {
+  display: flex;
+
+  justify-content: space-between;
+
+  align-items: center;
+
+  gap: 15px;
+}
+
+.badge {
+  display: inline-block;
+
+  padding:
+    6px
+    9px;
+
+  border-radius: 8px;
+
+  background: #203326;
+
+  color: var(--accent);
+
+  font-size: 11px;
+
+  font-weight: 900;
+
+  letter-spacing: 0.8px;
+}
+
+.progress-ring {
+  position: relative;
+
+  flex-shrink: 0;
+
+  width: 82px;
+
+  height: 82px;
+
+  border-radius: 50%;
+
+  display: grid;
+
+  place-items: center;
+
+  background:
+    conic-gradient(
+      var(--accent) 0deg,
+      #253140 0deg
+    );
+}
+
+.progress-ring::after {
+  content: "";
+
+  position: absolute;
+
+  width: 64px;
+
+  height: 64px;
+
+  border-radius: 50%;
+
+  background: #121a23;
+}
+
+.progress-ring span {
+  position: relative;
+
+  z-index: 2;
+
+  font-weight: 900;
+}
+
+
+/* =========================
+   ESTATÍSTICAS
+========================= */
+
+.stats {
+  display: grid;
+
+  grid-template-columns:
+    repeat(3, 1fr);
+
+  gap: 9px;
+}
+
+.stat {
+  margin: 0;
+
+  padding:
+    13px
+    5px;
+
+  text-align: center;
+}
+
+.stat > span {
+  display: block;
+
+  font-size: 21px;
+}
+
+.stat strong {
+  display: block;
+
+  margin:
+    4px
+    0;
+
+  font-size: 16px;
+}
+
+.stat small {
+  color: var(--muted);
+
+  font-size: 10px;
+}
+
+
+/* =========================
+   CABEÇALHO DAS SEÇÕES
+========================= */
+
+.section-head {
+  display: flex;
+
+  justify-content: space-between;
+
+  align-items: center;
+
+  gap: 15px;
+
+  margin-bottom: 14px;
+}
+
+.counter {
+  color: var(--accent);
+
+  font-weight: 800;
+}
+
+
+/* =========================
+   BOTÕES
+========================= */
+
+button {
+  border: none;
+
+  border-radius: 12px;
+
+  padding: 12px;
+
+  background: var(--accent);
+
+  color: #07120d;
+
+  font-weight: 800;
+
+  cursor: pointer;
+}
+
+button:active {
+  transform: scale(0.97);
+}
+
+button.secondary {
+  padding:
+    8px
+    10px;
+
+  background: #222d39;
+
+  color: var(--muted);
+}
+
+
+/* =========================
+   ÁGUA
+========================= */
+
+.water-bar {
+  width: 100%;
+
+  height: 12px;
+
+  overflow: hidden;
+
+  border-radius: 20px;
+
+  background: #26313d;
+}
+
+.water-bar div {
+  width: 0;
+
+  height: 100%;
+
+  border-radius: 20px;
+
+  background:
+    linear-gradient(
+      90deg,
+      var(--accent2),
+      #75c9ff
+    );
+
+  transition: width 0.25s;
+}
+
+.water-actions {
+  display: grid;
+
+  grid-template-columns:
+    1fr
+    1fr;
+
+  gap: 9px;
+
+  margin-top: 12px;
+}
+
+
+/* =========================
+   TAREFAS
+========================= */
+
+.task-list {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 9px;
+}
+
+.task {
+  display: flex;
+
+  align-items: center;
+
+  gap: 12px;
+
+  padding: 12px;
+
+  border-radius: 14px;
+
+  border:
+    1px
+    solid
+    #202c38;
+
+  background: #0e151d;
+
+  transition: 0.2s;
+}
+
+.task.done {
+  opacity: 0.55;
+}
+
+.task.done .task-title {
+  text-decoration: line-through;
+}
+
+.task-time {
+  width: 48px;
+
+  flex-shrink: 0;
+
+  color: var(--accent2);
+
+  font-size: 11px;
+
+  font-weight: 800;
+}
+
+.task-body {
+  flex: 1;
+}
+
+.task-title {
+  font-weight: 750;
+}
+
+.task-sub {
+  margin-top: 3px;
+
+  color: var(--muted);
+
+  font-size: 12px;
+
+  line-height: 1.4;
+}
+
+.check {
+  width: 29px;
+
+  height: 29px;
+
+  padding: 0;
+
+  border-radius: 9px;
+
+  flex-shrink: 0;
+
+  background: #25313d;
+
+  color: white;
+}
+
+.task.done .check {
+  background: var(--accent);
+
+  color: #07120d;
+}
+
+
+/* =========================
+   PMMG
+========================= */
+
+.mini-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(3, 1fr);
+
+  gap: 8px;
+
+  margin-top: 15px;
+}
+
+.mini-grid div {
+  padding: 11px;
+
+  border-radius: 12px;
+
+  border:
+    1px
+    solid
+    #202c38;
+
+  background: #0e151d;
+}
+
+.mini-grid strong,
+.mini-grid span {
+  display: block;
+}
+
+.mini-grid strong {
+  font-size: 12px;
+}
+
+.mini-grid span {
+  margin-top: 4px;
+
+  color: var(--muted);
+
+  font-size: 10px;
+}
+
+
+/* =========================
+   ÁREAS DA VIDA
+========================= */
+
+.chips {
+  display: flex;
+
+  flex-wrap: wrap;
+
+  gap: 8px;
+
+  margin-top: 14px;
+}
+
+.chips span {
+  padding:
+    9px
+    10px;
+
+  border-radius: 10px;
+
+  border:
+    1px
+    solid
+    #202c38;
+
+  background: #0e151d;
+
+  color: #c8d1dc;
+
+  font-size: 12px;
+}
+
+
+/* =========================
+   MENU INFERIOR
+========================= */
+
+.bottom-nav {
+  position: fixed;
+
+  left: 0;
+
+  right: 0;
+
+  bottom: 0;
+
+  z-index: 20;
+
+  height: 76px;
+
+  display: flex;
+
+  justify-content: center;
+
+  padding-bottom:
+    env(safe-area-inset-bottom);
+
+  border-top:
+    1px
+    solid
+    var(--line);
+
+  background:
+    rgba(
+      12,
+      18,
+      25,
+      0.94
+    );
+
+  backdrop-filter:
+    blur(14px);
+}
+
+.bottom-nav button {
+  width:
+    min(
+      25%,
+      190px
+    );
+
+  padding: 8px;
+
+  border-radius: 0;
+
+  background: none;
+
+  color: var(--muted);
+
+  font-size: 19px;
+}
+
+.bottom-nav button span {
+  display: block;
+
+  margin-top: 3px;
+
+  font-size: 10px;
+}
+
+.bottom-nav button.active {
+  color: var(--accent);
+}
+
+
+/* =========================
+   CELULAR
+========================= */
+
+@media (max-width: 420px) {
+
+  .top {
+    padding-top: 20px;
+  }
+
+  h1 {
+    font-size: 25px;
+  }
+
+  .hero {
+    padding: 16px;
+  }
+
+  .progress-ring {
+    width: 72px;
+    height: 72px;
+  }
+
+  .progress-ring::after {
+    width: 56px;
+    height: 56px;
+  }
+
+  .mini-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .task {
+    padding: 11px;
+  }
+
+  .stats {
+    gap: 6px;
+  }
+
+}
