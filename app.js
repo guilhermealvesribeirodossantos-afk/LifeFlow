@@ -1,34 +1,24 @@
 document.addEventListener("DOMContentLoaded", () => {
 
   // =====================================================
-  // LIFEFLOW V2.3 LIMPO
-  // ROTINA + AGENDA 12x36 + PLANO DE ESTUDOS
+  // LIFEFLOW
+  // ROTINA + AGENDA + ESTUDOS + PROGRESSO
   // =====================================================
 
-
-  // =====================================================
-  // CONFIGURAÇÃO DA ESCALA
-  // =====================================================
-
-  const WORK_ANCHOR =
-    new Date(2026, 7, 24);
-
-  const today =
-    new Date();
+  const WORK_ANCHOR = new Date(2026, 7, 24);
+  const today = new Date();
 
 
   // =====================================================
-  // FUNÇÕES DE DATA
+  // DATAS
   // =====================================================
 
   function startOfDay(date) {
-
     return new Date(
       date.getFullYear(),
       date.getMonth(),
       date.getDate()
     );
-
   }
 
 
@@ -48,7 +38,6 @@ document.addEventListener("DOMContentLoaded", () => {
       ).padStart(2, "0");
 
     return `${year}-${month}-${day}`;
-
   }
 
 
@@ -59,17 +48,20 @@ document.addEventListener("DOMContentLoaded", () => {
       a.getMonth() === b.getMonth() &&
       a.getDate() === b.getDate()
     );
-
   }
 
 
   function isWorkDay(date) {
 
     const anchor =
-      startOfDay(WORK_ANCHOR);
+      startOfDay(
+        WORK_ANCHOR
+      );
 
     const current =
-      startOfDay(date);
+      startOfDay(
+        date
+      );
 
     const difference =
       Math.round(
@@ -80,7 +72,6 @@ document.addEventListener("DOMContentLoaded", () => {
     return (
       ((difference % 2) + 2) % 2
     ) === 0;
-
   }
 
 
@@ -98,12 +89,11 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     return "Boa noite.";
-
   }
 
 
   // =====================================================
-  // ROTINA DE TRABALHO
+  // ROTINA - TRABALHO
   // =====================================================
 
   const workTasks = [
@@ -196,7 +186,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
   // =====================================================
-  // ROTINA DE FOLGA
+  // ROTINA - FOLGA
   // =====================================================
 
   const offTasks = [
@@ -317,7 +307,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
   // =====================================================
-  // DADOS DE HOJE
+  // ESTADO DE HOJE
   // =====================================================
 
   const todayKey =
@@ -330,7 +320,6 @@ document.addEventListener("DOMContentLoaded", () => {
     workDay
       ? workTasks
       : offTasks;
-
 
   const storageKey =
     `lifeflow-${todayKey}`;
@@ -360,7 +349,6 @@ document.addEventListener("DOMContentLoaded", () => {
         ...state,
         ...JSON.parse(saved)
       };
-
     }
 
   } catch (error) {
@@ -369,7 +357,6 @@ document.addEventListener("DOMContentLoaded", () => {
       "Erro ao carregar LifeFlow:",
       error
     );
-
   }
 
 
@@ -380,7 +367,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     state.completed =
       state.done;
-
   }
 
 
@@ -391,7 +377,6 @@ document.addEventListener("DOMContentLoaded", () => {
   ) {
 
     state.completed = [];
-
   }
 
 
@@ -401,7 +386,6 @@ document.addEventListener("DOMContentLoaded", () => {
   ) {
 
     state.water = 0;
-
   }
 
 
@@ -411,7 +395,6 @@ document.addEventListener("DOMContentLoaded", () => {
   ) {
 
     state.xp = 0;
-
   }
 
 
@@ -425,12 +408,11 @@ document.addEventListener("DOMContentLoaded", () => {
       storageKey,
       JSON.stringify(state)
     );
-
   }
 
 
   // =====================================================
-  // CABEÇALHO
+  // HOME
   // =====================================================
 
   function renderHeader() {
@@ -439,7 +421,6 @@ document.addEventListener("DOMContentLoaded", () => {
       document.getElementById(
         "todayText"
       );
-
 
     if (todayText) {
 
@@ -453,7 +434,6 @@ document.addEventListener("DOMContentLoaded", () => {
             year: "numeric"
           }
         );
-
     }
 
 
@@ -462,12 +442,10 @@ document.addEventListener("DOMContentLoaded", () => {
         "welcomeTitle"
       );
 
-
     if (welcomeTitle) {
 
       welcomeTitle.textContent =
         getGreeting();
-
     }
 
 
@@ -476,14 +454,12 @@ document.addEventListener("DOMContentLoaded", () => {
         "welcomeSubtitle"
       );
 
-
     if (welcomeSubtitle) {
 
       welcomeSubtitle.textContent =
         workDay
           ? "Hoje é dia de trabalho. Vamos manter o ritmo sem exagerar."
           : "Hoje é dia de folga. Um bom dia para cuidar de você e avançar nos seus objetivos.";
-
     }
 
 
@@ -492,14 +468,12 @@ document.addEventListener("DOMContentLoaded", () => {
         "dayBadge"
       );
 
-
     if (dayBadge) {
 
       dayBadge.textContent =
         workDay
           ? "TRABALHO"
           : "FOLGA";
-
     }
 
 
@@ -508,14 +482,12 @@ document.addEventListener("DOMContentLoaded", () => {
         "dayTitle"
       );
 
-
     if (dayTitle) {
 
       dayTitle.textContent =
         workDay
           ? "Trabalho • 08:00–20:00"
           : "Dia de folga";
-
     }
 
 
@@ -524,16 +496,13 @@ document.addEventListener("DOMContentLoaded", () => {
         "routineHeading"
       );
 
-
     if (routineHeading) {
 
       routineHeading.textContent =
         workDay
           ? "Rotina de trabalho"
           : "Rotina de folga";
-
     }
-
   }
 
 
@@ -547,7 +516,6 @@ document.addEventListener("DOMContentLoaded", () => {
       document.getElementById(
         "taskList"
       );
-
 
     if (!list) {
       return;
@@ -650,13 +618,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
               state.xp += 10;
-
             }
 
 
             saveState();
 
             renderHome();
+
+            renderProgressScreen();
 
           }
         );
@@ -665,10 +634,8 @@ document.addEventListener("DOMContentLoaded", () => {
         list.appendChild(
           item
         );
-
       }
     );
-
   }
 
 
@@ -713,7 +680,6 @@ document.addEventListener("DOMContentLoaded", () => {
     ) {
 
       return;
-
     }
 
 
@@ -729,48 +695,53 @@ document.addEventListener("DOMContentLoaded", () => {
         "Todas as tarefas de hoje foram concluídas.";
 
       return;
-
     }
 
 
     title.textContent =
       next.title;
 
-
     time.textContent =
       next.time;
 
-
     description.textContent =
       next.description;
-
   }
 
 
   // =====================================================
-  // PROGRESSO
+  // PROGRESSO HOME
   // =====================================================
+
+  function getRoutinePercent() {
+
+    const total =
+      tasks.length;
+
+    if (!total) {
+      return 0;
+    }
+
+    return Math.round(
+      (
+        state.completed.length /
+        total
+      ) *
+      100
+    );
+  }
+
 
   function renderProgress() {
 
     const completed =
       state.completed.length;
 
-
     const total =
       tasks.length;
 
-
     const percentage =
-      total
-        ? Math.round(
-            (
-              completed /
-              total
-            ) *
-            100
-          )
-        : 0;
+      getRoutinePercent();
 
 
     const progressPct =
@@ -778,24 +749,20 @@ document.addEventListener("DOMContentLoaded", () => {
         "progressPct"
       );
 
-
     const progressText =
       document.getElementById(
         "progressText"
       );
-
 
     const doneCount =
       document.getElementById(
         "doneCount"
       );
 
-
     const progressBar =
       document.getElementById(
         "progressBar"
       );
-
 
     const xp =
       document.getElementById(
@@ -807,7 +774,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
       progressPct.textContent =
         `${percentage}%`;
-
     }
 
 
@@ -815,7 +781,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
       progressText.textContent =
         `${percentage}%`;
-
     }
 
 
@@ -823,7 +788,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
       doneCount.textContent =
         `${completed} de ${total} concluídas`;
-
     }
 
 
@@ -831,7 +795,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
       progressBar.style.width =
         `${percentage}%`;
-
     }
 
 
@@ -839,14 +802,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
       xp.textContent =
         `${state.xp} XP`;
-
     }
-
   }
 
 
   // =====================================================
-  // HIDRATAÇÃO
+  // ÁGUA
   // =====================================================
 
   function renderWater() {
@@ -865,12 +826,10 @@ document.addEventListener("DOMContentLoaded", () => {
         "waterText"
       );
 
-
     const waterGoalText =
       document.getElementById(
         "waterGoalText"
       );
-
 
     const waterFill =
       document.getElementById(
@@ -882,7 +841,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
       waterText.textContent =
         `${liters} L`;
-
     }
 
 
@@ -890,7 +848,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
       waterGoalText.textContent =
         `${liters} / 4 L`;
-
     }
 
 
@@ -903,15 +860,13 @@ document.addEventListener("DOMContentLoaded", () => {
             state.water /
             4000
           ) *
-            100
+          100
         );
 
 
       waterFill.style.width =
         `${percentage}%`;
-
     }
-
   }
 
 
@@ -926,18 +881,15 @@ document.addEventListener("DOMContentLoaded", () => {
         "studyText"
       );
 
-
     const status =
       document.getElementById(
         "studyTodayStatus"
       );
 
-
     const goal =
       document.getElementById(
         "studyDailyGoal"
       );
-
 
     const type =
       document.getElementById(
@@ -951,7 +903,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
         studyText.textContent =
           "Hoje é dia de trabalho. Se estiver bem, faça apenas uma revisão leve. Sono e recuperação têm prioridade.";
-
       }
 
 
@@ -959,7 +910,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
         status.textContent =
           "Leve";
-
       }
 
 
@@ -967,7 +917,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
         goal.textContent =
           "0–30 min";
-
       }
 
 
@@ -975,7 +924,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
         type.textContent =
           "Revisão";
-
       }
 
     } else {
@@ -984,7 +932,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
         studyText.textContent =
           "Hoje é dia de folga. Este é o principal momento para avançar nos estudos da PMMG.";
-
       }
 
 
@@ -992,7 +939,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
         status.textContent =
           "Planejado";
-
       }
 
 
@@ -1000,7 +946,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
         goal.textContent =
           "2h45";
-
       }
 
 
@@ -1008,11 +953,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
         type.textContent =
           "Teoria + questões";
-
       }
-
     }
-
   }
 
 
@@ -1023,30 +965,25 @@ document.addEventListener("DOMContentLoaded", () => {
         "studyPlanTitle"
       );
 
-
     const badge =
       document.getElementById(
         "studyPlanBadge"
       );
-
 
     const icon =
       document.getElementById(
         "studyPlanIcon"
       );
 
-
     const mainTitle =
       document.getElementById(
         "studyPlanMainTitle"
       );
 
-
     const description =
       document.getElementById(
         "studyPlanDescription"
       );
-
 
     const list =
       document.getElementById(
@@ -1064,7 +1001,6 @@ document.addEventListener("DOMContentLoaded", () => {
     ) {
 
       return;
-
     }
 
 
@@ -1076,21 +1012,17 @@ document.addEventListener("DOMContentLoaded", () => {
       title.textContent =
         "Dia de trabalho";
 
-
       badge.textContent =
         "TRABALHO";
-
 
       icon.textContent =
         "🧠";
 
-
       mainTitle.textContent =
         "Revisão opcional";
 
-
       description.textContent =
-        "Depois de academia e 12 horas de trabalho, o descanso continua sendo prioridade.";
+        "Depois da academia e de 12 horas de trabalho, o descanso continua sendo prioridade.";
 
 
       const schedule = [
@@ -1099,21 +1031,21 @@ document.addEventListener("DOMContentLoaded", () => {
           time: "21:00",
           title: "Revisão leve",
           description:
-            "Somente se estiver disposto. Questões, flashcards ou revisão curta."
+            "Somente se estiver disposto. Questões ou revisão curta."
         },
 
         {
           time: "22:00",
-          title: "Encerrar estímulos",
+          title: "Desacelerar",
           description:
-            "Começar a desacelerar para dormir bem."
+            "Reduzir estímulos para dormir melhor."
         },
 
         {
           time: "22:30",
           title: "Dormir",
           description:
-            "Recuperação para academia e próximo dia."
+            "Recuperação para o próximo dia."
         }
 
       ];
@@ -1132,21 +1064,17 @@ document.addEventListener("DOMContentLoaded", () => {
       title.textContent =
         "Dia de folga";
 
-
       badge.textContent =
         "FOLGA";
-
 
       icon.textContent =
         "📚";
 
-
       mainTitle.textContent =
         "Dia principal de estudos";
 
-
       description.textContent =
-        "Use o período da manhã para teoria e a tarde para questões e revisão.";
+        "Use a manhã para teoria e a tarde para questões e revisão.";
 
 
       const schedule = [
@@ -1162,14 +1090,14 @@ document.addEventListener("DOMContentLoaded", () => {
           time: "11:05",
           title: "Fechamento",
           description:
-            "10 minutos para anotar pontos importantes e erros."
+            "Anotar pontos importantes e erros."
         },
 
         {
           time: "14:15",
           title: "Questões e revisão",
           description:
-            "Resolver exercícios no seu site PMMG e revisar o que errou."
+            "Resolver exercícios no site PMMG e revisar os erros."
         },
 
         {
@@ -1189,9 +1117,7 @@ document.addEventListener("DOMContentLoaded", () => {
             item
           )
       );
-
     }
-
   }
 
 
@@ -1234,12 +1160,237 @@ document.addEventListener("DOMContentLoaded", () => {
     list.appendChild(
       element
     );
-
   }
 
 
   // =====================================================
-  // RENDER HOME
+  // NOVA TELA DE PROGRESSO
+  // =====================================================
+
+  function renderProgressScreen() {
+
+    const routinePercent =
+      getRoutinePercent();
+
+
+    const totalTasks =
+      tasks.length;
+
+
+    const completedTasks =
+      state.completed.length;
+
+
+    const waterPercent =
+      Math.min(
+        100,
+        Math.round(
+          (
+            state.water /
+            4000
+          ) *
+          100
+        )
+      );
+
+
+    const liters =
+      (
+        state.water /
+        1000
+      )
+        .toFixed(1)
+        .replace(".", ",");
+
+
+    const screenPercent =
+      document.getElementById(
+        "progressScreenPercent"
+      );
+
+
+    const screenBar =
+      document.getElementById(
+        "progressScreenBar"
+      );
+
+
+    const tasksValue =
+      document.getElementById(
+        "progressTasksValue"
+      );
+
+
+    const waterValue =
+      document.getElementById(
+        "progressWaterValue"
+      );
+
+
+    const xpValue =
+      document.getElementById(
+        "progressXpValue"
+      );
+
+
+    const dayType =
+      document.getElementById(
+        "progressDayType"
+      );
+
+
+    const waterPercentText =
+      document.getElementById(
+        "progressWaterPercent"
+      );
+
+
+    const waterBar =
+      document.getElementById(
+        "progressWaterBar"
+      );
+
+
+    const waterMessage =
+      document.getElementById(
+        "progressWaterMessage"
+      );
+
+
+    const disciplineMessage =
+      document.getElementById(
+        "progressDisciplineMessage"
+      );
+
+
+    if (screenPercent) {
+
+      screenPercent.textContent =
+        `${routinePercent}%`;
+    }
+
+
+    if (screenBar) {
+
+      screenBar.style.width =
+        `${routinePercent}%`;
+    }
+
+
+    if (tasksValue) {
+
+      tasksValue.textContent =
+        `${completedTasks}/${totalTasks}`;
+    }
+
+
+    if (waterValue) {
+
+      waterValue.textContent =
+        `${liters} L`;
+    }
+
+
+    if (xpValue) {
+
+      xpValue.textContent =
+        state.xp;
+    }
+
+
+    if (dayType) {
+
+      dayType.textContent =
+        workDay
+          ? "Trabalho"
+          : "Folga";
+    }
+
+
+    if (waterPercentText) {
+
+      waterPercentText.textContent =
+        `${waterPercent}%`;
+    }
+
+
+    if (waterBar) {
+
+      waterBar.style.width =
+        `${waterPercent}%`;
+    }
+
+
+    if (waterMessage) {
+
+      if (state.water === 0) {
+
+        waterMessage.textContent =
+          "Você ainda não registrou água hoje.";
+
+      } else if (
+        state.water < 2000
+      ) {
+
+        waterMessage.textContent =
+          `Você registrou ${liters} L. Continue distribuindo sua hidratação durante o dia.`;
+
+      } else if (
+        state.water < 4000
+      ) {
+
+        waterMessage.textContent =
+          `Você já registrou ${liters} L. Está avançando bem para sua meta.`;
+
+      } else {
+
+        waterMessage.textContent =
+          `Meta de 4 L registrada. Continue bebendo conforme sua sede e necessidade.`;
+      }
+    }
+
+
+    if (disciplineMessage) {
+
+      if (
+        routinePercent === 0
+      ) {
+
+        disciplineMessage.textContent =
+          "Seu dia ainda está começando. Vá concluindo as tarefas no seu ritmo.";
+
+      } else if (
+        routinePercent < 40
+      ) {
+
+        disciplineMessage.textContent =
+          `Você concluiu ${routinePercent}% da rotina. Continue avançando uma tarefa de cada vez.`;
+
+      } else if (
+        routinePercent < 70
+      ) {
+
+        disciplineMessage.textContent =
+          `Você já concluiu ${routinePercent}% da rotina de hoje. Bom ritmo.`;
+
+      } else if (
+        routinePercent < 100
+      ) {
+
+        disciplineMessage.textContent =
+          `Você chegou a ${routinePercent}% da rotina. Falta pouco para fechar o dia.`;
+
+      } else {
+
+        disciplineMessage.textContent =
+          "Rotina de hoje 100% concluída. Dia fechado.";
+      }
+    }
+  }
+
+
+  // =====================================================
+  // HOME COMPLETA
   // =====================================================
 
   function renderHome() {
@@ -1255,12 +1406,11 @@ document.addEventListener("DOMContentLoaded", () => {
     renderWater();
 
     renderStudyHome();
-
   }
 
 
   // =====================================================
-  // BOTÕES DA ÁGUA
+  // ÁGUA - EVENTOS
   // =====================================================
 
   document
@@ -1291,9 +1441,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
             renderWater();
 
+            renderProgressScreen();
+
           }
         );
-
       }
     );
 
@@ -1316,14 +1467,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
         renderWater();
 
+        renderProgressScreen();
+
       }
     );
-
   }
 
 
   // =====================================================
-  // RESETAR TAREFAS
+  // RESET TAREFAS
   // =====================================================
 
   const resetTasksButton =
@@ -1358,14 +1510,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
         renderHome();
 
+        renderProgressScreen();
+
       }
     );
-
   }
 
 
   // =====================================================
-  // AGENDA 12x36
+  // AGENDA
   // =====================================================
 
   let calendarDate =
@@ -1439,7 +1592,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
       monthElement.textContent =
         monthNames[month];
-
     }
 
 
@@ -1447,7 +1599,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
       yearElement.textContent =
         year;
-
     }
 
 
@@ -1489,7 +1640,6 @@ document.addEventListener("DOMContentLoaded", () => {
       grid.appendChild(
         empty
       );
-
     }
 
 
@@ -1508,7 +1658,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
       const work =
-        isWorkDay(date);
+        isWorkDay(
+          date
+        );
 
 
       const button =
@@ -1539,7 +1691,6 @@ document.addEventListener("DOMContentLoaded", () => {
         button.classList.add(
           "today"
         );
-
       }
 
 
@@ -1553,7 +1704,6 @@ document.addEventListener("DOMContentLoaded", () => {
         button.classList.add(
           "selected"
         );
-
       }
 
 
@@ -1564,13 +1714,11 @@ document.addEventListener("DOMContentLoaded", () => {
         </span>
 
         <span class="calendar-day-label">
-
           ${
             work
               ? "TRABALHO"
               : "FOLGA"
           }
-
         </span>
 
       `;
@@ -1583,9 +1731,7 @@ document.addEventListener("DOMContentLoaded", () => {
           selectedCalendarDate =
             new Date(date);
 
-
           renderCalendar();
-
         }
       );
 
@@ -1593,14 +1739,12 @@ document.addEventListener("DOMContentLoaded", () => {
       grid.appendChild(
         button
       );
-
     }
 
 
     renderSelectedDay();
 
     renderNextDays();
-
   }
 
 
@@ -1638,7 +1782,6 @@ document.addEventListener("DOMContentLoaded", () => {
     ) {
 
       return;
-
     }
 
 
@@ -1724,10 +1867,8 @@ document.addEventListener("DOMContentLoaded", () => {
         list.appendChild(
           item
         );
-
       }
     );
-
   }
 
 
@@ -1762,7 +1903,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
       const work =
-        isWorkDay(date);
+        isWorkDay(
+          date
+        );
 
 
       const item =
@@ -1780,7 +1923,6 @@ document.addEventListener("DOMContentLoaded", () => {
         <div>
 
           <strong>
-
             ${
               date.toLocaleDateString(
                 "pt-BR",
@@ -1789,11 +1931,9 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
               )
             }
-
           </strong>
 
           <span>
-
             ${
               date.toLocaleDateString(
                 "pt-BR",
@@ -1803,7 +1943,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
               )
             }
-
           </span>
 
         </div>
@@ -1815,13 +1954,11 @@ document.addEventListener("DOMContentLoaded", () => {
               : "off"
           }"
         >
-
           ${
             work
               ? "TRABALHO"
               : "FOLGA"
           }
-
         </div>
 
       `;
@@ -1830,21 +1967,15 @@ document.addEventListener("DOMContentLoaded", () => {
       list.appendChild(
         item
       );
-
     }
-
   }
 
 
-  const prevMonth =
-    document.getElementById(
+  document
+    .getElementById(
       "prevMonth"
-    );
-
-
-  if (prevMonth) {
-
-    prevMonth.addEventListener(
+    )
+    ?.addEventListener(
       "click",
       () => {
 
@@ -1855,24 +1986,16 @@ document.addEventListener("DOMContentLoaded", () => {
             1
           );
 
-
         renderCalendar();
-
       }
     );
 
-  }
 
-
-  const nextMonth =
-    document.getElementById(
+  document
+    .getElementById(
       "nextMonth"
-    );
-
-
-  if (nextMonth) {
-
-    nextMonth.addEventListener(
+    )
+    ?.addEventListener(
       "click",
       () => {
 
@@ -1883,13 +2006,9 @@ document.addEventListener("DOMContentLoaded", () => {
             1
           );
 
-
         renderCalendar();
-
       }
     );
-
-  }
 
 
   // =====================================================
@@ -1902,7 +2021,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
     "agendaScreen",
 
-    "studyScreen"
+    "studyScreen",
+
+    "progressScreen"
 
   ];
 
@@ -1923,12 +2044,9 @@ document.addEventListener("DOMContentLoaded", () => {
           screen.classList.add(
             "hidden"
           );
-
         }
-
       }
     );
-
   }
 
 
@@ -1950,9 +2068,7 @@ document.addEventListener("DOMContentLoaded", () => {
       screen.classList.remove(
         "hidden"
       );
-
     }
-
   }
 
 
@@ -1968,10 +2084,8 @@ document.addEventListener("DOMContentLoaded", () => {
           button.classList.remove(
             "active"
           );
-
         }
       );
-
   }
 
 
@@ -2001,7 +2115,6 @@ document.addEventListener("DOMContentLoaded", () => {
       0,
       0
     );
-
   }
 
 
@@ -2031,7 +2144,6 @@ document.addEventListener("DOMContentLoaded", () => {
       0,
       0
     );
-
   }
 
 
@@ -2061,7 +2173,35 @@ document.addEventListener("DOMContentLoaded", () => {
       0,
       0
     );
+  }
 
+
+  function showProgress() {
+
+    showScreen(
+      "progressScreen"
+    );
+
+
+    clearNav();
+
+
+    document
+      .getElementById(
+        "progressButton"
+      )
+      ?.classList.add(
+        "active"
+      );
+
+
+    renderProgressScreen();
+
+
+    window.scrollTo(
+      0,
+      0
+    );
   }
 
 
@@ -2101,6 +2241,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
   document
     .getElementById(
+      "progressButton"
+    )
+    ?.addEventListener(
+      "click",
+      showProgress
+    );
+
+
+  document
+    .getElementById(
       "studyButton"
     )
     ?.addEventListener(
@@ -2120,42 +2270,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
   // =====================================================
-  // PROGRESSO
-  // =====================================================
-
-  document
-    .getElementById(
-      "progressButton"
-    )
-    ?.addEventListener(
-      "click",
-      () => {
-
-        showHome();
-
-
-        setTimeout(
-          () => {
-
-            document
-              .getElementById(
-                "progressSection"
-              )
-              ?.scrollIntoView({
-                behavior: "smooth",
-                block: "center"
-              });
-
-          },
-          100
-        );
-
-      }
-    );
-
-
-  // =====================================================
-  // ÁREAS AINDA EM DESENVOLVIMENTO
+  // ÁREAS EM DESENVOLVIMENTO
   // =====================================================
 
   const developmentButtons = [
@@ -2217,10 +2332,8 @@ document.addEventListener("DOMContentLoaded", () => {
             alert(
               item.message
             );
-
           }
         );
-
     }
   );
 
@@ -2234,5 +2347,7 @@ document.addEventListener("DOMContentLoaded", () => {
   renderCalendar();
 
   renderStudyPlan();
+
+  renderProgressScreen();
 
 });
