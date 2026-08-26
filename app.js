@@ -1547,6 +1547,27 @@ document.addEventListener("DOMContentLoaded", () => {
     return sleepHistory[todayKey] || null;
   }
 
+
+  function normalizeTimeInput(value) {
+    const raw =
+      String(value || "")
+        .replace(/\D/g, "")
+        .slice(0, 4);
+
+    if (raw.length <= 2) {
+      return raw;
+    }
+
+    return `${raw.slice(0, 2)}:${raw.slice(2)}`;
+  }
+
+  function isValidTimeInput(value) {
+    const match =
+      /^([01]\d|2[0-3]):([0-5]\d)$/.exec(value);
+
+    return Boolean(match);
+  }
+
   function saveTodaySleep(bedtime, wakeTime, quality) {
     const minutes =
       calculateSleepMinutes(
@@ -1729,8 +1750,12 @@ document.addEventListener("DOMContentLoaded", () => {
             <span>Hora que dormiu</span>
             <input
               id="sleepBedtime"
-              type="time"
+              type="text"
+              inputmode="numeric"
+              maxlength="5"
+              placeholder="22:30"
               value="${bedtime}"
+              autocomplete="off"
               required
             >
           </label>
@@ -1739,8 +1764,12 @@ document.addEventListener("DOMContentLoaded", () => {
             <span>Hora que acordou</span>
             <input
               id="sleepWakeTime"
-              type="time"
+              type="text"
+              inputmode="numeric"
+              maxlength="5"
+              placeholder="05:30"
               value="${wakeTime}"
+              autocomplete="off"
               required
             >
           </label>
@@ -1839,6 +1868,39 @@ document.addEventListener("DOMContentLoaded", () => {
       document.getElementById("sleepForm");
 
     if (form) {
+      const bedtimeInput =
+        document.getElementById("sleepBedtime");
+
+      const wakeInput =
+        document.getElementById("sleepWakeTime");
+
+      [bedtimeInput, wakeInput]
+        .filter(Boolean)
+        .forEach(input => {
+          input.addEventListener(
+            "input",
+            () => {
+              const cursorAtEnd =
+                input.selectionStart === input.value.length;
+
+              input.value =
+                normalizeTimeInput(input.value);
+
+              if (cursorAtEnd) {
+                input.setSelectionRange(
+                  input.value.length,
+                  input.value.length
+                );
+              }
+            }
+          );
+
+          input.addEventListener(
+            "focus",
+            () => input.select()
+          );
+        });
+
       form.addEventListener(
         "submit",
         event => {
@@ -1853,7 +1915,13 @@ document.addEventListener("DOMContentLoaded", () => {
           const qualityValue =
             document.getElementById("sleepQuality")?.value;
 
-          if (!bedtimeValue || !wakeValue) {
+          if (
+            !isValidTimeInput(bedtimeValue) ||
+            !isValidTimeInput(wakeValue)
+          ) {
+            alert(
+              "Digite os horários no formato HH:MM. Exemplo: 22:30 e 05:30."
+            );
             return;
           }
 
@@ -1990,6 +2058,10 @@ document.addEventListener("DOMContentLoaded", () => {
       .sleep-form input,
       .sleep-form select {
         box-sizing: border-box;
+        pointer-events: auto !important;
+        user-select: text !important;
+        -webkit-user-select: text !important;
+        cursor: text;
         width: 100%;
         margin-top: 6px;
         border: 1px solid rgba(255,255,255,.08);
@@ -2004,6 +2076,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
       .sleep-quality-label {
         grid-column: 1 / -1;
+      }
+
+      .sleep-form select {
+        cursor: pointer;
       }
 
       .sleep-save-button {
