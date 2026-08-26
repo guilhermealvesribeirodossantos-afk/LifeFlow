@@ -11,14 +11,15 @@
 
   <meta
     name="theme-color"
-    content="#0b0f14"
+    content="#05070a"
   >
 
   <title>LifeFlow</title>
 
+  <!-- CACHE BUST -->
   <link
     rel="stylesheet"
-    href="style.css"
+    href="style.css?v=202608261417"
   >
 </head>
 
@@ -26,7 +27,9 @@
 
   <div class="app-shell">
 
-    <!-- CABEÇALHO -->
+    <!-- =========================================
+         HEADER
+    ========================================== -->
 
     <header class="app-header">
 
@@ -38,7 +41,7 @@
 
         <div>
           <p class="brand-kicker">
-            SUA CENTRAL PESSOAL
+            LIFE MANAGEMENT
           </p>
 
           <h1>
@@ -68,43 +71,60 @@
       class="app-main"
     >
 
-      <section class="welcome-section">
+      <section class="hero-section">
 
-        <p
-          id="todayText"
-          class="today-text"
+        <div>
+
+          <p
+            id="todayText"
+            class="today-text"
+          >
+            Carregando data...
+          </p>
+
+          <h2 id="welcomeTitle">
+            Bom dia.
+          </h2>
+
+          <p
+            id="welcomeSubtitle"
+            class="welcome-subtitle"
+          >
+            Organizando seu dia.
+          </p>
+
+        </div>
+
+        <div
+          id="dayBadge"
+          class="hero-day-badge"
         >
-          Carregando data...
-        </p>
-
-        <h2 id="welcomeTitle">
-          Bom dia.
-        </h2>
-
-        <p
-          id="welcomeSubtitle"
-          class="welcome-subtitle"
-        >
-          Organizando seu dia.
-        </p>
+          HOJE
+        </div>
 
       </section>
 
 
-      <!-- PRÓXIMA ATIVIDADE -->
+      <!-- =========================================
+           PRÓXIMA ATIVIDADE
+      ========================================== -->
 
-      <section class="next-card card">
+      <section class="next-card premium-card">
 
-        <div class="next-top">
+        <div class="next-card-glow"></div>
+
+        <div class="next-card-header">
 
           <div>
+
             <span class="section-label">
-              PRÓXIMA ATIVIDADE
+              AGORA
             </span>
 
             <h3 id="nextTaskTitle">
               Carregando...
             </h3>
+
           </div>
 
           <div class="next-icon">
@@ -114,22 +134,31 @@
         </div>
 
 
-        <div class="next-info">
+        <div class="next-card-data">
 
-          <div>
-            <span>Horário</span>
+          <div class="next-data-item">
+
+            <span>
+              Horário
+            </span>
 
             <strong id="nextTaskTime">
               --:--
             </strong>
+
           </div>
 
-          <div>
-            <span>Detalhes</span>
+
+          <div class="next-data-item">
+
+            <span>
+              Próxima missão
+            </span>
 
             <strong id="nextTaskDescription">
               Organizando rotina
             </strong>
+
           </div>
 
         </div>
@@ -137,102 +166,108 @@
       </section>
 
 
-      <!-- RESUMO -->
+      <!-- =========================================
+           DASHBOARD
+      ========================================== -->
 
-      <section class="overview-grid">
+      <section class="dashboard-grid">
 
-        <article class="overview-card card">
+        <article class="metric-card">
 
-          <div class="overview-icon">
-            ✓
+          <div class="metric-top">
+
+            <span class="metric-icon">
+              ✓
+            </span>
+
+            <small>
+              ROTINA
+            </small>
+
           </div>
 
-          <div>
-            <span>Rotina</span>
+          <strong id="progressPct">
+            0%
+          </strong>
 
-            <strong id="progressPct">
-              0%
-            </strong>
-          </div>
+          <span class="metric-caption">
+            concluído hoje
+          </span>
 
         </article>
 
 
-        <article class="overview-card card">
+        <article class="metric-card">
 
-          <div class="overview-icon">
-            💧
+          <div class="metric-top">
+
+            <span class="metric-icon blue">
+              💧
+            </span>
+
+            <small>
+              ÁGUA
+            </small>
+
           </div>
 
-          <div>
-            <span>Água</span>
+          <strong id="waterText">
+            0,0 L
+          </strong>
 
-            <strong id="waterText">
-              0,0 L
-            </strong>
-          </div>
+          <span class="metric-caption">
+            hidratação
+          </span>
 
         </article>
 
 
-        <article class="overview-card card">
+        <article class="metric-card">
 
-          <div class="overview-icon">
-            ⭐
+          <div class="metric-top">
+
+            <span class="metric-icon gold">
+              ✦
+            </span>
+
+            <small>
+              XP
+            </small>
+
           </div>
 
-          <div>
-            <span>XP</span>
+          <strong id="xp">
+            0 XP
+          </strong>
 
-            <strong id="xp">
-              0 XP
-            </strong>
-          </div>
+          <span class="metric-caption">
+            disciplina
+          </span>
 
         </article>
 
       </section>
 
 
-      <!-- PROGRESSO DO DIA -->
+      <!-- =========================================
+           PROGRESSO DO DIA
+      ========================================== -->
 
-      <section class="progress-card card">
+      <section class="daily-card premium-card">
 
-        <div class="card-header">
+        <div class="card-heading">
 
           <div>
+
             <span class="section-label">
-              PROGRESSO DO DIA
+              DESEMPENHO
             </span>
 
             <h3 id="dayTitle">
               Hoje
             </h3>
+
           </div>
-
-          <span
-            id="dayBadge"
-            class="day-badge"
-          >
-            CARREGANDO
-          </span>
-
-        </div>
-
-
-        <div class="progress-track">
-          <div
-            id="progressBar"
-            class="progress-bar"
-          ></div>
-        </div>
-
-
-        <div class="progress-footer">
-
-          <span id="doneCount">
-            0 de 0 concluídas
-          </span>
 
           <strong id="progressText">
             0%
@@ -240,27 +275,54 @@
 
         </div>
 
+
+        <div class="progress-track">
+
+          <div
+            id="progressBar"
+            class="progress-bar"
+          ></div>
+
+        </div>
+
+
+        <div class="daily-footer">
+
+          <span>
+            Tarefas
+          </span>
+
+          <strong id="doneCount">
+            0 de 0 concluídas
+          </strong>
+
+        </div>
+
       </section>
 
 
-      <!-- ROTINA -->
+      <!-- =========================================
+           ROTINA
+      ========================================== -->
 
-      <section class="routine-section">
+      <section class="content-section">
 
         <div class="section-heading">
 
           <div>
+
             <span class="section-label">
-              SUA ROTINA
+              ROTINA
             </span>
 
             <h3 id="routineHeading">
-              Tarefas de hoje
+              Seu dia
             </h3>
+
           </div>
 
           <button
-            class="text-button"
+            class="ghost-button"
             id="resetTasks"
             type="button"
           >
@@ -278,20 +340,24 @@
       </section>
 
 
-      <!-- ÁGUA -->
+      <!-- =========================================
+           HIDRATAÇÃO
+      ========================================== -->
 
-      <section class="water-card card">
+      <section class="water-card premium-card">
 
-        <div class="card-header">
+        <div class="card-heading">
 
           <div>
-            <span class="section-label">
+
+            <span class="section-label blue-label">
               HIDRATAÇÃO
             </span>
 
             <h3>
               Meta diária
             </h3>
+
           </div>
 
           <strong
@@ -314,26 +380,28 @@
         </div>
 
 
-        <div class="water-buttons">
+        <div class="water-actions">
 
           <button
-            class="water-button"
+            class="water-action"
             data-water="250"
             type="button"
           >
-            +250 ml
+            <span>＋</span>
+            250 ml
           </button>
 
           <button
-            class="water-button primary"
+            class="water-action featured"
             data-water="500"
             type="button"
           >
-            +500 ml
+            <span>＋</span>
+            500 ml
           </button>
 
           <button
-            class="water-button reset"
+            class="water-action reset"
             id="resetWater"
             type="button"
           >
@@ -345,27 +413,29 @@
       </section>
 
 
-      <!-- ESTUDOS -->
+      <!-- =========================================
+           ESTUDOS
+      ========================================== -->
 
       <section
         id="studySection"
-        class="study-card card"
+        class="study-card premium-card"
       >
 
-        <div class="study-top">
+        <div class="study-header">
 
-          <div class="study-icon">
+          <div class="study-logo">
             👮
           </div>
 
-          <div class="study-content">
+          <div>
 
             <span class="section-label">
-              ESTUDOS PMMG
+              MISSÃO PMMG
             </span>
 
             <h3>
-              Missão de estudo
+              Estudos
             </h3>
 
             <p id="studyText">
@@ -377,30 +447,42 @@
         </div>
 
 
-        <div class="study-summary-grid">
+        <div class="study-stats">
 
           <div>
-            <span>Hoje</span>
+
+            <small>
+              STATUS
+            </small>
 
             <strong id="studyTodayStatus">
               Planejado
             </strong>
+
           </div>
 
           <div>
-            <span>Meta</span>
+
+            <small>
+              META
+            </small>
 
             <strong id="studyDailyGoal">
               2h
             </strong>
+
           </div>
 
           <div>
-            <span>Tipo</span>
+
+            <small>
+              FOCO
+            </small>
 
             <strong id="studyDayType">
               Teoria
             </strong>
+
           </div>
 
         </div>
@@ -408,88 +490,146 @@
 
         <button
           id="studyButton"
-          class="main-action-button"
+          class="primary-button"
           type="button"
         >
-          Ver plano de estudo
+          Abrir plano de estudos
+          <span>→</span>
         </button>
 
       </section>
 
 
-      <!-- ÁREAS -->
+      <!-- =========================================
+           ÁREAS
+      ========================================== -->
 
-      <section class="areas-section">
+      <section class="content-section">
 
         <div class="section-heading">
 
           <div>
+
             <span class="section-label">
-              LIFE FLOW
+              CENTRAL
             </span>
 
             <h3>
               Áreas da sua vida
             </h3>
+
           </div>
 
         </div>
 
 
-        <div class="areas-grid">
+        <div class="life-grid">
 
           <button
-            class="area-card"
+            class="life-card"
             id="academyAreaButton"
             type="button"
           >
-            <span>🏋️</span>
-            Academia
+            <span class="life-icon">
+              🏋️
+            </span>
+
+            <div>
+              <strong>Academia</strong>
+              <small>Treino e evolução</small>
+            </div>
+
+            <b>›</b>
           </button>
 
+
           <button
-            class="area-card"
+            class="life-card"
             id="studyAreaButton"
             type="button"
           >
-            <span>👮</span>
-            Estudos
+            <span class="life-icon">
+              👮
+            </span>
+
+            <div>
+              <strong>Estudos</strong>
+              <small>Plano PMMG</small>
+            </div>
+
+            <b>›</b>
           </button>
 
+
           <button
-            class="area-card"
+            class="life-card"
             id="foodAreaButton"
             type="button"
           >
-            <span>🥘</span>
-            Alimentação
+            <span class="life-icon">
+              🥘
+            </span>
+
+            <div>
+              <strong>Alimentação</strong>
+              <small>Marmita e refeições</small>
+            </div>
+
+            <b>›</b>
           </button>
 
+
           <button
-            class="area-card"
+            class="life-card"
             id="familyAreaButton"
             type="button"
           >
-            <span>👧</span>
-            Família
+            <span class="life-icon">
+              👧
+            </span>
+
+            <div>
+              <strong>Família</strong>
+              <small>Tempo importante</small>
+            </div>
+
+            <b>›</b>
           </button>
 
+
           <button
-            class="area-card"
+            class="life-card"
             id="motorcycleAreaButton"
             type="button"
           >
-            <span>🏍️</span>
-            Moto
+            <span class="life-icon">
+              🏍️
+            </span>
+
+            <div>
+              <strong>Moto</strong>
+              <small>Projeto pessoal</small>
+            </div>
+
+            <b>›</b>
           </button>
 
+
           <button
-            class="area-card"
+            class="life-card"
             id="careAreaButton"
             type="button"
           >
-            <span>🧴</span>
-            Cuidados
+            <span class="life-icon">
+              ✨
+            </span>
+
+            <div>
+              <strong>Cuidados</strong>
+              <small>Rosto e cabelo</small>
+            </div>
+
+            <b>›</b>
           </button>
 
         </div>
@@ -508,24 +648,24 @@
       class="app-main screen hidden"
     >
 
-      <section class="screen-title">
+      <section class="page-header">
 
         <span class="section-label">
-          PLANEJAMENTO
+          ORGANIZAÇÃO
         </span>
 
         <h2>
-          Agenda 12x36
+          Agenda
         </h2>
 
         <p>
-          Seus dias de trabalho, folga e compromissos organizados.
+          Sua escala 12x36 organizada automaticamente.
         </p>
 
       </section>
 
 
-      <section class="calendar-toolbar card">
+      <section class="calendar-toolbar premium-card">
 
         <button
           id="prevMonth"
@@ -534,6 +674,7 @@
         >
           ‹
         </button>
+
 
         <div class="calendar-title-area">
 
@@ -546,6 +687,7 @@
           </span>
 
         </div>
+
 
         <button
           id="nextMonth"
@@ -597,7 +739,7 @@
       ></div>
 
 
-      <section class="agenda-details card">
+      <section class="agenda-details premium-card">
 
         <span class="section-label">
           DIA SELECIONADO
@@ -637,11 +779,12 @@
       </section>
 
 
-      <section class="next-days-section">
+      <section class="content-section">
 
         <div class="section-heading">
 
           <div>
+
             <span class="section-label">
               PRÓXIMOS DIAS
             </span>
@@ -649,6 +792,7 @@
             <h3>
               Sua escala
             </h3>
+
           </div>
 
         </div>
@@ -673,40 +817,43 @@
       class="app-main screen hidden"
     >
 
-      <section class="screen-title">
+      <section class="page-header">
 
         <span class="section-label">
-          FOCO PMMG
+          FOCO
         </span>
 
         <h2>
-          Plano de Estudos
+          Estudos
         </h2>
 
         <p>
-          O LifeFlow organiza quando estudar. O conteúdo continua no seu site exclusivo da PMMG.
+          Seu tempo de preparação para a PMMG organizado dentro da rotina.
         </p>
 
       </section>
 
 
-      <section class="study-plan-card card">
+      <section class="study-plan-card premium-card">
 
-        <div class="card-header">
+        <div class="card-heading">
 
           <div>
+
             <span class="section-label">
-              HOJE
+              PLANO DE HOJE
             </span>
 
             <h3 id="studyPlanTitle">
               Plano do dia
             </h3>
+
           </div>
+
 
           <span
             id="studyPlanBadge"
-            class="day-badge"
+            class="hero-day-badge"
           >
             FOLGA
           </span>
@@ -737,11 +884,12 @@
       </section>
 
 
-      <section class="study-schedule-section">
+      <section class="content-section">
 
         <div class="section-heading">
 
           <div>
+
             <span class="section-label">
               CRONOGRAMA
             </span>
@@ -749,6 +897,7 @@
             <h3>
               Estudos do dia
             </h3>
+
           </div>
 
         </div>
@@ -762,41 +911,55 @@
       </section>
 
 
-      <section class="study-method-card card">
+      <section class="study-method-card premium-card">
 
         <span class="section-label">
           MÉTODO
         </span>
 
         <h3>
-          Estudar com qualidade
+          Estudar melhor
         </h3>
 
 
         <div class="study-method-list">
 
           <div>
-            <span>01</span>
+
+            <span>
+              01
+            </span>
 
             <p>
-              Leia a teoria no seu site PMMG.
+              Faça a teoria no seu site PMMG.
             </p>
+
           </div>
 
+
           <div>
-            <span>02</span>
+
+            <span>
+              02
+            </span>
 
             <p>
-              Faça questões depois da aula.
+              Resolva questões após cada aula.
             </p>
+
           </div>
 
+
           <div>
-            <span>03</span>
+
+            <span>
+              03
+            </span>
 
             <p>
               Revise os erros antes de avançar.
             </p>
+
           </div>
 
         </div>
@@ -815,49 +978,48 @@
       class="app-main screen hidden"
     >
 
-      <section class="screen-title">
+      <section class="page-header">
 
         <span class="section-label">
-          EVOLUÇÃO
+          PERFORMANCE
         </span>
 
         <h2>
-          Meu Progresso
+          Progresso
         </h2>
 
         <p>
-          Acompanhe como está sua rotina, hidratação e disciplina.
+          Seu desempenho diário em um só lugar.
         </p>
 
       </section>
 
 
-      <!-- RESUMO GERAL -->
-
-      <section class="progress-dashboard card">
+      <section class="progress-dashboard premium-card">
 
         <div class="progress-dashboard-top">
 
           <div>
 
             <span class="section-label">
-              HOJE
+              ROTINA
             </span>
 
             <h3>
-              Desempenho diário
+              Desempenho de hoje
             </h3>
 
           </div>
 
-          <div class="progress-circle-small">
+
+          <div class="progress-ring">
 
             <strong id="progressScreenPercent">
               0%
             </strong>
 
             <span>
-              rotina
+              concluído
             </span>
 
           </div>
@@ -877,18 +1039,16 @@
       </section>
 
 
-      <!-- INDICADORES -->
-
       <section class="progress-stats-grid">
 
-        <article class="progress-stat-card card">
+        <article class="progress-stat-card premium-card">
 
           <span class="progress-stat-icon">
-            ✅
+            ✓
           </span>
 
           <small>
-            Tarefas
+            TAREFAS
           </small>
 
           <strong id="progressTasksValue">
@@ -898,14 +1058,14 @@
         </article>
 
 
-        <article class="progress-stat-card card">
+        <article class="progress-stat-card premium-card">
 
-          <span class="progress-stat-icon">
+          <span class="progress-stat-icon blue">
             💧
           </span>
 
           <small>
-            Água
+            ÁGUA
           </small>
 
           <strong id="progressWaterValue">
@@ -915,10 +1075,10 @@
         </article>
 
 
-        <article class="progress-stat-card card">
+        <article class="progress-stat-card premium-card">
 
-          <span class="progress-stat-icon">
-            ⭐
+          <span class="progress-stat-icon gold">
+            ✦
           </span>
 
           <small>
@@ -932,14 +1092,14 @@
         </article>
 
 
-        <article class="progress-stat-card card">
+        <article class="progress-stat-card premium-card">
 
           <span class="progress-stat-icon">
-            📅
+            ◫
           </span>
 
           <small>
-            Dia
+            ESCALA
           </small>
 
           <strong id="progressDayType">
@@ -951,20 +1111,20 @@
       </section>
 
 
-      <!-- HIDRATAÇÃO -->
+      <section class="progress-detail-card premium-card">
 
-      <section class="progress-detail-card card">
-
-        <div class="card-header">
+        <div class="card-heading">
 
           <div>
-            <span class="section-label">
+
+            <span class="section-label blue-label">
               HIDRATAÇÃO
             </span>
 
             <h3>
-              Meta de água
+              Meta diária
             </h3>
+
           </div>
 
           <strong id="progressWaterPercent">
@@ -994,9 +1154,7 @@
       </section>
 
 
-      <!-- DISCIPLINA -->
-
-      <section class="progress-detail-card card">
+      <section class="progress-detail-card premium-card">
 
         <span class="section-label">
           DISCIPLINA
@@ -1015,29 +1173,12 @@
 
       </section>
 
-
-      <!-- PRÓXIMAS EVOLUÇÕES -->
-
-      <section class="progress-future-card card">
-
-        <span class="section-label">
-          EM BREVE
-        </span>
-
-        <h3>
-          Histórico completo
-        </h3>
-
-        <p>
-          Nas próximas versões, esta tela poderá mostrar sequência de dias, evolução semanal, academia, estudos e outras áreas do LifeFlow.
-        </p>
-
-      </section>
-
     </main>
 
 
-    <!-- MENU -->
+    <!-- =========================================
+         NAV
+    ========================================== -->
 
     <nav class="bottom-nav">
 
@@ -1046,8 +1187,15 @@
         id="homeButton"
         type="button"
       >
-        <span class="nav-icon">🏠</span>
-        <span>Hoje</span>
+
+        <span class="nav-icon">
+          ⌂
+        </span>
+
+        <span>
+          Hoje
+        </span>
+
       </button>
 
 
@@ -1056,8 +1204,15 @@
         id="agendaButton"
         type="button"
       >
-        <span class="nav-icon">📅</span>
-        <span>Agenda</span>
+
+        <span class="nav-icon">
+          ◫
+        </span>
+
+        <span>
+          Agenda
+        </span>
+
       </button>
 
 
@@ -1066,8 +1221,15 @@
         id="studyNavButton"
         type="button"
       >
-        <span class="nav-icon">👮</span>
-        <span>Estudos</span>
+
+        <span class="nav-icon">
+          ◉
+        </span>
+
+        <span>
+          Estudos
+        </span>
+
       </button>
 
 
@@ -1076,8 +1238,15 @@
         id="progressButton"
         type="button"
       >
-        <span class="nav-icon">📊</span>
-        <span>Progresso</span>
+
+        <span class="nav-icon">
+          ◒
+        </span>
+
+        <span>
+          Progresso
+        </span>
+
       </button>
 
     </nav>
@@ -1085,7 +1254,8 @@
   </div>
 
 
-  <script src="app.js"></script>
+  <!-- CACHE BUST -->
+  <script src="app.js?v=202608261417"></script>
 
 </body>
 
