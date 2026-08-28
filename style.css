@@ -6702,3 +6702,312 @@ html[data-lifeflow-version="6.1.1"] .lf5-system-rail small {
     min-height:55px !important;
   }
 }
+
+
+/* ==================================================================
+   LIFEFLOW 6.2.1 — EXACT MENU FIX
+================================================================== */
+#lifeflowDrawer.lf621-menu {
+  width:min(430px,94vw) !important;
+  padding:26px 22px 30px !important;
+  border-left:1px solid rgba(104,240,168,.14) !important;
+  background:
+    radial-gradient(circle at 10% 7%,rgba(104,240,168,.07),transparent 25%),
+    linear-gradient(180deg,#070b09 0%,#030605 100%) !important;
+  box-shadow:-40px 0 120px rgba(0,0,0,.72) !important;
+}
+
+#lifeflowDrawer.lf621-menu .lf-drawer-head {
+  min-height:105px !important;
+  align-items:flex-start !important;
+  padding:3px 0 20px !important;
+  margin-bottom:16px !important;
+  border-bottom:1px solid rgba(255,255,255,.06) !important;
+}
+
+#lifeflowDrawer.lf621-menu .lf-drawer-head > div > span {
+  color:var(--lf5-green) !important;
+  font-size:8px !important;
+  letter-spacing:2.5px !important;
+}
+
+#lifeflowDrawer.lf621-menu .lf-drawer-head strong {
+  display:block;
+  margin-top:4px;
+  color:#f3f7f4 !important;
+  font-size:29px !important;
+  font-weight:950 !important;
+  letter-spacing:-1.5px !important;
+}
+
+.lf621-subtitle {
+  display:flex;
+  align-items:center;
+  gap:9px;
+  margin-top:6px;
+}
+
+.lf621-subtitle span {
+  color:#69756d !important;
+  font-size:6px !important;
+  font-weight:950;
+  letter-spacing:2.4px !important;
+}
+
+.lf621-subtitle i {
+  width:105px;
+  height:1px;
+  background:linear-gradient(90deg,var(--lf5-green),transparent);
+}
+
+#lifeflowDrawer.lf621-menu #lfDrawerClose {
+  width:52px !important;
+  height:52px !important;
+  border:1px solid rgba(104,240,168,.22) !important;
+  border-radius:17px !important;
+  background:linear-gradient(145deg,#0d1510,#060907) !important;
+  color:#f2f5f3 !important;
+  font-size:24px !important;
+}
+
+/* profile */
+#lifeflowDrawer .lf621-profile {
+  width:100%;
+  min-height:146px;
+  position:relative;
+  display:grid;
+  grid-template-columns:64px 1fr 20px;
+  align-items:center;
+  gap:13px;
+  margin:0 0 18px;
+  padding:16px 16px 48px;
+  overflow:hidden;
+  border:1px solid rgba(104,240,168,.16);
+  border-radius:23px;
+  background:
+    radial-gradient(circle at 0 50%,rgba(104,240,168,.10),transparent 34%),
+    linear-gradient(145deg,#101713,#070a08);
+  color:inherit;
+  text-align:left;
+  box-shadow:0 20px 55px rgba(0,0,0,.28),inset 0 1px 0 rgba(255,255,255,.04);
+}
+
+#lifeflowDrawer .lf621-profile::before {
+  content:"";
+  position:absolute;
+  left:0; top:18px; bottom:18px;
+  width:2px;
+  background:linear-gradient(transparent,var(--lf5-green),transparent);
+}
+
+.lf621-avatar {
+  width:62px;
+  height:62px;
+  display:grid;
+  place-items:center;
+  border:1px solid rgba(104,240,168,.48);
+  border-radius:50%;
+  background:#0a120e;
+  color:var(--lf5-green);
+  font-size:17px;
+  font-weight:950;
+}
+
+.lf621-profile-copy strong,
+.lf621-profile-copy span {
+  display:block;
+}
+.lf621-profile-copy strong {
+  color:#edf3ef;
+  font-size:13px;
+}
+.lf621-profile-copy span {
+  margin-top:5px;
+  color:#6d7971;
+  font-size:7px;
+}
+.lf621-profile > b {
+  color:#e8eeea;
+  font-size:22px;
+}
+.lf621-xp {
+  position:absolute;
+  left:16px; right:16px; bottom:14px;
+  display:grid;
+  grid-template-columns:auto 1fr auto;
+  align-items:center;
+  gap:9px;
+}
+.lf621-xp small,.lf621-xp span {
+  color:#68746c;
+  font-size:6px;
+  font-weight:950;
+  letter-spacing:.8px;
+}
+.lf621-xp small { color:var(--lf5-green); }
+.lf621-xp i {
+  height:5px;
+  overflow:hidden;
+  border-radius:99px;
+  background:rgba(255,255,255,.07);
+}
+.lf621-xp em {
+  display:block;
+  width:68%;
+  height:100%;
+  border-radius:inherit;
+  background:linear-gradient(90deg,#2fc779,var(--lf5-green));
+  box-shadow:0 0 12px rgba(104,240,168,.28);
+}
+
+/* nav */
+#lifeflowDrawer.lf621-menu .lf-drawer-nav {
+  gap:9px !important;
+}
+
+#lifeflowDrawer.lf621-menu .lf621-row {
+  width:100% !important;
+  min-height:64px !important;
+  display:grid !important;
+  grid-template-columns:38px 1fr auto !important;
+  align-items:center !important;
+  gap:12px !important;
+  padding:11px 14px !important;
+  margin:0 !important;
+  border:1px solid rgba(255,255,255,.065) !important;
+  border-radius:18px !important;
+  background:linear-gradient(145deg,rgba(13,18,15,.94),rgba(6,9,7,.96)) !important;
+  color:#d6ded9 !important;
+}
+
+#lifeflowDrawer.lf621-menu .lf621-row > span {
+  width:36px !important;
+  height:36px !important;
+  display:grid !important;
+  place-items:center !important;
+  border-radius:11px;
+  background:rgba(104,240,168,.05);
+  color:var(--lf5-green) !important;
+  font-size:16px !important;
+}
+
+#lifeflowDrawer.lf621-menu .lf621-row strong {
+  color:inherit !important;
+  font-size:12px !important;
+  font-weight:850 !important;
+}
+
+#lifeflowDrawer.lf621-menu .lf621-row > b {
+  color:#a9b4ad !important;
+  font-size:18px !important;
+}
+
+#lifeflowDrawer.lf621-menu .lf621-row.active,
+#lifeflowDrawer.lf621-menu .lf621-row[data-lf621-type="home"] {
+  border-color:rgba(104,240,168,.17) !important;
+  background:linear-gradient(90deg,rgba(104,240,168,.13),rgba(104,240,168,.035)) !important;
+  color:var(--lf5-green) !important;
+  box-shadow:inset -3px 0 0 var(--lf5-green);
+}
+
+#lifeflowDrawer.lf621-menu .lf621-row[data-lf621-type="sleep"] > span {
+  color:#d096ff !important;
+  background:rgba(208,150,255,.055);
+}
+#lifeflowDrawer.lf621-menu .lf621-row[data-lf621-type="study"] > span {
+  color:#77aaff !important;
+  background:rgba(119,170,255,.055);
+}
+#lifeflowDrawer.lf621-menu .lf621-row[data-lf621-type="agenda"] > span {
+  color:#ffc94e !important;
+  background:rgba(255,201,78,.055);
+}
+
+/* academy card */
+#lifeflowDrawer .lf621-gym-card {
+  overflow:hidden;
+  margin:0 !important;
+  border:1px solid rgba(104,240,168,.12);
+  border-radius:20px;
+  background:linear-gradient(145deg,#0c110e,#060907);
+}
+
+#lifeflowDrawer .lf621-gym-card > .lf621-row {
+  border:0 !important;
+  border-radius:0 !important;
+  background:transparent !important;
+}
+
+#lifeflowDrawer .lf621-gym-submenu {
+  margin:0 12px 12px 50px !important;
+  padding:0 !important;
+  overflow:hidden;
+  border:1px solid rgba(255,255,255,.055) !important;
+  border-radius:14px !important;
+  background:rgba(0,0,0,.16);
+}
+
+#lifeflowDrawer .lf621-gym-submenu button {
+  min-height:48px !important;
+  display:grid !important;
+  grid-template-columns:28px 1fr !important;
+  align-items:center !important;
+  gap:8px !important;
+  padding:8px 11px !important;
+  border-bottom:1px solid rgba(255,255,255,.045) !important;
+  color:#a4afa8 !important;
+  font-size:9px !important;
+  text-align:left;
+}
+
+#lifeflowDrawer .lf621-gym-submenu button:last-child {
+  border-bottom:0 !important;
+}
+
+.lf621-sub-icon {
+  color:var(--lf5-green);
+  font-size:13px;
+}
+
+/* footer */
+#lifeflowDrawer .lf621-motivation {
+  min-height:78px;
+  display:grid;
+  grid-template-columns:42px 1fr 18px;
+  align-items:center;
+  gap:10px;
+  margin-top:20px;
+  padding:12px 13px;
+  border:1px solid rgba(104,240,168,.12);
+  border-radius:18px;
+  background:linear-gradient(90deg,rgba(104,240,168,.065),rgba(255,255,255,.015));
+}
+#lifeflowDrawer .lf621-motivation > span {
+  width:39px;height:39px;display:grid;place-items:center;
+  border-right:1px solid rgba(104,240,168,.17);
+  color:var(--lf5-green);font-size:17px;
+}
+#lifeflowDrawer .lf621-motivation strong,
+#lifeflowDrawer .lf621-motivation small { display:block; }
+#lifeflowDrawer .lf621-motivation strong { color:#e4ebe6;font-size:9px; }
+#lifeflowDrawer .lf621-motivation small { margin-top:4px;color:#68736c;font-size:7px; }
+#lifeflowDrawer .lf621-motivation b { color:var(--lf5-green);font-size:20px; }
+
+#lifeflowDrawer .lf621-signature {
+  padding:15px 0 4px;
+  color:rgba(104,240,168,.65);
+  font-size:6px;
+  font-weight:950;
+  letter-spacing:2.8px;
+  text-align:center;
+}
+
+@media(max-width:520px){
+  #lifeflowDrawer.lf621-menu {
+    width:min(390px,96vw) !important;
+    padding:20px 16px 25px !important;
+  }
+  #lifeflowDrawer.lf621-menu .lf-drawer-head strong { font-size:25px !important; }
+  #lifeflowDrawer .lf621-profile { min-height:136px; }
+  #lifeflowDrawer.lf621-menu .lf621-row { min-height:59px !important; }
+}
