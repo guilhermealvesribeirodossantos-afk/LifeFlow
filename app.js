@@ -463,7 +463,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
   // =====================================================
-  // LIFEFLOW 4.2 — ACADEMIA PREMIUM
+  // LIFEFLOW 4.3 — ACADEMIA SIMPLIFICADA
   // Conta única / proteção client-side
   // =====================================================
 
@@ -9585,20 +9585,26 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function createGymPlan() {
     showSitePrompt(
-      "Digite o nome do novo treino:",
+      "Nome do novo treino:",
       `Treino ${gymPrograms.plans.length + 1}`,
       name => {
-        const id = makeGymId("plan");
-        gymPrograms.plans.push({
-          id,
-          name: name.trim(),
-          focus: "Treino personalizado",
-          exercises: []
-        });
-        gymPrograms.activePlanId = id;
-        saveGymPrograms();
-        renderGymPanel();
-        showSiteMessage(`${name.trim()} criado com sucesso.`, "success");
+        showSitePrompt(
+          "Partes que serão treinadas. Ex.: Costas • Bíceps",
+          "",
+          focus => {
+            const id = makeGymId("plan");
+            gymPrograms.plans.push({
+              id,
+              name,
+              focus,
+              exercises: []
+            });
+            gymPrograms.activePlanId = id;
+            saveGymPrograms();
+            showSiteMessage("Novo treino criado.", "success");
+            showGymPlan(id);
+          }
+        );
       }
     );
   }
@@ -13717,542 +13723,115 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!screen) return;
 
     const now = new Date();
+    const todayGym = getTodayGym();
+    const activePlan = getActiveGymPlan();
 
-    const hour = now.getHours();
+    const weekStart = new Date(now);
+    const day = weekStart.getDay();
+    const diff = day === 0 ? -6 : 1 - day;
+    weekStart.setDate(weekStart.getDate() + diff);
+    weekStart.setHours(0,0,0,0);
 
-    const greeting =
-      hour < 12
-        ? "Bom dia"
-        : hour < 18
-          ? "Boa tarde"
-          : "Boa noite";
+    const trainedThisWeek = Object.values(gymHistory).filter(item => {
+      if (!item?.completed) return false;
+      const date = new Date(`${item.date}T12:00:00`);
+      return date >= weekStart && date <= now;
+    }).length;
 
-    const profileName =
-      typeof lfProfile !== "undefined" &&
-      lfProfile.name
-        ? lfProfile.name
-        : "Guilherme";
-
-    const activePlan =
-      getActiveGymPlan();
-
-    const progress =
-      getGymSessionProgress();
-
-    const totalSeries =
-      activePlan?.exercises
-        ?.reduce(
-          (sum, exercise) =>
-            sum +
-            Number(
-              exercise.sets || 0
-            ),
-          0
-        ) || 0;
-
-    const completedSeries =
-      activePlan?.exercises
-        ?.reduce(
-          (sum, exercise) =>
-            sum +
-            Math.min(
-              Number(
-                progress[
-                  exercise.id
-                ] || 0
-              ),
-              Number(
-                exercise.sets ||
-                0
-              )
-            ),
-          0
-        ) || 0;
-
-    const planProgress =
-      totalSeries
-        ? Math.round(
-            (
-              completedSeries /
-              totalSeries
-            ) * 100
-          )
-        : 0;
-
-    const days = [];
-
-    for (
-      let offset = -1;
-      offset <= 5;
-      offset++
-    ) {
-      const date =
-        new Date(now);
-
-      date.setDate(
-        now.getDate() +
-        offset
-      );
-
-      days.push({
-        date,
-        isToday:
-          date.toDateString() ===
-          now.toDateString()
-      });
-    }
-
-    const avatar =
-      typeof getLifeProfileAvatarHtml === "function"
-        ? getLifeProfileAvatarHtml(
-            "lf-gym-premium-avatar"
-          )
-        : `
-          <div class="lf-gym-premium-avatar">
-            <span>
-              ${profileName
-                .charAt(0)
-                .toUpperCase()}
-            </span>
-          </div>
-        `;
+    const weeklyGoal = 5;
+    const goalPct = Math.min(100, Math.round((trainedThisWeek / weeklyGoal) * 100));
 
     screen.innerHTML = `
-      <section class="lf-gym-premium-header">
-        <div class="lf-gym-premium-greeting">
-          <span>
-            ${greeting},
-          </span>
-
-          <strong>
-            ${escapeGymHtml(
-              profileName
-            )}
-          </strong>
-
-          <p>
-            Prepare-se, hoje é dia
-            de evoluir!
-          </p>
+      <section class="lf-simple-gym-head">
+        <div>
+          <span class="section-label">PLANEJAMENTO</span>
+          <h2>Treinos</h2>
+          <p>Veja o que será treinado e marque quando concluir.</p>
         </div>
-
-        <button
-          id="lfGymProfileShortcut"
-          class="lf-gym-avatar-button"
-          type="button"
-          aria-label="Abrir perfil"
-        >
-          ${avatar}
-        </button>
-      </section>
-
-      <section class="lf-gym-calendar-strip">
-        <div class="lf-gym-month">
-          ${now
-            .toLocaleDateString(
-              "pt-BR",
-              {
-                month: "short"
-              }
-            )
-            .replace(".", "")
-            .replace(
-              /^./,
-              char =>
-                char.toUpperCase()
-            )}
-        </div>
-
-        <div class="lf-gym-days">
-          ${days.map(item => `
-            <button
-              type="button"
-              class="${
-                item.isToday
-                  ? "today"
-                  : ""
-              }"
-            >
-              <i></i>
-
-              <strong>
-                ${item.date.getDate()}
-              </strong>
-
-              <span>
-                ${item.date
-                  .toLocaleDateString(
-                    "pt-BR",
-                    {
-                      weekday:
-                        "short"
-                    }
-                  )
-                  .replace(".", "")
-                  .slice(0,3)
-                  .replace(
-                    /^./,
-                    char =>
-                      char.toUpperCase()
-                  )}
-              </span>
-            </button>
-          `).join("")}
+        <div class="lf-simple-gym-week">
+          <strong>${trainedThisWeek}/${weeklyGoal}</strong>
+          <span>esta semana</span>
         </div>
       </section>
 
-      <section class="lf-gym-premium-section">
-        <div class="lf-gym-premium-title">
-          <h3>
-            Treino Personalizado
-          </h3>
-
-          <p>
-            Sua rotina de treino
-            organizada do seu jeito
-          </p>
-        </div>
-
-        <button
-          type="button"
-          class="lf-gym-featured-card"
-          data-folder-plan="${
-            escapeGymHtml(
-              activePlan?.id ||
-              ""
-            )
-          }"
-        >
-          <div class="lf-gym-featured-copy">
-            <span>
-              Treino Personalizado
-            </span>
-
-            <strong>
-              ${escapeGymHtml(
-                activePlan?.name ||
-                "Meu treino"
-              )}
-            </strong>
-
-            <small>
-              ${escapeGymHtml(
-                activePlan?.focus ||
-                "Treino personalizado"
-              )}
-            </small>
-
-            <div class="lf-gym-featured-progress">
-              <b>
-                Progresso
-                ${planProgress}%
-              </b>
-
-              <div>
-                <i
-                  style="
-                    width:
-                    ${planProgress}%
-                  "
-                ></i>
-              </div>
-            </div>
-          </div>
-
-          <div class="lf-gym-featured-art">
-            <span>🏋️</span>
-          </div>
-
-          <em>⋮</em>
-        </button>
-      </section>
-
-      <section class="lf-gym-premium-section">
-        <div class="lf-gym-premium-title">
-          <h3>
-            Meus treinos
-          </h3>
-
-          <p>
-            Acesse suas próprias
-            rotinas
-          </p>
-        </div>
-
-        <div class="lf-gym-program-carousel">
-          ${gymPrograms.plans.map(
-            (
-              plan,
-              index
-            ) => `
-              <button
-                type="button"
-                class="lf-gym-program-card"
-                data-folder-plan="${
-                  escapeGymHtml(
-                    plan.id
-                  )
-                }"
-              >
-                <div class="lf-gym-program-card-top">
-                  <span>
-                    ${
-                      index % 3 === 0
-                        ? "🏋️"
-                        : index % 3 === 1
-                          ? "💪"
-                          : "⚡"
-                    }
-                  </span>
-
-                  <b>⋮</b>
-                </div>
-
-                <strong>
-                  ${escapeGymHtml(
-                    plan.name
-                  )}
-                </strong>
-
-                <small>
-                  ${escapeGymHtml(
-                    plan.focus ||
-                    "Treino personalizado"
-                  )}
-                </small>
-
-                <em>
-                  ${
-                    plan.exercises
-                      .length
-                  }
-                  exercícios
-                </em>
-              </button>
-            `
-          ).join("")}
-
-          <button
-            type="button"
-            class="lf-gym-program-card lf-gym-program-new"
-            id="lfGymNewFolder"
-          >
-            <div class="lf-gym-program-card-top">
-              <span>＋</span>
-            </div>
-
-            <strong>
-              Novo treino
-            </strong>
-
-            <small>
-              Crie uma rotina
-            </small>
-          </button>
-        </div>
-      </section>
-
-      <section class="lf-gym-premium-section">
-        <div class="lf-gym-premium-title">
-          <h3>
-            Treino Imediato
-          </h3>
-
-          <p>
-            Comece seu treino
-            sem complicação
-          </p>
-        </div>
-
-        <button
-          id="gymStartWorkout"
-          class="lf-gym-immediate-card"
-          type="button"
-        >
+      <section class="lf-simple-today-card">
+        <div class="lf-simple-today-top">
           <div>
-            <span>
-              Iniciar treino agora
-            </span>
-
-            <strong
-              id="gymWorkoutTimer"
-            >
-              ${formatTimer(
-                currentWorkoutSeconds()
-              )}
-            </strong>
+            <span>TREINO DO DIA</span>
+            <h3>${escapeGymHtml(activePlan?.name || "Sem treino")}</h3>
+            <p>${escapeGymHtml(activePlan?.focus || "Defina os grupos musculares")}</p>
           </div>
+          <span class="lf-simple-status ${todayGym.completed ? "done" : ""}">
+            ${todayGym.completed ? "CONCLUÍDO" : "PLANEJADO"}
+          </span>
+        </div>
 
-          <b>⚡</b>
-          <em>›</em>
+        <div class="lf-simple-progress">
+          <div><i style="width:${goalPct}%"></i></div>
+          <span>${trainedThisWeek} de ${weeklyGoal} treinos na meta semanal</span>
+        </div>
+
+        <button id="lfOpenTodayPlan" type="button">
+          Ver treino <b>›</b>
         </button>
       </section>
 
-      <nav class="lf-gym-internal-nav">
-        <button
-          class="active"
-          type="button"
-        >
-          <span>▣</span>
-          <strong>Treinos</strong>
-        </button>
+      <section class="lf-simple-section">
+        <div class="lf-simple-section-title">
+          <div>
+            <span class="section-label">MINHA DIVISÃO</span>
+            <h3>Lista de treinos</h3>
+          </div>
+          <button id="lfSimpleNewPlan" type="button">＋ Novo</button>
+        </div>
 
-        <button
-          id="lfGymEvolutionTab"
-          type="button"
-        >
-          <span>▥</span>
-          <strong>Atividades</strong>
-        </button>
+        <div class="lf-simple-plan-list">
+          ${gymPrograms.plans.map(plan => {
+            const isActive = plan.id === gymPrograms.activePlanId;
+            return `
+              <button class="lf-simple-plan-row ${isActive ? "active" : ""}"
+                      type="button"
+                      data-simple-plan="${escapeGymHtml(plan.id)}">
+                <span class="lf-simple-plan-letter">${escapeGymHtml((plan.name || "T").replace("Treino ","").slice(0,2))}</span>
+                <span class="lf-simple-plan-copy">
+                  <strong>${escapeGymHtml(plan.name)}</strong>
+                  <small>${escapeGymHtml(plan.focus || "Grupos musculares não definidos")}</small>
+                </span>
+                <span class="lf-simple-plan-state">${isActive ? "HOJE" : "›"}</span>
+              </button>
+            `;
+          }).join("")}
+        </div>
+      </section>
 
-        <button
-          id="lfGymExploreTab"
-          type="button"
-        >
-          <span>◉</span>
-          <strong>Explorar</strong>
-        </button>
-
-        <button
-          id="lfGymLibraryTab"
-          type="button"
-        >
-          <span>🏋</span>
-          <strong>Exercícios</strong>
-        </button>
-
-        <button
-          id="lfGymBodyTab"
-          type="button"
-        >
-          <span>⚙</span>
-          <strong>Corpo</strong>
-        </button>
-      </nav>
+      <section class="lf-simple-summary">
+        <div>
+          <span>✓</span>
+          <strong>${trainedThisWeek}</strong>
+          <small>treinos feitos</small>
+        </div>
+        <div>
+          <span>◎</span>
+          <strong>${goalPct}%</strong>
+          <small>meta semanal</small>
+        </div>
+        <div>
+          <span>▦</span>
+          <strong>${gymPrograms.plans.length}</strong>
+          <small>treinos salvos</small>
+        </div>
+      </section>
     `;
 
-    document
-      .querySelectorAll(
-        "[data-folder-plan]"
-      )
-      .forEach(button => {
-        button.addEventListener(
-          "click",
-          () => {
-            if (
-              button.dataset
-                .folderPlan
-            ) {
-              showGymPlan(
-                button.dataset
-                  .folderPlan
-              );
-            }
-          }
-        );
-      });
+    document.querySelectorAll("[data-simple-plan]").forEach(button => {
+      button.addEventListener("click", () => showGymPlan(button.dataset.simplePlan));
+    });
 
-    document
-      .getElementById(
-        "lfGymNewFolder"
-      )
-      ?.addEventListener(
-        "click",
-        createGymPlan
-      );
+    document.getElementById("lfOpenTodayPlan")?.addEventListener("click", () => {
+      if (activePlan) showGymPlan(activePlan.id);
+    });
 
-    document
-      .getElementById(
-        "gymStartWorkout"
-      )
-      ?.addEventListener(
-        "click",
-        () => {
-          startWorkoutTimer();
-
-          showGymPlan(
-            getActiveGymPlan()
-              ?.id
-          );
-        }
-      );
-
-    document
-      .getElementById(
-        "lfGymLibraryTab"
-      )
-      ?.addEventListener(
-        "click",
-        () => {
-          gymFolderView =
-            "library";
-
-          renderGymOrganizedPanel();
-        }
-      );
-
-    document
-      .getElementById(
-        "lfGymExploreTab"
-      )
-      ?.addEventListener(
-        "click",
-        () => {
-          gymFolderView =
-            "library";
-
-          renderGymOrganizedPanel();
-        }
-      );
-
-    document
-      .getElementById(
-        "lfGymEvolutionTab"
-      )
-      ?.addEventListener(
-        "click",
-        showGymEvolution
-      );
-
-    document
-      .getElementById(
-        "lfGymBodyTab"
-      )
-      ?.addEventListener(
-        "click",
-        () => {
-          showGymEvolution();
-
-          setTimeout(
-            () => {
-              document
-                .querySelector(
-                  '[data-evolution-section="weight"]'
-                )
-                ?.click();
-            },
-            50
-          );
-        }
-      );
-
-    document
-      .getElementById(
-        "lfGymProfileShortcut"
-      )
-      ?.addEventListener(
-        "click",
-        () => {
-          if (
-            typeof showLifeSettings ===
-            "function"
-          ) {
-            showLifeSettings();
-          }
-        }
-      );
-
-    updateWorkoutTimerDisplay();
+    document.getElementById("lfSimpleNewPlan")?.addEventListener("click", createGymPlan);
   }
 
   function renderGymPlanFolder() {
@@ -14260,151 +13839,93 @@ document.addEventListener("DOMContentLoaded", () => {
     const plan = getActiveGymPlan();
     if (!screen || !plan) return;
 
-    const progress = getGymSessionProgress();
+    const todayGym = getTodayGym();
+    const completed = Boolean(todayGym.completed && todayGym.planId === plan.id);
+    const muscles = String(plan.focus || "")
+      .split(/[•,;]+/)
+      .map(item => item.trim())
+      .filter(Boolean);
 
     screen.innerHTML = `
-      <div class="lf-detail-header">
-        <button
-          type="button"
-          class="lf-back-btn"
-          id="lfBackGymRoot"
-        >‹</button>
-
+      <div class="lf-simple-detail-head">
+        <button id="lfBackGymRoot" type="button">‹</button>
         <div>
+          <span class="section-label">PLANO DE TREINO</span>
           <h2>${escapeGymHtml(plan.name)}</h2>
-          <span>${escapeGymHtml(plan.focus || "Treino personalizado")}</span>
+          <p>${escapeGymHtml(plan.focus || "Defina as partes que serão treinadas")}</p>
         </div>
-
-        <button
-          type="button"
-          class="lf-more-btn"
-          id="lfPlanMenu"
-        >⋮</button>
+        <button id="lfSimpleEditPlan" type="button">✎</button>
       </div>
 
-      <div class="lf-gym-tabs lf-detail-tabs">
-        <button class="active" type="button">EXERCÍCIOS</button>
-        <button type="button" id="lfPlanSummaryTab">RESUMO</button>
-        <button type="button" id="lfPlanHistoryTab">HISTÓRICO</button>
-      </div>
+      <section class="lf-simple-focus-card">
+        <span class="section-label">PARTES DO CORPO</span>
+        <h3>O que vou treinar</h3>
 
-      <section class="lf-plan-timer-strip">
-        <div>
-          <span>TEMPO DE TREINO</span>
-          <strong id="gymWorkoutTimer">${formatTimer(currentWorkoutSeconds())}</strong>
-        </div>
-
-        <div class="lf-plan-timer-actions">
-          <button id="gymStartWorkout" type="button">▶</button>
-          <button id="gymPauseWorkout" type="button">Ⅱ</button>
-        </div>
-      </section>
-
-      <section class="lf-plan-exercises">
-        ${plan.exercises.length
-          ? plan.exercises.map((exercise, index) => {
-              const completedSets =
-                Number(progress[exercise.id] || 0);
-
-              return `
-                <button
-                  type="button"
-                  class="lf-exercise-row"
-                  data-open-exercise="${escapeGymHtml(exercise.id)}"
-                >
-                  <div class="lf-ex-thumb">
-                    ${
-                      exercise.image
-                        ? `<img src="${escapeGymHtml(exercise.image)}" alt="${escapeGymHtml(exercise.name)}" loading="lazy">`
-                        : `<span>🏋️</span>`
-                    }
-                  </div>
-
-                  <div class="lf-ex-copy">
-                    <strong>${index + 1} ${escapeGymHtml(exercise.name)}</strong>
-                    <span>${exercise.sets} séries • ${escapeGymHtml(exercise.reps)} reps</span>
-                    <small>${exercise.rest}s descanso • ${completedSets}/${exercise.sets} feitas</small>
-                  </div>
-
-                  <b>›</b>
-                </button>
-              `;
-            }).join("")
-          : `
-            <div class="lf-empty-folder">
-              <span>📂</span>
-              <strong>Treino vazio</strong>
-              <p>Adicione exercícios pela biblioteca.</p>
-              <button id="lfEmptyLibrary" type="button">Abrir biblioteca</button>
+        <div class="lf-muscle-check-list">
+          ${muscles.length ? muscles.map((muscle, index) => `
+            <div class="lf-muscle-check ${completed ? "done" : ""}">
+              <span>${completed ? "✓" : String(index + 1).padStart(2,"0")}</span>
+              <strong>${escapeGymHtml(muscle)}</strong>
+              <small>${completed ? "Treinado hoje" : "Planejado"}</small>
             </div>
-          `
-        }
+          `).join("") : `
+            <div class="lf-simple-empty">
+              Nenhum grupo muscular definido ainda.
+            </div>
+          `}
+        </div>
       </section>
 
-      <button
-        type="button"
-        class="lf-floating-add"
-        id="lfAddExerciseToPlan"
-      >＋ Adicionar exercício</button>
+      <section class="lf-simple-note-card">
+        <span>ℹ</span>
+        <div>
+          <strong>Execução do treino</strong>
+          <p>Use seu aplicativo de academia para exercícios, séries, cargas, fotos e cronômetro. O LifeFlow fica responsável pela sua organização.</p>
+        </div>
+      </section>
+
+      <button id="lfCompleteSimpleWorkout"
+              class="lf-simple-complete ${completed ? "done" : ""}"
+              type="button">
+        ${completed ? "✓ Treino concluído hoje" : "✓ Marcar treino como concluído"}
+      </button>
+
+      <button id="lfSimpleDeletePlan" class="lf-simple-delete" type="button">
+        Excluir este treino
+      </button>
     `;
 
-    document
-      .getElementById("lfBackGymRoot")
-      ?.addEventListener("click", showGymRoot);
+    document.getElementById("lfBackGymRoot")?.addEventListener("click", showGymRoot);
 
-    document
-      .querySelectorAll("[data-open-exercise]")
-      .forEach(button => {
-        button.addEventListener("click", () => {
-          showGymExercise(button.dataset.openExercise);
-        });
+    document.getElementById("lfCompleteSimpleWorkout")?.addEventListener("click", () => {
+      saveTodayGym({
+        completed: !completed,
+        planId: plan.id,
+        planName: plan.name,
+        focus: plan.focus
       });
+      showSiteMessage(!completed ? "Treino marcado como concluído. ✓" : "Conclusão removida.", "success");
+      renderGymPlanFolder();
+    });
 
-    document
-      .getElementById("gymStartWorkout")
-      ?.addEventListener("click", startWorkoutTimer);
-
-    document
-      .getElementById("gymPauseWorkout")
-      ?.addEventListener("click", pauseWorkoutTimer);
-
-    document
-      .getElementById("lfAddExerciseToPlan")
-      ?.addEventListener("click", () => {
-        gymFolderView = "library";
-        renderGymOrganizedPanel();
-      });
-
-    document
-      .getElementById("lfEmptyLibrary")
-      ?.addEventListener("click", () => {
-        gymFolderView = "library";
-        renderGymOrganizedPanel();
-      });
-
-    document
-      .getElementById("lfPlanMenu")
-      ?.addEventListener("click", () => {
-        deleteActiveGymPlan();
-      });
-
-    document
-      .getElementById("lfPlanSummaryTab")
-      ?.addEventListener("click", () => {
-        showSiteMessage(
-          `${plan.name}: ${plan.exercises.length} exercícios cadastrados.`,
-          "info"
+    document.getElementById("lfSimpleEditPlan")?.addEventListener("click", () => {
+      showSitePrompt("Nome do treino:", plan.name, newName => {
+        plan.name = newName;
+        saveGymPrograms();
+        showSitePrompt(
+          "Partes que serão treinadas. Ex.: Peito • Ombro • Tríceps",
+          plan.focus || "",
+          newFocus => {
+            plan.focus = newFocus;
+            saveGymPrograms();
+            showSiteMessage("Treino atualizado.", "success");
+            renderGymPlanFolder();
+          }
         );
       });
+    });
 
-    document
-      .getElementById("lfPlanHistoryTab")
-      ?.addEventListener("click", () => {
-        showSiteMessage("Histórico detalhado deste treino entra na próxima versão.", "info");
-      });
-
-    updateWorkoutTimerDisplay();
-    updateGymTimerButtons();
+    document.getElementById("lfSimpleDeletePlan")?.addEventListener("click", deleteActiveGymPlan);
   }
 
   function renderGymExerciseDetail() {
