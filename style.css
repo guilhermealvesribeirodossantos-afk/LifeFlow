@@ -7011,3 +7011,678 @@ html[data-lifeflow-version="6.1.1"] .lf5-system-rail small {
   #lifeflowDrawer .lf621-profile { min-height:136px; }
   #lifeflowDrawer.lf621-menu .lf621-row { min-height:59px !important; }
 }
+
+/* ==================================================================
+   LIFEFLOW 6.3 — MENU CLEAN
+   MENU RECONSTRUÍDO SOBRE OS ARQUIVOS REAIS ENVIADOS PELO USUÁRIO
+================================================================== */
+
+#lifeflowDrawer {
+  width: min(430px, 94vw) !important;
+  padding:
+    max(24px, env(safe-area-inset-top))
+    22px
+    max(30px, env(safe-area-inset-bottom)) !important;
+
+  border-left: 1px solid rgba(100, 231, 155, .17) !important;
+
+  background:
+    radial-gradient(circle at 12% 3%, rgba(100, 231, 155, .085), transparent 25%),
+    radial-gradient(circle at 95% 95%, rgba(50, 116, 255, .035), transparent 30%),
+    linear-gradient(180deg, #070b09 0%, #030605 100%) !important;
+
+  box-shadow:
+    -45px 0 130px rgba(0, 0, 0, .82),
+    inset 1px 0 0 rgba(255,255,255,.02) !important;
+
+  scrollbar-width: thin;
+  scrollbar-color: rgba(100,231,155,.25) transparent;
+}
+
+#lifeflowDrawer::-webkit-scrollbar {
+  width: 4px;
+}
+
+#lifeflowDrawer::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: rgba(100,231,155,.25);
+}
+
+/* HEADER */
+
+#lifeflowDrawer .lf63-head {
+  min-height: 112px !important;
+  display: flex !important;
+  align-items: flex-start !important;
+  justify-content: space-between !important;
+  gap: 16px !important;
+
+  margin: 0 0 18px !important;
+  padding: 4px 0 21px !important;
+
+  border-bottom: 1px solid rgba(255,255,255,.065) !important;
+}
+
+#lifeflowDrawer .lf63-brand > span {
+  display: block !important;
+  margin-bottom: 3px !important;
+
+  color: #64e79b !important;
+
+  font-size: 8px !important;
+  font-weight: 950 !important;
+  letter-spacing: 2.5px !important;
+}
+
+#lifeflowDrawer .lf63-brand > strong {
+  display: block !important;
+
+  color: #f4f7f5 !important;
+
+  font-size: 31px !important;
+  line-height: 1 !important;
+  font-weight: 950 !important;
+  letter-spacing: -1.7px !important;
+}
+
+#lifeflowDrawer .lf63-brand > strong span {
+  display: inline !important;
+
+  color: #64e79b !important;
+
+  font-size: inherit !important;
+  font-weight: inherit !important;
+  letter-spacing: inherit !important;
+}
+
+#lifeflowDrawer .lf63-os {
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+
+  margin-top: 8px !important;
+}
+
+#lifeflowDrawer .lf63-os b {
+  color: #657169 !important;
+
+  font-size: 6px !important;
+  font-weight: 950 !important;
+  letter-spacing: 2.3px !important;
+}
+
+#lifeflowDrawer .lf63-os i {
+  width: 105px !important;
+  height: 1px !important;
+
+  background:
+    linear-gradient(90deg, #64e79b, transparent) !important;
+}
+
+#lifeflowDrawer .lf63-close,
+#lifeflowDrawer #lfDrawerClose {
+  width: 54px !important;
+  height: 54px !important;
+
+  flex: 0 0 54px !important;
+
+  display: grid !important;
+  place-items: center !important;
+
+  padding: 0 !important;
+
+  border:
+    1px solid rgba(100,231,155,.22) !important;
+
+  border-radius: 18px !important;
+
+  background:
+    linear-gradient(145deg, #0e1511, #060907) !important;
+
+  color: #f1f5f2 !important;
+
+  font-size: 25px !important;
+  font-weight: 400 !important;
+
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.04),
+    0 12px 30px rgba(0,0,0,.28) !important;
+}
+
+/* PERFIL */
+
+#lifeflowDrawer .lf63-profile {
+  position: relative !important;
+
+  width: 100% !important;
+  min-height: 150px !important;
+
+  display: grid !important;
+  grid-template-columns: 66px 1fr 22px !important;
+  align-items: center !important;
+  gap: 14px !important;
+
+  margin: 0 0 19px !important;
+  padding: 16px 17px 51px !important;
+
+  overflow: hidden !important;
+
+  border:
+    1px solid rgba(100,231,155,.17) !important;
+
+  border-radius: 24px !important;
+
+  background:
+    radial-gradient(circle at 0 50%, rgba(100,231,155,.11), transparent 35%),
+    linear-gradient(145deg, #101713, #070a08) !important;
+
+  color: inherit !important;
+  text-align: left !important;
+
+  box-shadow:
+    0 24px 60px rgba(0,0,0,.32),
+    inset 0 1px 0 rgba(255,255,255,.04) !important;
+}
+
+#lifeflowDrawer .lf63-profile::before {
+  content: "";
+
+  position: absolute;
+  left: 0;
+  top: 18px;
+  bottom: 18px;
+
+  width: 2px;
+
+  border-radius: 999px;
+
+  background:
+    linear-gradient(
+      transparent,
+      #64e79b,
+      transparent
+    ) !important;
+
+  box-shadow:
+    0 0 15px rgba(100,231,155,.35);
+}
+
+#lifeflowDrawer .lf63-avatar {
+  width: 64px !important;
+  height: 64px !important;
+
+  display: grid !important;
+  place-items: center !important;
+
+  border:
+    1px solid rgba(100,231,155,.5) !important;
+
+  border-radius: 50% !important;
+
+  background:
+    radial-gradient(circle at 50% 40%, rgba(100,231,155,.08), transparent 60%),
+    #09110d !important;
+
+  color: #64e79b !important;
+
+  font-size: 18px !important;
+  font-weight: 950 !important;
+
+  box-shadow:
+    0 0 28px rgba(100,231,155,.06);
+}
+
+#lifeflowDrawer .lf63-profile-copy strong {
+  display: block !important;
+
+  color: #edf3ef !important;
+
+  font-size: 13px !important;
+  font-weight: 850 !important;
+}
+
+#lifeflowDrawer .lf63-profile-copy span {
+  display: block !important;
+
+  margin-top: 6px !important;
+
+  color: #6e7a72 !important;
+
+  font-size: 7px !important;
+}
+
+#lifeflowDrawer .lf63-chevron {
+  color: #e9efeb !important;
+
+  font-size: 24px !important;
+  font-weight: 400 !important;
+}
+
+#lifeflowDrawer .lf63-level {
+  position: absolute !important;
+
+  left: 17px !important;
+  right: 17px !important;
+  bottom: 15px !important;
+
+  display: grid !important;
+  grid-template-columns: auto 1fr auto !important;
+  align-items: center !important;
+  gap: 10px !important;
+}
+
+#lifeflowDrawer .lf63-level span,
+#lifeflowDrawer .lf63-level small {
+  color: #64e79b !important;
+
+  font-size: 6px !important;
+  font-weight: 950 !important;
+  letter-spacing: .9px !important;
+}
+
+#lifeflowDrawer .lf63-level small {
+  color: #68746c !important;
+}
+
+#lifeflowDrawer .lf63-level i {
+  display: block !important;
+
+  height: 5px !important;
+
+  overflow: hidden !important;
+
+  border-radius: 999px !important;
+
+  background:
+    rgba(255,255,255,.07) !important;
+}
+
+#lifeflowDrawer .lf63-level em {
+  display: block !important;
+
+  width: 68% !important;
+  height: 100% !important;
+
+  border-radius: inherit !important;
+
+  background:
+    linear-gradient(
+      90deg,
+      #2fc779,
+      #64e79b
+    ) !important;
+
+  box-shadow:
+    0 0 14px rgba(100,231,155,.3) !important;
+}
+
+/* NAVEGAÇÃO */
+
+#lifeflowDrawer .lf63-nav {
+  display: grid !important;
+  gap: 10px !important;
+
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+#lifeflowDrawer .lf63-item {
+  position: relative !important;
+
+  width: 100% !important;
+  min-height: 65px !important;
+
+  display: grid !important;
+  grid-template-columns: 39px 1fr auto !important;
+  align-items: center !important;
+  gap: 13px !important;
+
+  margin: 0 !important;
+  padding: 11px 14px !important;
+
+  border:
+    1px solid rgba(255,255,255,.07) !important;
+
+  border-radius: 19px !important;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(13,18,15,.96),
+      rgba(6,9,7,.98)
+    ) !important;
+
+  color: #d4ddd7 !important;
+
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.025) !important;
+}
+
+#lifeflowDrawer .lf63-item:hover {
+  border-color:
+    rgba(100,231,155,.16) !important;
+
+  background:
+    rgba(100,231,155,.035) !important;
+
+  transform:
+    translateX(2px);
+}
+
+#lifeflowDrawer .lf63-icon {
+  width: 37px !important;
+  height: 37px !important;
+
+  display: grid !important;
+  place-items: center !important;
+
+  border-radius: 11px !important;
+
+  background:
+    rgba(100,231,155,.055) !important;
+
+  color: #64e79b !important;
+
+  font-size: 16px !important;
+}
+
+#lifeflowDrawer .lf63-item strong {
+  color: inherit !important;
+
+  font-size: 12px !important;
+  font-weight: 850 !important;
+}
+
+#lifeflowDrawer .lf63-item > b {
+  color: #9ba79f !important;
+
+  font-size: 19px !important;
+  font-weight: 400 !important;
+}
+
+#lifeflowDrawer .lf63-item.active,
+#lifeflowDrawer .lf63-item[data-drawer-go="home"] {
+  border-color:
+    rgba(100,231,155,.19) !important;
+
+  background:
+    linear-gradient(
+      90deg,
+      rgba(100,231,155,.145),
+      rgba(100,231,155,.035)
+    ) !important;
+
+  color: #64e79b !important;
+
+  box-shadow:
+    inset -3px 0 0 #64e79b,
+    0 15px 38px rgba(0,0,0,.18) !important;
+}
+
+/* CORES DOS MÓDULOS */
+
+#lifeflowDrawer .lf63-sleep .lf63-icon {
+  color: #d49dff !important;
+  background: rgba(212,157,255,.06) !important;
+}
+
+#lifeflowDrawer .lf63-study .lf63-icon {
+  color: #78aaff !important;
+  background: rgba(120,170,255,.06) !important;
+}
+
+#lifeflowDrawer .lf63-agenda .lf63-icon {
+  color: #ffca4d !important;
+  background: rgba(255,202,77,.06) !important;
+}
+
+/* ACADEMIA */
+
+#lifeflowDrawer .lf63-gym-card {
+  overflow: hidden !important;
+
+  border:
+    1px solid rgba(100,231,155,.13) !important;
+
+  border-radius: 21px !important;
+
+  background:
+    linear-gradient(
+      145deg,
+      #0c120e,
+      #060907
+    ) !important;
+
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.025) !important;
+}
+
+#lifeflowDrawer .lf63-gym-card > .lf63-item {
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+#lifeflowDrawer .lf63-submenu {
+  margin:
+    0
+    12px
+    12px
+    52px !important;
+
+  padding: 0 !important;
+
+  overflow: hidden !important;
+
+  border:
+    1px solid rgba(255,255,255,.06) !important;
+
+  border-left:
+    1px solid rgba(100,231,155,.15) !important;
+
+  border-radius:
+    15px !important;
+
+  background:
+    rgba(0,0,0,.18) !important;
+}
+
+#lifeflowDrawer .lf63-submenu button {
+  width: 100% !important;
+  min-height: 49px !important;
+
+  display: grid !important;
+  grid-template-columns: 28px 1fr !important;
+  align-items: center !important;
+  gap: 8px !important;
+
+  padding:
+    8px
+    11px !important;
+
+  border: 0 !important;
+  border-bottom:
+    1px solid rgba(255,255,255,.045) !important;
+
+  background:
+    transparent !important;
+
+  color:
+    #9ba69f !important;
+
+  text-align:
+    left !important;
+}
+
+#lifeflowDrawer .lf63-submenu button:last-child {
+  border-bottom: 0 !important;
+}
+
+#lifeflowDrawer .lf63-submenu button > span {
+  color:
+    #64e79b !important;
+
+  font-size:
+    12px !important;
+}
+
+#lifeflowDrawer .lf63-submenu button > strong {
+  color:
+    inherit !important;
+
+  font-size:
+    9px !important;
+
+  font-weight:
+    700 !important;
+}
+
+/* MOTIVAÇÃO */
+
+#lifeflowDrawer .lf63-motivation {
+  min-height:
+    82px !important;
+
+  display:
+    grid !important;
+
+  grid-template-columns:
+    43px 1fr 19px !important;
+
+  align-items:
+    center !important;
+
+  gap:
+    11px !important;
+
+  margin:
+    21px 0 0 !important;
+
+  padding:
+    12px 13px !important;
+
+  border:
+    1px solid rgba(100,231,155,.13) !important;
+
+  border-radius:
+    19px !important;
+
+  background:
+    linear-gradient(
+      90deg,
+      rgba(100,231,155,.075),
+      rgba(255,255,255,.015)
+    ) !important;
+}
+
+#lifeflowDrawer .lf63-motivation-icon {
+  width:
+    40px !important;
+
+  height:
+    40px !important;
+
+  display:
+    grid !important;
+
+  place-items:
+    center !important;
+
+  border-right:
+    1px solid rgba(100,231,155,.18) !important;
+
+  color:
+    #64e79b !important;
+
+  font-size:
+    18px !important;
+}
+
+#lifeflowDrawer .lf63-motivation strong {
+  display:
+    block !important;
+
+  color:
+    #e6ece8 !important;
+
+  font-size:
+    9px !important;
+}
+
+#lifeflowDrawer .lf63-motivation small {
+  display:
+    block !important;
+
+  margin-top:
+    5px !important;
+
+  color:
+    #68736c !important;
+
+  font-size:
+    7px !important;
+}
+
+#lifeflowDrawer .lf63-motivation > b {
+  color:
+    #64e79b !important;
+
+  font-size:
+    20px !important;
+}
+
+#lifeflowDrawer .lf63-signature {
+  padding:
+    17px 0 5px !important;
+
+  color:
+    rgba(100,231,155,.68) !important;
+
+  font-size:
+    6px !important;
+
+  font-weight:
+    950 !important;
+
+  letter-spacing:
+    2.9px !important;
+
+  text-align:
+    center !important;
+}
+
+/* CELULAR */
+
+@media (max-width: 520px) {
+
+  #lifeflowDrawer {
+    width:
+      min(390px, 96vw) !important;
+
+    padding:
+      max(20px, env(safe-area-inset-top))
+      16px
+      max(25px, env(safe-area-inset-bottom)) !important;
+  }
+
+  #lifeflowDrawer .lf63-head {
+    min-height:
+      103px !important;
+  }
+
+  #lifeflowDrawer .lf63-brand > strong {
+    font-size:
+      27px !important;
+  }
+
+  #lifeflowDrawer .lf63-profile {
+    min-height:
+      140px !important;
+  }
+
+  #lifeflowDrawer .lf63-item {
+    min-height:
+      60px !important;
+  }
+}
