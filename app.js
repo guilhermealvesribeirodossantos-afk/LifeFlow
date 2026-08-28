@@ -1,5 +1,131 @@
 
 /* ============================================================
+   LIFEFLOW 6.2 — MENU PRO
+   Visual/UX enhancement for the existing LifeFlow drawer.
+============================================================ */
+document.addEventListener("DOMContentLoaded", () => {
+  document.documentElement.setAttribute("data-lifeflow-menu", "6.2");
+
+  function enhanceDrawer() {
+    const drawer =
+      document.querySelector(".side-drawer") ||
+      document.querySelector(".drawer") ||
+      document.querySelector(".life-drawer") ||
+      document.querySelector("#sideDrawer");
+
+    if (!drawer || drawer.dataset.lf62Ready === "1") return;
+    drawer.dataset.lf62Ready = "1";
+    drawer.classList.add("lf62-menu-pro");
+
+    // Brand subtitle.
+    const brand =
+      drawer.querySelector(".drawer-header") ||
+      drawer.querySelector(".menu-header") ||
+      drawer.firstElementChild;
+
+    if (brand && !brand.querySelector(".lf62-brand-sub")) {
+      const sub = document.createElement("div");
+      sub.className = "lf62-brand-sub";
+      sub.innerHTML = "<span>INTELLIGENCE OS</span><i></i>";
+      brand.appendChild(sub);
+    }
+
+    // Upgrade profile card with an XP-style visual rail, while keeping existing content.
+    const profile =
+      drawer.querySelector(".drawer-profile") ||
+      drawer.querySelector(".profile-card") ||
+      drawer.querySelector('[data-screen="profile"]') ||
+      [...drawer.querySelectorAll("button,a,div")].find(el =>
+        /meu perfil/i.test(el.textContent || "") && el.children.length
+      );
+
+    if (profile && !profile.querySelector(".lf62-profile-progress")) {
+      profile.classList.add("lf62-profile-card");
+      const progress = document.createElement("div");
+      progress.className = "lf62-profile-progress";
+      progress.innerHTML = `
+        <div><span>EVOLUÇÃO</span><strong>ATIVO</strong></div>
+        <i><b></b></i>
+      `;
+      profile.appendChild(progress);
+    }
+
+    // Group/upgrade navigation rows based on their labels.
+    const labels = [
+      ["Início","⌂","home"],
+      ["Academia","◫","gym"],
+      ["Sono","☾","sleep"],
+      ["Estudos","▣","study"],
+      ["Agenda","▦","agenda"],
+      ["Progresso","↗","progress"]
+    ];
+
+    const candidates = [...drawer.querySelectorAll("button,a,.drawer-item,.menu-item,.life-nav-item")];
+    candidates.forEach(el => {
+      const text = (el.textContent || "").trim().toLocaleLowerCase("pt-BR");
+      const match = labels.find(([label]) => text.startsWith(label.toLocaleLowerCase("pt-BR")));
+      if (!match || el.dataset.lf62Item === "1") return;
+
+      el.dataset.lf62Item = "1";
+      el.dataset.lf62Type = match[2];
+      el.classList.add("lf62-nav-row");
+
+      if (!el.querySelector(".lf62-icon")) {
+        const icon = document.createElement("span");
+        icon.className = "lf62-icon";
+        icon.textContent = match[1];
+        el.prepend(icon);
+      }
+    });
+
+    // Academia container receives the richer card treatment when expanded.
+    [...drawer.querySelectorAll("*")].forEach(el => {
+      const txt = (el.textContent || "").trim();
+      if (
+        txt.includes("Treino C") &&
+        txt.includes("Meus Treinos") &&
+        txt.includes("Evolução de treino") &&
+        el.children.length >= 2 &&
+        el.children.length <= 8
+      ) {
+        el.classList.add("lf62-gym-submenu");
+      }
+    });
+
+    // Motivational footer.
+    if (!drawer.querySelector(".lf62-motivation")) {
+      const footer = document.createElement("div");
+      footer.className = "lf62-motivation";
+      footer.innerHTML = `
+        <div class="lf62-rocket">↗</div>
+        <div>
+          <strong>Disciplina hoje, resultado sempre.</strong>
+          <span>Você no controle da sua melhor versão.</span>
+        </div>
+        <i>›</i>
+      `;
+      drawer.appendChild(footer);
+
+      const signature = document.createElement("div");
+      signature.className = "lf62-signature";
+      signature.textContent = "LIFEFLOW // INTELLIGENCE OS";
+      drawer.appendChild(signature);
+    }
+  }
+
+  enhanceDrawer();
+  [100,300,800,1600].forEach(ms => setTimeout(enhanceDrawer, ms));
+
+  const observer = new MutationObserver(() => {
+    clearTimeout(window.__lf62MenuTimer);
+    window.__lf62MenuTimer = setTimeout(enhanceDrawer, 80);
+  });
+  observer.observe(document.body, {childList:true,subtree:true});
+});
+
+
+
+/* ============================================================
    LIFEFLOW 6.1.1 — SMART COCKPIT BOOTSTRAP
    Independent bootstrap: guaranteed to render before legacy app.
 ============================================================ */
@@ -698,7 +824,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
   // =====================================================
-  // LIFEFLOW 6.1.1 — COCKPIT FIX
+  // LIFEFLOW 6.2 — MENU PRO
   // Conta única / proteção client-side
   // =====================================================
 
