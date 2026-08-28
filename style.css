@@ -5893,3 +5893,447 @@ body.lf6-command-open {
     padding-top:8vh;
   }
 }
+
+
+/* ==================================================================
+   LIFEFLOW 6.1 — SMART COCKPIT
+================================================================== */
+
+.lf61-cockpit {
+  margin:-8px 0 10px;
+}
+
+.lf61-cockpit-hero {
+  position:relative;
+  overflow:hidden;
+  padding:21px;
+  border:1px solid rgba(104,240,168,.16);
+  border-radius:28px;
+  background:
+    radial-gradient(circle at 82% 0%,rgba(104,240,168,.13),transparent 31%),
+    radial-gradient(circle at 4% 100%,rgba(72,136,255,.055),transparent 31%),
+    linear-gradient(145deg,#101612,#050806 72%);
+  box-shadow:
+    0 32px 90px rgba(0,0,0,.48),
+    inset 0 1px 0 rgba(255,255,255,.045);
+}
+
+.lf61-cockpit-hero::before {
+  content:"";
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  background:
+    linear-gradient(90deg,rgba(104,240,168,.025) 1px,transparent 1px),
+    linear-gradient(rgba(104,240,168,.018) 1px,transparent 1px);
+  background-size:25px 25px;
+  mask-image:linear-gradient(to bottom,black,transparent 82%);
+}
+
+.lf61-cockpit-hero::after {
+  content:"COCKPIT";
+  position:absolute;
+  right:-8px;
+  top:51px;
+  color:rgba(104,240,168,.025);
+  font-size:72px;
+  font-weight:1000;
+  letter-spacing:-5px;
+  pointer-events:none;
+}
+
+.lf61-cockpit-top {
+  position:relative;
+  z-index:1;
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:12px;
+}
+
+.lf61-system-label {
+  display:block;
+  margin-bottom:8px;
+  color:#56635b;
+  font-size:6px;
+  font-weight:950;
+  letter-spacing:1.6px;
+}
+
+.lf61-day-mode {
+  width:max-content;
+  display:flex;
+  align-items:center;
+  gap:7px;
+  padding:7px 9px;
+  border:1px solid rgba(104,240,168,.12);
+  border-radius:999px;
+  background:rgba(104,240,168,.045);
+}
+
+.lf61-day-mode i {
+  color:var(--lf5-green);
+  font-size:8px;
+  font-style:normal;
+}
+
+.lf61-day-mode strong {
+  color:#9ba69f;
+  font-size:6px;
+  font-weight:950;
+  letter-spacing:.8px;
+}
+
+.lf61-day-mode.work {
+  border-color:rgba(107,184,255,.13);
+  background:rgba(107,184,255,.035);
+}
+
+.lf61-day-mode.work i {
+  color:#7dbfff;
+}
+
+.lf61-live-status {
+  display:flex;
+  align-items:center;
+  gap:5px;
+  padding:6px 8px;
+  border:1px solid rgba(255,255,255,.055);
+  border-radius:999px;
+  background:rgba(0,0,0,.18);
+}
+
+.lf61-live-status i {
+  width:5px;
+  height:5px;
+  border-radius:50%;
+  background:var(--lf5-green);
+  box-shadow:0 0 10px rgba(104,240,168,.7);
+  animation:lf5Pulse 1.6s infinite;
+}
+
+.lf61-live-status span {
+  color:#5d6961;
+  font-size:6px;
+  font-weight:950;
+  letter-spacing:.8px;
+}
+
+.lf61-score-zone {
+  position:relative;
+  z-index:1;
+  display:grid;
+  grid-template-columns:118px 1fr;
+  align-items:center;
+  gap:20px;
+  padding:25px 2px 22px;
+}
+
+.lf61-score-ring {
+  --score:0;
+  width:112px;
+  height:112px;
+  display:grid;
+  place-items:center;
+  border-radius:50%;
+  background:
+    radial-gradient(circle,#0b100c 61%,transparent 62%),
+    conic-gradient(var(--lf5-green) calc(var(--score)*1%),rgba(255,255,255,.055) 0);
+  box-shadow:
+    0 0 50px rgba(104,240,168,.055),
+    inset 0 0 0 1px rgba(255,255,255,.025);
+  filter:drop-shadow(0 0 9px rgba(104,240,168,.10));
+}
+
+.lf61-score-ring > div {
+  text-align:center;
+}
+
+.lf61-score-ring strong {
+  color:#f1f8f3;
+  font-size:34px;
+  font-weight:900;
+  letter-spacing:-2px;
+}
+
+.lf61-score-ring small {
+  color:#58645c;
+  font-size:8px;
+  font-weight:900;
+}
+
+.lf61-score-copy > span {
+  color:var(--lf5-green);
+  font-size:6px;
+  font-weight:950;
+  letter-spacing:1.6px;
+}
+
+.lf61-score-copy h3 {
+  max-width:320px;
+  margin:7px 0 6px;
+  color:#f3f7f4;
+  font-size:24px;
+  font-weight:900;
+  line-height:1;
+  letter-spacing:-1px;
+}
+
+.lf61-score-copy p {
+  max-width:360px;
+  margin:0;
+  color:#647068;
+  font-size:8px;
+  line-height:1.5;
+}
+
+.lf61-priority {
+  position:relative;
+  z-index:1;
+  min-height:70px;
+  display:grid;
+  grid-template-columns:45px 1fr 40px;
+  align-items:center;
+  gap:11px;
+  padding:10px 11px;
+  border:1px solid rgba(104,240,168,.12);
+  border-radius:17px;
+  background:rgba(104,240,168,.038);
+}
+
+.lf61-priority-number {
+  width:42px;
+  height:42px;
+  display:grid;
+  place-items:center;
+  border:1px solid rgba(104,240,168,.13);
+  border-radius:12px;
+  background:rgba(104,240,168,.045);
+  color:var(--lf5-green);
+  font-size:10px;
+  font-weight:1000;
+}
+
+.lf61-priority-copy span,
+.lf61-priority-copy strong,
+.lf61-priority-copy small {
+  display:block;
+}
+
+.lf61-priority-copy span {
+  margin-bottom:3px;
+  color:#536058;
+  font-size:6px;
+  font-weight:950;
+  letter-spacing:1px;
+}
+
+.lf61-priority-copy strong {
+  color:#e6ece8;
+  font-size:10px;
+}
+
+.lf61-priority-copy small {
+  margin-top:3px;
+  color:#69756d;
+  font-size:7px;
+}
+
+.lf61-priority button {
+  width:38px;
+  height:38px;
+  border:1px solid rgba(104,240,168,.13);
+  border-radius:12px;
+  background:rgba(104,240,168,.055);
+  color:var(--lf5-green);
+  font-size:14px;
+}
+
+.lf61-vitals {
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:7px;
+  margin-top:9px;
+}
+
+.lf61-vitals article {
+  position:relative;
+  min-height:104px;
+  overflow:hidden;
+  display:flex;
+  flex-direction:column;
+  justify-content:space-between;
+  padding:12px;
+  border:1px solid rgba(255,255,255,.065);
+  border-radius:18px;
+  background:linear-gradient(145deg,rgba(14,19,16,.91),rgba(5,8,6,.96));
+  box-shadow:0 16px 42px rgba(0,0,0,.26);
+}
+
+.lf61-vital-icon {
+  color:var(--lf5-green);
+  font-size:12px;
+}
+
+.lf61-vitals small,
+.lf61-vitals strong {
+  display:block;
+}
+
+.lf61-vitals small {
+  margin-bottom:3px;
+  color:#4e5a52;
+  font-size:6px;
+  font-weight:950;
+  letter-spacing:.7px;
+}
+
+.lf61-vitals strong {
+  color:#dce3de;
+  font-size:10px;
+  font-weight:850;
+}
+
+.lf61-vitals article > i {
+  position:absolute;
+  left:0;
+  bottom:0;
+  width:var(--v);
+  height:2px;
+  background:linear-gradient(90deg,var(--lf5-green-2),var(--lf5-green));
+  box-shadow:0 0 10px rgba(104,240,168,.25);
+}
+
+.lf61-intel-strip {
+  position:relative;
+  min-height:64px;
+  display:grid;
+  grid-template-columns:38px 1fr 28px;
+  align-items:center;
+  gap:10px;
+  margin-top:8px;
+  padding:10px 12px;
+  overflow:hidden;
+  border:1px solid rgba(104,240,168,.09);
+  border-radius:17px;
+  background:
+    linear-gradient(90deg,rgba(104,240,168,.045),rgba(255,255,255,.012));
+}
+
+.lf61-intel-symbol {
+  width:36px;
+  height:36px;
+  display:grid;
+  place-items:center;
+  border-radius:11px;
+  background:rgba(104,240,168,.065);
+  color:var(--lf5-green);
+  font-size:8px;
+  font-weight:1000;
+}
+
+.lf61-intel-strip span,
+.lf61-intel-strip strong {
+  display:block;
+}
+
+.lf61-intel-strip span {
+  margin-bottom:4px;
+  color:#4f5c53;
+  font-size:6px;
+  font-weight:950;
+  letter-spacing:.9px;
+}
+
+.lf61-intel-strip strong {
+  color:#bdc8c0;
+  font-size:8px;
+}
+
+.lf61-intel-strip > i {
+  width:7px;
+  height:7px;
+  justify-self:center;
+  border-radius:50%;
+  background:var(--lf5-green);
+  box-shadow:0 0 15px rgba(104,240,168,.5);
+  animation:lf5Pulse 1.8s infinite;
+}
+
+/* Cockpit is now the first visual authority on Home */
+#homeScreen .hero-section + .lf61-cockpit {
+  margin-top:-12px;
+}
+
+/* Make original hero more editorial and compact above cockpit */
+#homeScreen .hero-section {
+  min-height:155px !important;
+  padding-bottom:18px !important;
+}
+
+#homeScreen .hero-section h2 {
+  max-width:700px;
+}
+
+/* Intelligence v6 follows cockpit as secondary intelligence layer */
+#lf61Cockpit + #lf6Intelligence {
+  margin-top:9px;
+}
+
+@media (max-width:650px) {
+  .lf61-cockpit-hero {
+    padding:17px;
+    border-radius:24px;
+  }
+
+  .lf61-score-zone {
+    grid-template-columns:94px 1fr;
+    gap:14px;
+    padding:21px 0 19px;
+  }
+
+  .lf61-score-ring {
+    width:90px;
+    height:90px;
+  }
+
+  .lf61-score-ring strong {
+    font-size:28px;
+  }
+
+  .lf61-score-copy h3 {
+    font-size:19px;
+  }
+
+  .lf61-vitals {
+    grid-template-columns:repeat(2,1fr);
+  }
+
+  .lf61-vitals article {
+    min-height:88px;
+  }
+}
+
+@media (max-width:390px) {
+  .lf61-score-zone {
+    grid-template-columns:82px 1fr;
+    gap:12px;
+  }
+
+  .lf61-score-ring {
+    width:80px;
+    height:80px;
+  }
+
+  .lf61-score-ring strong {
+    font-size:24px;
+  }
+
+  .lf61-score-copy h3 {
+    font-size:17px;
+  }
+
+  .lf61-priority {
+    grid-template-columns:40px 1fr 36px;
+  }
+}
