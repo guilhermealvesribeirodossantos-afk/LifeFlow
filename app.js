@@ -467,7 +467,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
   // =====================================================
-  // LIFEFLOW 6.0 — INTELLIGENCE
+  // LIFEFLOW 6.1 — SMART COCKPIT
   // Conta única / proteção client-side
   // =====================================================
 
@@ -15908,6 +15908,269 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   setInterval(lf6RefreshIntelligence, 60000);
+
+
+  /* ============================================================
+     LIFEFLOW 6.1 — SMART COCKPIT
+  ============================================================ */
+
+  function lf61GetDayMode() {
+    const items = lf6CollectTodayItems();
+    const text = items.map(i => i.title).join(" ").toLocaleLowerCase("pt-BR");
+
+    const workWords = ["trabalho","empresa","expediente","plantão","plantao"];
+    const isWork = workWords.some(word => text.includes(word));
+
+    return {
+      type: isWork ? "work" : "off",
+      label: isWork ? "DIA DE TRABALHO" : "DIA DE FOLGA",
+      icon: isWork ? "◫" : "◇"
+    };
+  }
+
+  function lf61GetWaterData() {
+    const current =
+      Number(document.getElementById("waterCurrent")?.textContent?.replace(/[^\d.,]/g,"").replace(",",".")) ||
+      Number(document.getElementById("waterAmount")?.textContent?.replace(/[^\d.,]/g,"").replace(",",".")) ||
+      0;
+
+    const goal =
+      Number(document.getElementById("waterGoal")?.textContent?.replace(/[^\d.,]/g,"").replace(",",".")) ||
+      2.5;
+
+    return { current, goal };
+  }
+
+  function lf61GetStudyProgress() {
+    const raw =
+      document.getElementById("studyProgressText")?.textContent ||
+      document.querySelector("#studiesScreen .progress-text")?.textContent ||
+      document.querySelector("#homeScreen .study-card")?.textContent ||
+      "";
+
+    const match = raw.match(/(\d{1,3})\s*%/);
+    return match ? Math.min(100, Number(match[1])) : null;
+  }
+
+  function lf61BuildScore() {
+    const items = lf6CollectTodayItems();
+    const done = items.filter(i => i.done).length;
+    const routineScore = items.length ? Math.round(done / items.length * 55) : 20;
+
+    const water = lf61GetWaterData();
+    const waterPct = water.goal > 0 ? Math.min(1, water.current / water.goal) : 0;
+    const waterScore = Math.round(waterPct * 15);
+
+    const study = lf61GetStudyProgress();
+    const studyScore = study == null ? 8 : Math.round((study / 100) * 15);
+
+    let gymScore = 0;
+    try {
+      const todayGym = typeof getTodayGym === "function" ? getTodayGym() : null;
+      gymScore = todayGym?.completed ? 15 : 4;
+    } catch (_) {
+      gymScore = 4;
+    }
+
+    return Math.max(0, Math.min(100, routineScore + waterScore + studyScore + gymScore));
+  }
+
+  function lf61ScoreLabel(score) {
+    if (score >= 90) return "DIA EXCELENTE";
+    if (score >= 75) return "DIA SOB CONTROLE";
+    if (score >= 55) return "BOM RITMO";
+    if (score >= 35) return "ATENÇÃO ÀS PRIORIDADES";
+    return "HORA DE RETOMAR O CONTROLE";
+  }
+
+  function lf61GetPriority() {
+    const items = lf6CollectTodayItems();
+    const now = new Date();
+    const mins = now.getHours() * 60 + now.getMinutes();
+
+    const future = items.find(i => !i.done && i.minutes >= mins);
+    const pending = items.find(i => !i.done);
+
+    return future || pending || {
+      time: "—",
+      title: "Dia concluído",
+      state: "done"
+    };
+  }
+
+  function lf61GetNextFreeWindow() {
+    const items = lf6CollectTodayItems().filter(i => !i.done && i.minutes < 99999);
+    const now = new Date();
+    const nowMins = now.getHours() * 60 + now.getMinutes();
+
+    const future = items.filter(i => i.minutes >= nowMins);
+    if (!future.length) return "Sem novos blocos programados hoje";
+
+    const next = future[0];
+    const gap = next.minutes - nowMins;
+    if (gap >= 60) return `${Math.floor(gap/60)}h ${gap%60}min livres até ${next.time}`;
+    if (gap > 10) return `${gap} min livres até ${next.time}`;
+    return `Próxima atividade às ${next.time}`;
+  }
+
+  function lf61RenderCockpit() {
+    const host = document.getElementById("lf61Cockpit");
+    if (!host) return;
+
+    const mode = lf61GetDayMode();
+    const score = lf61BuildScore();
+    const priority = lf61GetPriority();
+    const items = lf6CollectTodayItems();
+    const done = items.filter(i => i.done).length;
+    const pending = Math.max(0, items.length - done);
+    const water = lf61GetWaterData();
+    const study = lf61GetStudyProgress();
+
+    let gymDone = false;
+    try {
+      gymDone = Boolean(typeof getTodayGym === "function" && getTodayGym()?.completed);
+    } catch (_) {}
+
+    host.innerHTML = `
+      <section class="lf61-cockpit-hero">
+        <div class="lf61-cockpit-top">
+          <div>
+            <span class="lf61-system-label">LIFEFLOW // COCKPIT</span>
+            <div class="lf61-day-mode ${mode.type}">
+              <i>${mode.icon}</i>
+              <strong>${mode.label}</strong>
+            </div>
+          </div>
+          <div class="lf61-live-status">
+            <i></i>
+            <span>LIVE</span>
+          </div>
+        </div>
+
+        <div class="lf61-score-zone">
+          <div class="lf61-score-ring" style="--score:${score}">
+            <div>
+              <strong>${score}</strong>
+              <small>/100</small>
+            </div>
+          </div>
+
+          <div class="lf61-score-copy">
+            <span>SCORE DO DIA</span>
+            <h3>${lf61ScoreLabel(score)}</h3>
+            <p>${done} concluídas • ${pending} pendentes • sistema acompanhando seu ritmo</p>
+          </div>
+        </div>
+
+        <div class="lf61-priority">
+          <div class="lf61-priority-number">01</div>
+          <div class="lf61-priority-copy">
+            <span>PRIORIDADE AGORA</span>
+            <strong>${lf6Escape(priority.title)}</strong>
+            <small>${lf6Escape(priority.time || "Sem horário")}</small>
+          </div>
+          <button id="lf61PriorityAction" type="button">→</button>
+        </div>
+      </section>
+
+      <section class="lf61-vitals">
+        <article>
+          <span class="lf61-vital-icon">◉</span>
+          <div>
+            <small>ROTINA</small>
+            <strong>${done}/${items.length || 0}</strong>
+          </div>
+          <i style="--v:${items.length ? Math.round(done/items.length*100) : 0}%"></i>
+        </article>
+
+        <article>
+          <span class="lf61-vital-icon">⌁</span>
+          <div>
+            <small>ACADEMIA</small>
+            <strong>${gymDone ? "FEITO" : "PENDENTE"}</strong>
+          </div>
+          <i style="--v:${gymDone ? 100 : 12}%"></i>
+        </article>
+
+        <article>
+          <span class="lf61-vital-icon">◈</span>
+          <div>
+            <small>PMMG</small>
+            <strong>${study == null ? "ATIVO" : study + "%"}</strong>
+          </div>
+          <i style="--v:${study == null ? 35 : study}%"></i>
+        </article>
+
+        <article>
+          <span class="lf61-vital-icon">◌</span>
+          <div>
+            <small>ÁGUA</small>
+            <strong>${water.current ? water.current.toFixed(1) : "0"}L</strong>
+          </div>
+          <i style="--v:${water.goal ? Math.min(100, Math.round(water.current/water.goal*100)) : 0}%"></i>
+        </article>
+      </section>
+
+      <section class="lf61-intel-strip">
+        <div class="lf61-intel-symbol">LF</div>
+        <div>
+          <span>INTELLIGENCE // PRÓXIMA JANELA</span>
+          <strong>${lf6Escape(lf61GetNextFreeWindow())}</strong>
+        </div>
+        <i></i>
+      </section>
+    `;
+
+    host.querySelector("#lf61PriorityAction")?.addEventListener("click", () => {
+      const timeline = document.getElementById("lf6TimelineList");
+      timeline?.scrollIntoView({behavior:"smooth",block:"center"});
+    });
+  }
+
+  function lf61InjectCockpit() {
+    const home = document.getElementById("homeScreen");
+    if (!home || home.querySelector("#lf61Cockpit")) return;
+
+    const hero = home.querySelector(".hero-section");
+    const cockpit = document.createElement("div");
+    cockpit.id = "lf61Cockpit";
+    cockpit.className = "lf61-cockpit";
+
+    if (hero) {
+      hero.insertAdjacentElement("afterend", cockpit);
+    } else {
+      home.prepend(cockpit);
+    }
+
+    lf61RenderCockpit();
+  }
+
+  // Move the v6 intelligence layer under the new cockpit if both exist.
+  function lf61OrganizeHome() {
+    lf61InjectCockpit();
+
+    const cockpit = document.getElementById("lf61Cockpit");
+    const intelligence = document.getElementById("lf6Intelligence");
+    if (cockpit && intelligence && cockpit.nextElementSibling !== intelligence) {
+      cockpit.insertAdjacentElement("afterend", intelligence);
+    }
+
+    lf61RenderCockpit();
+  }
+
+  lf61OrganizeHome();
+
+  const lf61Observer = new MutationObserver(() => {
+    clearTimeout(window.__lf61Timer);
+    window.__lf61Timer = setTimeout(lf61OrganizeHome, 140);
+  });
+
+  const lf61Home = document.getElementById("homeScreen");
+  if (lf61Home) {
+    lf61Observer.observe(lf61Home, {childList:true,subtree:true});
+  }
+
+  setInterval(lf61RenderCockpit, 60000);
 
   // PWA service worker.
   if ("serviceWorker" in navigator && location.protocol.startsWith("http")) {
