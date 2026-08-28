@@ -13838,6 +13838,40 @@ document.addEventListener("DOMContentLoaded", () => {
       </div>
     `;
 
+    // LifeFlow 6.3.1: remove perfil antigo/duplicado do drawer.
+    const legacyProfileCandidates = [
+      drawer.querySelector("#lf40ProfileDrawer"),
+      drawer.querySelector(".drawer-profile"),
+      drawer.querySelector(".profile-card"),
+      ...drawer.querySelectorAll('[data-life-module="profile"], [data-screen="profile"]')
+    ].filter(Boolean);
+
+    legacyProfileCandidates.forEach(node => {
+      if (node.id !== "lf63Profile" && !node.classList.contains("lf63-profile")) {
+        node.remove();
+      }
+    });
+
+    // Fallback textual: remove somente cards antigos com "Meu perfil"
+    // que não sejam o novo card premium.
+    [...drawer.querySelectorAll("button,a,div")].forEach(node => {
+      if (
+        node !== drawer &&
+        !node.classList.contains("lf63-profile") &&
+        !node.closest(".lf63-profile") &&
+        /meu perfil/i.test((node.textContent || "").trim()) &&
+        node.children.length <= 4
+      ) {
+        const isLegacyProfile =
+          node.classList.contains("lf-drawer-item") ||
+          node.classList.contains("drawer-profile") ||
+          node.classList.contains("profile-card") ||
+          node.id === "lf40ProfileDrawer";
+        if (isLegacyProfile) node.remove();
+      }
+    });
+
+
     const edgeHandle = document.createElement("button");
     edgeHandle.id = "lfDrawerHandle";
     edgeHandle.className = "lf-drawer-handle";
