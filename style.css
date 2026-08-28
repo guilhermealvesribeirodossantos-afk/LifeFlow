@@ -7739,3 +7739,219 @@ html[data-lifeflow-version="6.1.1"] .lf5-system-rail small {
   font-size: 18px !important;
   font-weight: 950 !important;
 }
+
+
+/* ==================================================================
+   LIFEFLOW 6.4 — HOME FINAL
+================================================================== */
+
+#homeScreen.lf64-home {
+  padding-top: 8px !important;
+}
+
+#homeScreen .lf64-legacy-hidden {
+  display: none !important;
+}
+
+/* Hero cleaned up */
+#homeScreen.lf64-home .hero-section {
+  min-height: 138px !important;
+  margin-bottom: 6px !important;
+  padding: 8px 4px 18px !important;
+}
+
+#homeScreen.lf64-home .hero-section h2 {
+  font-size: clamp(34px, 8vw, 52px) !important;
+  letter-spacing: -2.2px !important;
+}
+
+#homeScreen.lf64-home .welcome-subtitle {
+  max-width: 500px !important;
+  color: #748078 !important;
+}
+
+/* Cockpit becomes the centerpiece */
+#homeScreen.lf64-home .lf61-cockpit {
+  margin-bottom: 12px !important;
+}
+
+#homeScreen.lf64-home .lf61-cockpit-hero {
+  border-radius: 30px !important;
+  box-shadow:
+    0 34px 100px rgba(0,0,0,.46),
+    0 0 0 1px rgba(104,240,168,.02) inset !important;
+}
+
+/* Intelligence feels secondary */
+#homeScreen.lf64-home #lf6Intelligence {
+  margin: 12px 0 !important;
+}
+
+#homeScreen.lf64-home .lf6-command-launch {
+  margin-bottom: 9px !important;
+}
+
+/* Quick hub */
+.lf64-quick-hub {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin: 10px 0 26px;
+}
+
+.lf64-quick-hub button {
+  min-height: 92px;
+  display: grid;
+  grid-template-columns: 34px 1fr auto;
+  align-items: center;
+  gap: 9px;
+  padding: 12px;
+  border: 1px solid rgba(255,255,255,.065);
+  border-radius: 18px;
+  background:
+    linear-gradient(145deg,rgba(14,19,16,.93),rgba(6,9,7,.97));
+  color: inherit;
+  text-align: left;
+  box-shadow: 0 16px 42px rgba(0,0,0,.22);
+}
+
+.lf64-quick-hub button:hover {
+  border-color: rgba(104,240,168,.16);
+  transform: translateY(-1px);
+}
+
+.lf64-quick-hub button > span {
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  border-radius: 10px;
+  background: rgba(104,240,168,.05);
+  color: var(--lf5-green);
+  font-size: 13px;
+}
+
+.lf64-quick-hub small,
+.lf64-quick-hub strong {
+  display: block;
+}
+
+.lf64-quick-hub small {
+  margin-bottom: 4px;
+  color: #4f5a53;
+  font-size: 6px;
+  font-weight: 950;
+  letter-spacing: .8px;
+}
+
+.lf64-quick-hub strong {
+  color: #dfe6e1;
+  font-size: 9px;
+}
+
+.lf64-quick-hub b {
+  color: #5e6a62;
+  font-size: 15px;
+  font-weight: 400;
+}
+
+/* Routine section */
+#homeScreen.lf64-home .content-section {
+  margin-bottom: 24px !important;
+}
+
+#homeScreen.lf64-home .content-section > .section-heading {
+  display: none !important;
+}
+
+.lf64-section-tag {
+  margin-bottom: 12px;
+  padding: 0 2px;
+}
+
+.lf64-section-tag span,
+.lf64-section-tag strong,
+.lf64-section-tag small {
+  display: block;
+}
+
+.lf64-section-tag span {
+  color: var(--lf5-green);
+  font-size: 6px;
+  font-weight: 950;
+  letter-spacing: 1.4px;
+}
+
+.lf64-section-tag strong {
+  margin-top: 5px;
+  color: #edf2ef;
+  font-size: 17px;
+  font-weight: 850;
+  letter-spacing: -.5px;
+}
+
+.lf64-section-tag small {
+  margin-top: 4px;
+  color: #59645d;
+  font-size: 7px;
+}
+
+/* Routine cards cleaner */
+#homeScreen.lf64-home .task {
+  min-height: 66px !important;
+  border-radius: 16px !important;
+  background:
+    linear-gradient(145deg,rgba(14,18,15,.9),rgba(7,9,8,.95)) !important;
+}
+
+/* Footer status */
+.lf64-home-status {
+  min-height: 46px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin: 26px 0 6px;
+  color: #4f5b53;
+  font-size: 6px;
+  font-weight: 850;
+  letter-spacing: .6px;
+}
+
+.lf64-home-status i {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--lf5-green);
+  box-shadow: 0 0 10px rgba(104,240,168,.45);
+}
+
+.lf64-home-status b {
+  color: rgba(104,240,168,.65);
+}
+
+/* Mobile */
+@media (max-width: 700px) {
+  .lf64-quick-hub {
+    grid-template-columns: repeat(2,1fr);
+  }
+
+  .lf64-quick-hub button {
+    min-height: 78px;
+  }
+}
+
+@media (max-width: 430px) {
+  #homeScreen.lf64-home .hero-section {
+    min-height: 125px !important;
+  }
+
+  .lf64-quick-hub {
+    gap: 7px;
+  }
+
+  .lf64-quick-hub button {
+    padding: 10px;
+    min-height: 74px;
+  }
+}
