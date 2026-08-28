@@ -6337,3 +6337,21 @@ body.lf6-command-open {
     grid-template-columns:40px 1fr 36px;
   }
 }
+
+
+/* ============================================================
+   LIFEFLOW 6.1.1 — COCKPIT FIX
+============================================================ */
+html[data-lifeflow-version="6.1.1"] .lf5-system-rail small {
+  color: var(--lf5-green);
+  text-shadow: 0 0 14px rgba(104,240,168,.35);
+}
+
+.lf611-cockpit {
+  animation: lf611CockpitIn .5s cubic-bezier(.2,.8,.25,1) both;
+}
+
+@keyframes lf611CockpitIn {
+  from { opacity:0; transform:translateY(12px) scale(.992); }
+  to { opacity:1; transform:none; }
+}
