@@ -1,266 +1,3 @@
-
-/* ============================================================
-   LIFEFLOW 6.2.1 — EXACT DRAWER FIX
-   Targets the real #lifeflowDrawer / .lf-drawer-* structure.
-============================================================ */
-document.addEventListener("DOMContentLoaded", () => {
-  document.documentElement.setAttribute("data-lifeflow-menu", "6.2.1");
-
-  function lf621UpgradeRealDrawer() {
-    const drawer = document.getElementById("lifeflowDrawer");
-    if (!drawer) return false;
-
-    drawer.classList.add("lf621-menu");
-
-    const head = drawer.querySelector(".lf-drawer-head");
-    if (head && !head.querySelector(".lf621-subtitle")) {
-      const left = head.querySelector("div");
-      if (left) {
-        const sub = document.createElement("div");
-        sub.className = "lf621-subtitle";
-        sub.innerHTML = `<span>INTELLIGENCE OS</span><i></i>`;
-        left.appendChild(sub);
-      }
-    }
-
-    const nav = drawer.querySelector(".lf-drawer-nav");
-    if (!nav) return true;
-
-    // Profile card is inserted before the navigation.
-    if (!drawer.querySelector(".lf621-profile")) {
-      const profile = document.createElement("button");
-      profile.type = "button";
-      profile.className = "lf621-profile";
-      profile.innerHTML = `
-        <div class="lf621-avatar">LF</div>
-        <div class="lf621-profile-copy">
-          <strong>Meu perfil</strong>
-          <span>Minha evolução, minha rotina.</span>
-        </div>
-        <b>›</b>
-        <div class="lf621-xp">
-          <small>NÍVEL ATIVO</small>
-          <i><em></em></i>
-          <span>EVOLUÇÃO</span>
-        </div>
-      `;
-      nav.insertAdjacentElement("beforebegin", profile);
-      profile.addEventListener("click", () => {
-        const profileBtn =
-          document.getElementById("lf40ProfileDrawer") ||
-          document.querySelector('[data-life-module="profile"]');
-        if (profileBtn) profileBtn.click();
-      });
-    }
-
-    const map = {
-      home: ["⌂","home"],
-      sleep: ["☾","sleep"],
-      study: ["▣","study"],
-      agenda: ["▦","agenda"],
-      progress: ["↗","progress"]
-    };
-
-    nav.querySelectorAll(".lf-drawer-item[data-drawer-go]").forEach(btn => {
-      const type = btn.dataset.drawerGo;
-      btn.classList.add("lf621-row");
-      btn.dataset.lf621Type = type;
-      const icon = btn.querySelector(":scope > span");
-      if (icon && map[type]) icon.textContent = map[type][0];
-      if (type === "progress") {
-        const strong = btn.querySelector("strong");
-        if (strong) strong.textContent = "Progresso";
-      }
-      if (!btn.querySelector(":scope > b")) {
-        const arrow = document.createElement("b");
-        arrow.textContent = "›";
-        btn.appendChild(arrow);
-      }
-    });
-
-    const gymGroup = drawer.querySelector(".lf-drawer-group");
-    const gymBtn = drawer.querySelector("#lfGymGroupButton");
-    const gymSub = drawer.querySelector("#lfGymSubmenu");
-
-    if (gymGroup) gymGroup.classList.add("lf621-gym-card");
-    if (gymBtn) {
-      gymBtn.classList.add("lf621-row");
-      gymBtn.dataset.lf621Type = "gym";
-      const icon = gymBtn.querySelector(":scope > span");
-      if (icon) icon.textContent = "◫";
-    }
-
-    if (gymSub) {
-      gymSub.classList.add("lf621-gym-submenu");
-      [...gymSub.querySelectorAll("button")].forEach((btn, idx) => {
-        if (!btn.querySelector(".lf621-sub-icon")) {
-          const icon = document.createElement("span");
-          icon.className = "lf621-sub-icon";
-          icon.textContent = idx === 0 ? "⌁" : idx === gymSub.children.length - 1 ? "▦" : "↗";
-          btn.prepend(icon);
-        }
-      });
-    }
-
-    if (!drawer.querySelector(".lf621-motivation")) {
-      const motivation = document.createElement("div");
-      motivation.className = "lf621-motivation";
-      motivation.innerHTML = `
-        <span>↗</span>
-        <div>
-          <strong>Disciplina hoje, resultado sempre.</strong>
-          <small>Você no controle da sua melhor versão.</small>
-        </div>
-        <b>›</b>
-      `;
-      drawer.appendChild(motivation);
-
-      const sig = document.createElement("div");
-      sig.className = "lf621-signature";
-      sig.textContent = "LIFEFLOW // INTELLIGENCE OS";
-      drawer.appendChild(sig);
-    }
-
-    return true;
-  }
-
-  [0,80,200,500,1000,1800].forEach(ms => setTimeout(lf621UpgradeRealDrawer, ms));
-
-  const obs = new MutationObserver(() => {
-    clearTimeout(window.__lf621);
-    window.__lf621 = setTimeout(lf621UpgradeRealDrawer, 50);
-  });
-  obs.observe(document.body,{childList:true,subtree:true});
-});
-
-
-
-/* ============================================================
-   LIFEFLOW 6.2.2 — MENU REBUILD
-   Visual/UX enhancement for the existing LifeFlow drawer.
-============================================================ */
-document.addEventListener("DOMContentLoaded", () => {
-  document.documentElement.setAttribute("data-lifeflow-menu", "6.2");
-
-  function enhanceDrawer() {
-    const drawer =
-      document.querySelector(".side-drawer") ||
-      document.querySelector(".drawer") ||
-      document.querySelector(".life-drawer") ||
-      document.querySelector("#sideDrawer");
-
-    if (!drawer || drawer.dataset.lf62Ready === "1") return;
-    drawer.dataset.lf62Ready = "1";
-    drawer.classList.add("lf62-menu-pro");
-
-    // Brand subtitle.
-    const brand =
-      drawer.querySelector(".drawer-header") ||
-      drawer.querySelector(".menu-header") ||
-      drawer.firstElementChild;
-
-    if (brand && !brand.querySelector(".lf62-brand-sub")) {
-      const sub = document.createElement("div");
-      sub.className = "lf62-brand-sub";
-      sub.innerHTML = "<span>INTELLIGENCE OS</span><i></i>";
-      brand.appendChild(sub);
-    }
-
-    // Upgrade profile card with an XP-style visual rail, while keeping existing content.
-    const profile =
-      drawer.querySelector(".drawer-profile") ||
-      drawer.querySelector(".profile-card") ||
-      drawer.querySelector('[data-screen="profile"]') ||
-      [...drawer.querySelectorAll("button,a,div")].find(el =>
-        /meu perfil/i.test(el.textContent || "") && el.children.length
-      );
-
-    if (profile && !profile.querySelector(".lf62-profile-progress")) {
-      profile.classList.add("lf62-profile-card");
-      const progress = document.createElement("div");
-      progress.className = "lf62-profile-progress";
-      progress.innerHTML = `
-        <div><span>EVOLUÇÃO</span><strong>ATIVO</strong></div>
-        <i><b></b></i>
-      `;
-      profile.appendChild(progress);
-    }
-
-    // Group/upgrade navigation rows based on their labels.
-    const labels = [
-      ["Início","⌂","home"],
-      ["Academia","◫","gym"],
-      ["Sono","☾","sleep"],
-      ["Estudos","▣","study"],
-      ["Agenda","▦","agenda"],
-      ["Progresso","↗","progress"]
-    ];
-
-    const candidates = [...drawer.querySelectorAll("button,a,.drawer-item,.menu-item,.life-nav-item")];
-    candidates.forEach(el => {
-      const text = (el.textContent || "").trim().toLocaleLowerCase("pt-BR");
-      const match = labels.find(([label]) => text.startsWith(label.toLocaleLowerCase("pt-BR")));
-      if (!match || el.dataset.lf62Item === "1") return;
-
-      el.dataset.lf62Item = "1";
-      el.dataset.lf62Type = match[2];
-      el.classList.add("lf62-nav-row");
-
-      if (!el.querySelector(".lf62-icon")) {
-        const icon = document.createElement("span");
-        icon.className = "lf62-icon";
-        icon.textContent = match[1];
-        el.prepend(icon);
-      }
-    });
-
-    // Academia container receives the richer card treatment when expanded.
-    [...drawer.querySelectorAll("*")].forEach(el => {
-      const txt = (el.textContent || "").trim();
-      if (
-        txt.includes("Treino C") &&
-        txt.includes("Meus Treinos") &&
-        txt.includes("Evolução de treino") &&
-        el.children.length >= 2 &&
-        el.children.length <= 8
-      ) {
-        el.classList.add("lf62-gym-submenu");
-      }
-    });
-
-    // Motivational footer.
-    if (!drawer.querySelector(".lf62-motivation")) {
-      const footer = document.createElement("div");
-      footer.className = "lf62-motivation";
-      footer.innerHTML = `
-        <div class="lf62-rocket">↗</div>
-        <div>
-          <strong>Disciplina hoje, resultado sempre.</strong>
-          <span>Você no controle da sua melhor versão.</span>
-        </div>
-        <i>›</i>
-      `;
-      drawer.appendChild(footer);
-
-      const signature = document.createElement("div");
-      signature.className = "lf62-signature";
-      signature.textContent = "LIFEFLOW // INTELLIGENCE OS";
-      drawer.appendChild(signature);
-    }
-  }
-
-  enhanceDrawer();
-  [100,300,800,1600].forEach(ms => setTimeout(enhanceDrawer, ms));
-
-  const observer = new MutationObserver(() => {
-    clearTimeout(window.__lf62MenuTimer);
-    window.__lf62MenuTimer = setTimeout(enhanceDrawer, 80);
-  });
-  observer.observe(document.body, {childList:true,subtree:true});
-});
-
-
-
 /* ============================================================
    LIFEFLOW 6.1.1 — SMART COCKPIT BOOTSTRAP
    Independent bootstrap: guaranteed to render before legacy app.
@@ -13999,76 +13736,106 @@ document.addEventListener("DOMContentLoaded", () => {
     drawer.className = "lf-drawer";
 
     drawer.innerHTML = `
-      <div class="lf-drawer-head lf622-head">
-        <div class="lf622-brand">
+      <div class="lf-drawer-head lf63-head">
+        <div class="lf63-brand">
           <span>MENU</span>
           <strong>Life<span>Flow</span></strong>
-          <div class="lf622-os"><b>INTELLIGENCE OS</b><i></i></div>
+          <div class="lf63-os">
+            <b>INTELLIGENCE OS</b>
+            <i></i>
+          </div>
         </div>
-        <button id="lfDrawerClose" type="button" aria-label="Fechar menu">×</button>
+
+        <button id="lfDrawerClose" class="lf63-close" type="button" aria-label="Fechar menu">×</button>
       </div>
 
-      <button id="lf622Profile" class="lf622-profile" type="button">
-        <div class="lf622-avatar">LF</div>
-        <div class="lf622-profile-copy">
+      <button id="lf63Profile" class="lf63-profile" type="button">
+        <div class="lf63-avatar">LF</div>
+
+        <div class="lf63-profile-copy">
           <strong>Meu perfil</strong>
           <span>Minha evolução, minha rotina.</span>
         </div>
-        <b class="lf622-chevron">›</b>
-        <div class="lf622-level">
+
+        <b class="lf63-chevron">›</b>
+
+        <div class="lf63-level">
           <span>NÍVEL ATIVO</span>
           <i><em></em></i>
           <small>EVOLUÇÃO</small>
         </div>
       </button>
 
-      <div class="lf-drawer-nav lf622-nav">
-        <button class="lf-drawer-item lf622-item active" data-drawer-go="home">
-          <span class="lf622-icon">⌂</span><strong>Início</strong><b>›</b>
+      <div class="lf-drawer-nav lf63-nav">
+
+        <button class="lf-drawer-item lf63-item active" data-drawer-go="home">
+          <span class="lf63-icon">⌂</span>
+          <strong>Início</strong>
+          <b>›</b>
         </button>
 
-        <div class="lf-drawer-group lf622-gym">
-          <button class="lf-drawer-item lf-drawer-parent lf622-item" id="lfGymGroupButton" type="button">
-            <span class="lf622-icon">◫</span><strong>Academia</strong><b>⌃</b>
+        <div class="lf-drawer-group lf63-gym-card">
+          <button class="lf-drawer-item lf-drawer-parent lf63-item" id="lfGymGroupButton" type="button">
+            <span class="lf63-icon">◫</span>
+            <strong>Academia</strong>
+            <b class="lf63-gym-arrow">⌃</b>
           </button>
 
-          <div class="lf-drawer-submenu lf622-submenu" id="lfGymSubmenu">
+          <div class="lf-drawer-submenu lf63-submenu" id="lfGymSubmenu">
             ${gymPrograms.plans.map((plan, idx) => `
               <button type="button" data-drawer-plan="${escapeGymHtml(plan.id)}">
-                <span>${idx === 0 ? "⌁" : "•"}</span>${escapeGymHtml(plan.name)}
+                <span>${idx === 0 ? "⌁" : "•"}</span>
+                <strong>${escapeGymHtml(plan.name)}</strong>
               </button>
             `).join("")}
-            <button type="button" data-drawer-go="gym"><span>▦</span>Meus Treinos</button>
+
+            <button type="button" data-drawer-go="gym">
+              <span>▦</span>
+              <strong>Meus Treinos</strong>
+            </button>
           </div>
         </div>
 
-        <button class="lf-drawer-item lf622-item lf622-sleep" data-drawer-go="sleep">
-          <span class="lf622-icon">☾</span><strong>Sono</strong><b>›</b>
+        <button class="lf-drawer-item lf63-item lf63-sleep" data-drawer-go="sleep">
+          <span class="lf63-icon">☾</span>
+          <strong>Sono</strong>
+          <b>›</b>
         </button>
 
-        <button class="lf-drawer-item lf622-item lf622-study" data-drawer-go="study">
-          <span class="lf622-icon">▣</span><strong>Estudos</strong><b>›</b>
+        <button class="lf-drawer-item lf63-item lf63-study" data-drawer-go="study">
+          <span class="lf63-icon">▣</span>
+          <strong>Estudos</strong>
+          <b>›</b>
         </button>
 
-        <button class="lf-drawer-item lf622-item lf622-agenda" data-drawer-go="agenda">
-          <span class="lf622-icon">▦</span><strong>Agenda</strong><b>›</b>
+        <button class="lf-drawer-item lf63-item lf63-agenda" data-drawer-go="agenda">
+          <span class="lf63-icon">▦</span>
+          <strong>Agenda</strong>
+          <b>›</b>
         </button>
 
-        <button class="lf-drawer-item lf622-item" data-drawer-go="progress">
-          <span class="lf622-icon">↗</span><strong>Progresso</strong><b>›</b>
+        <button class="lf-drawer-item lf63-item lf63-progress" data-drawer-go="progress">
+          <span class="lf63-icon">↗</span>
+          <strong>Progresso</strong>
+          <b>›</b>
         </button>
+
       </div>
 
-      <div class="lf622-motivation">
-        <span class="lf622-motivation-icon">↗</span>
+      <div class="lf63-motivation">
+        <span class="lf63-motivation-icon">↗</span>
+
         <div>
           <strong>Disciplina hoje, resultado sempre.</strong>
           <small>Você no controle da sua melhor versão.</small>
         </div>
+
         <b>›</b>
       </div>
 
-      <div class="lf622-signature">LIFEFLOW // INTELLIGENCE OS</div>
+      <div class="lf63-signature">
+        LIFEFLOW // INTELLIGENCE OS
+      </div>
     `;
 
     const edgeHandle = document.createElement("button");
@@ -14103,7 +13870,7 @@ document.addEventListener("DOMContentLoaded", () => {
     drawerOverlay.addEventListener("click", closeDrawer);
     document.getElementById("lfDrawerClose")?.addEventListener("click", closeDrawer);
 
-    document.getElementById("lf622Profile")?.addEventListener("click", () => {
+    document.getElementById("lf63Profile")?.addEventListener("click", () => {
       const profileTarget =
         document.getElementById("lf40ProfileDrawer") ||
         document.querySelector('[data-life-module="profile"]');
