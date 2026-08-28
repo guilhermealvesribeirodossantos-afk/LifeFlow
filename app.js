@@ -463,7 +463,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
   // =====================================================
-  // LIFEFLOW 4.1 — PERFIL + ACESSO EXCLUSIVO
+  // LIFEFLOW 4.2 — ACADEMIA PREMIUM
   // Conta única / proteção client-side
   // =====================================================
 
@@ -1556,6 +1556,488 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("lf40ProfileDrawer")?.addEventListener("click",()=>{showLifeSettings();window.closeLifeFlowDrawer?.();});
   }
 
+
+
+  function injectGymPremiumThemeStyles() {
+    if (
+      document.getElementById(
+        "lifeflowGymPremiumThemeStyles"
+      )
+    ) return;
+
+    const style =
+      document.createElement(
+        "style"
+      );
+
+    style.id =
+      "lifeflowGymPremiumThemeStyles";
+
+    style.textContent = `
+      .lifeflow-gym-screen {
+        background:
+          radial-gradient(
+            circle at 100% 0%,
+            rgba(100,231,155,.055),
+            transparent 30%
+          ),
+          #0b0d0e;
+      }
+
+      .lf-gym-premium-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 15px;
+        padding: 8px 2px 17px;
+      }
+
+      .lf-gym-premium-greeting > span {
+        color: #e7e8e8;
+        font-size: 24px;
+        font-weight: 400;
+      }
+
+      .lf-gym-premium-greeting > strong {
+        margin-left: 5px;
+        color: #f7f7f7;
+        font-size: 24px;
+        font-weight: 950;
+      }
+
+      .lf-gym-premium-greeting p {
+        margin: 6px 0 0;
+        color: #777b7f;
+        font-size: 11px;
+      }
+
+      .lf-gym-avatar-button {
+        flex: 0 0 auto;
+        border: 0;
+        background: transparent;
+        padding: 0;
+      }
+
+      .lf-gym-premium-avatar {
+        width: 52px;
+        height: 52px;
+        overflow: hidden;
+        display: grid;
+        place-items: center;
+        border: 2px solid rgba(100,231,155,.45);
+        border-radius: 50%;
+        background:
+          linear-gradient(
+            145deg,
+            rgba(100,231,155,.18),
+            rgba(100,231,155,.06)
+          );
+        color: #7bedb0;
+        font-size: 18px;
+        font-weight: 950;
+      }
+
+      .lf-gym-premium-avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      .lf-gym-calendar-strip {
+        display: grid;
+        grid-template-columns: 82px 1fr;
+        align-items: stretch;
+        margin: 0 -14px 25px;
+        border-top: 1px solid rgba(255,255,255,.035);
+        border-bottom: 1px solid rgba(255,255,255,.04);
+        background: #101213;
+      }
+
+      .lf-gym-month {
+        display: grid;
+        place-items: center;
+        border-radius: 0 28px 28px 0;
+        background:
+          linear-gradient(
+            135deg,
+            #2c9d69,
+            #67e8a0
+          );
+        color: #07110b;
+        font-size: 17px;
+        font-weight: 950;
+      }
+
+      .lf-gym-days {
+        display: grid;
+        grid-auto-flow: column;
+        grid-auto-columns: 60px;
+        overflow-x: auto;
+        scrollbar-width: none;
+        padding: 8px 7px;
+      }
+
+      .lf-gym-days::-webkit-scrollbar {
+        display: none;
+      }
+
+      .lf-gym-days button {
+        display: grid;
+        place-items: center;
+        gap: 2px;
+        min-height: 74px;
+        border: 0;
+        background: transparent;
+        color: #707478;
+      }
+
+      .lf-gym-days button i {
+        width: 27px;
+        height: 4px;
+        border-radius: 999px;
+        background: transparent;
+      }
+
+      .lf-gym-days button strong {
+        color: #d8dadb;
+        font-size: 16px;
+      }
+
+      .lf-gym-days button span {
+        font-size: 10px;
+      }
+
+      .lf-gym-days button.today i {
+        background: #69e8a3;
+      }
+
+      .lf-gym-days button.today strong,
+      .lf-gym-days button.today span {
+        color: #78eaaa;
+      }
+
+      .lf-gym-premium-section {
+        margin: 0 0 25px;
+      }
+
+      .lf-gym-premium-title {
+        margin: 0 2px 12px;
+      }
+
+      .lf-gym-premium-title h3 {
+        margin: 0;
+        color: #f1f2f2;
+        font-size: 18px;
+      }
+
+      .lf-gym-premium-title p {
+        margin: 4px 0 0;
+        color: #72767a;
+        font-size: 10px;
+      }
+
+      .lf-gym-featured-card {
+        position: relative;
+        width: 100%;
+        min-height: 185px;
+        overflow: hidden;
+        display: grid;
+        grid-template-columns: 1.25fr .75fr;
+        align-items: stretch;
+        border: 1px solid rgba(255,255,255,.065);
+        border-radius: 19px;
+        background:
+          radial-gradient(
+            circle at 85% 50%,
+            rgba(100,231,155,.10),
+            transparent 40%
+          ),
+          linear-gradient(
+            145deg,
+            #16191a,
+            #101213
+          );
+        color: inherit;
+        padding: 19px;
+        text-align: left;
+        box-shadow:
+          0 18px 50px rgba(0,0,0,.26);
+      }
+
+      .lf-gym-featured-card > em {
+        position: absolute;
+        top: 11px;
+        right: 13px;
+        color: #929699;
+        font-style: normal;
+        font-size: 21px;
+      }
+
+      .lf-gym-featured-copy {
+        z-index: 1;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .lf-gym-featured-copy > span {
+        color: #76e9aa;
+        font-size: 14px;
+        font-weight: 950;
+      }
+
+      .lf-gym-featured-copy > strong {
+        margin-top: 12px;
+        color: #eeeeef;
+        font-size: 18px;
+      }
+
+      .lf-gym-featured-copy > small {
+        margin-top: 4px;
+        color: #818589;
+        font-size: 9px;
+      }
+
+      .lf-gym-featured-progress {
+        margin-top: auto;
+      }
+
+      .lf-gym-featured-progress b {
+        color: #75eaaa;
+        font-size: 10px;
+      }
+
+      .lf-gym-featured-progress > div {
+        width: 100%;
+        height: 6px;
+        overflow: hidden;
+        margin-top: 8px;
+        border-radius: 999px;
+        background: rgba(255,255,255,.08);
+      }
+
+      .lf-gym-featured-progress i {
+        display: block;
+        height: 100%;
+        border-radius: inherit;
+        background:
+          linear-gradient(
+            90deg,
+            #3ea26f,
+            #72e8a8
+          );
+      }
+
+      .lf-gym-featured-art {
+        display: grid;
+        place-items: end center;
+        font-size: 70px;
+        filter:
+          drop-shadow(
+            0 18px 25px
+            rgba(0,0,0,.4)
+          );
+        transform:
+          rotate(-10deg);
+      }
+
+      .lf-gym-program-carousel {
+        display: grid;
+        grid-auto-flow: column;
+        grid-auto-columns: minmax(190px, 72%);
+        gap: 10px;
+        overflow-x: auto;
+        padding-bottom: 3px;
+        scrollbar-width: none;
+      }
+
+      .lf-gym-program-carousel::-webkit-scrollbar {
+        display: none;
+      }
+
+      .lf-gym-program-card {
+        min-height: 175px;
+        display: flex;
+        flex-direction: column;
+        border: 1px solid rgba(255,255,255,.06);
+        border-radius: 18px;
+        background:
+          radial-gradient(
+            circle at 80% 15%,
+            rgba(100,231,155,.07),
+            transparent 32%
+          ),
+          #141617;
+        color: inherit;
+        padding: 15px;
+        text-align: left;
+      }
+
+      .lf-gym-program-card-top {
+        min-height: 57px;
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+      }
+
+      .lf-gym-program-card-top span {
+        font-size: 39px;
+      }
+
+      .lf-gym-program-card-top b {
+        color: #898d90;
+        font-size: 20px;
+      }
+
+      .lf-gym-program-card > strong {
+        margin-top: 12px;
+        color: #74e9a9;
+        font-size: 14px;
+      }
+
+      .lf-gym-program-card > small {
+        margin-top: 5px;
+        color: #777b7f;
+        font-size: 9px;
+      }
+
+      .lf-gym-program-card > em {
+        margin-top: auto;
+        color: #5f6367;
+        font-style: normal;
+        font-size: 8px;
+      }
+
+      .lf-gym-program-new {
+        border-style: dashed;
+      }
+
+      .lf-gym-immediate-card {
+        width: 100%;
+        min-height: 95px;
+        display: grid;
+        grid-template-columns: 1fr auto auto;
+        align-items: center;
+        gap: 14px;
+        border: 1px solid rgba(100,231,155,.13);
+        border-radius: 18px;
+        background:
+          linear-gradient(
+            135deg,
+            rgba(100,231,155,.08),
+            rgba(255,255,255,.018)
+          ),
+          #111314;
+        color: inherit;
+        padding: 16px;
+        text-align: left;
+      }
+
+      .lf-gym-immediate-card span {
+        display: block;
+        color: #75eaaa;
+        font-size: 12px;
+        font-weight: 950;
+      }
+
+      .lf-gym-immediate-card strong {
+        display: block;
+        margin-top: 5px;
+        color: #b5b8ba;
+        font-size: 11px;
+        font-variant-numeric:
+          tabular-nums;
+      }
+
+      .lf-gym-immediate-card > b {
+        color: #75eaaa;
+        font-size: 31px;
+      }
+
+      .lf-gym-immediate-card > em {
+        color: #8b8f92;
+        font-style: normal;
+        font-size: 28px;
+      }
+
+      .lf-gym-internal-nav {
+        position: sticky;
+        bottom: 8px;
+        z-index: 20;
+        display: grid;
+        grid-template-columns:
+          repeat(5,1fr);
+        gap: 2px;
+        margin: 22px 0 0;
+        padding: 8px 5px;
+        border: 1px solid rgba(255,255,255,.06);
+        border-radius: 22px;
+        background: rgba(15,17,18,.94);
+        backdrop-filter:
+          blur(15px);
+        -webkit-backdrop-filter:
+          blur(15px);
+        box-shadow:
+          0 16px 45px rgba(0,0,0,.4);
+      }
+
+      .lf-gym-internal-nav button {
+        min-width: 0;
+        min-height: 54px;
+        display: grid;
+        place-items: center;
+        align-content: center;
+        gap: 3px;
+        border: 0;
+        border-radius: 14px;
+        background: transparent;
+        color: #6c7074;
+      }
+
+      .lf-gym-internal-nav button span {
+        font-size: 18px;
+      }
+
+      .lf-gym-internal-nav button strong {
+        font-size: 7px;
+      }
+
+      .lf-gym-internal-nav button.active {
+        background:
+          rgba(100,231,155,.10);
+        color: #76e9aa;
+      }
+
+      @media (max-width:520px) {
+        .lf-gym-premium-greeting > span,
+        .lf-gym-premium-greeting > strong {
+          font-size: 22px;
+        }
+
+        .lf-gym-calendar-strip {
+          grid-template-columns:
+            76px 1fr;
+        }
+
+        .lf-gym-program-carousel {
+          grid-auto-columns:
+            minmax(185px, 76%);
+        }
+
+        .lf-gym-featured-card {
+          min-height: 178px;
+          padding: 16px;
+        }
+
+        .lf-gym-featured-art {
+          font-size: 60px;
+        }
+      }
+    `;
+
+    document.head.appendChild(
+      style
+    );
+  }
 
   function injectLifeFlow41Styles() {
     if (document.getElementById("lifeflow41Styles")) return;
@@ -13234,119 +13716,541 @@ document.addEventListener("DOMContentLoaded", () => {
     const screen = document.getElementById("gymScreen");
     if (!screen) return;
 
-    screen.innerHTML = `
-      <div class="lf-gym-topbar">
-        <button
-          type="button"
-          class="lf-icon-btn"
-          onclick="window.openLifeFlowDrawer?.()"
-          aria-label="Abrir menu"
-        >☰</button>
+    const now = new Date();
 
-        <div>
-          <span>ACADEMIA</span>
-          <h2>Seus treinos</h2>
+    const hour = now.getHours();
+
+    const greeting =
+      hour < 12
+        ? "Bom dia"
+        : hour < 18
+          ? "Boa tarde"
+          : "Boa noite";
+
+    const profileName =
+      typeof lfProfile !== "undefined" &&
+      lfProfile.name
+        ? lfProfile.name
+        : "Guilherme";
+
+    const activePlan =
+      getActiveGymPlan();
+
+    const progress =
+      getGymSessionProgress();
+
+    const totalSeries =
+      activePlan?.exercises
+        ?.reduce(
+          (sum, exercise) =>
+            sum +
+            Number(
+              exercise.sets || 0
+            ),
+          0
+        ) || 0;
+
+    const completedSeries =
+      activePlan?.exercises
+        ?.reduce(
+          (sum, exercise) =>
+            sum +
+            Math.min(
+              Number(
+                progress[
+                  exercise.id
+                ] || 0
+              ),
+              Number(
+                exercise.sets ||
+                0
+              )
+            ),
+          0
+        ) || 0;
+
+    const planProgress =
+      totalSeries
+        ? Math.round(
+            (
+              completedSeries /
+              totalSeries
+            ) * 100
+          )
+        : 0;
+
+    const days = [];
+
+    for (
+      let offset = -1;
+      offset <= 5;
+      offset++
+    ) {
+      const date =
+        new Date(now);
+
+      date.setDate(
+        now.getDate() +
+        offset
+      );
+
+      days.push({
+        date,
+        isToday:
+          date.toDateString() ===
+          now.toDateString()
+      });
+    }
+
+    const avatar =
+      typeof getLifeProfileAvatarHtml === "function"
+        ? getLifeProfileAvatarHtml(
+            "lf-gym-premium-avatar"
+          )
+        : `
+          <div class="lf-gym-premium-avatar">
+            <span>
+              ${profileName
+                .charAt(0)
+                .toUpperCase()}
+            </span>
+          </div>
+        `;
+
+    screen.innerHTML = `
+      <section class="lf-gym-premium-header">
+        <div class="lf-gym-premium-greeting">
+          <span>
+            ${greeting},
+          </span>
+
+          <strong>
+            ${escapeGymHtml(
+              profileName
+            )}
+          </strong>
+
+          <p>
+            Prepare-se, hoje é dia
+            de evoluir!
+          </p>
         </div>
 
         <button
-          id="lfGymCreatePlan"
+          id="lfGymProfileShortcut"
+          class="lf-gym-avatar-button"
           type="button"
-          class="lf-icon-btn"
-          aria-label="Novo treino"
-        >＋</button>
-      </div>
+          aria-label="Abrir perfil"
+        >
+          ${avatar}
+        </button>
+      </section>
 
-      <div class="lf-gym-tabs">
-        <button class="active" type="button">TREINOS</button>
-        <button id="lfGymLibraryTab" type="button">EXERCÍCIOS</button>
-        <button id="lfGymEvolutionTab" type="button">EVOLUÇÃO</button>
-        <button type="button" id="lfGymHistoryTab">HISTÓRICO</button>
-      </div>
+      <section class="lf-gym-calendar-strip">
+        <div class="lf-gym-month">
+          ${now
+            .toLocaleDateString(
+              "pt-BR",
+              {
+                month: "short"
+              }
+            )
+            .replace(".", "")
+            .replace(
+              /^./,
+              char =>
+                char.toUpperCase()
+            )}
+        </div>
 
-      <section class="lf-folder-section">
-        <span class="lf-kicker">PASTAS DE TREINOS</span>
-
-        <div class="lf-folder-list">
-          ${gymPrograms.plans.map(plan => `
+        <div class="lf-gym-days">
+          ${days.map(item => `
             <button
               type="button"
-              class="lf-folder-card"
-              data-folder-plan="${escapeGymHtml(plan.id)}"
+              class="${
+                item.isToday
+                  ? "today"
+                  : ""
+              }"
             >
-              <div class="lf-folder-icon">${getGymPlanFolderIcon(plan)}</div>
-              <div class="lf-folder-copy">
-                <strong>${escapeGymHtml(plan.name)}</strong>
-                <span>${escapeGymHtml(plan.focus || "Treino personalizado")}</span>
-                <small>${plan.exercises.length} exercícios</small>
-              </div>
-              <b>›</b>
+              <i></i>
+
+              <strong>
+                ${item.date.getDate()}
+              </strong>
+
+              <span>
+                ${item.date
+                  .toLocaleDateString(
+                    "pt-BR",
+                    {
+                      weekday:
+                        "short"
+                    }
+                  )
+                  .replace(".", "")
+                  .slice(0,3)
+                  .replace(
+                    /^./,
+                    char =>
+                      char.toUpperCase()
+                  )}
+              </span>
             </button>
           `).join("")}
+        </div>
+      </section>
+
+      <section class="lf-gym-premium-section">
+        <div class="lf-gym-premium-title">
+          <h3>
+            Treino Personalizado
+          </h3>
+
+          <p>
+            Sua rotina de treino
+            organizada do seu jeito
+          </p>
+        </div>
+
+        <button
+          type="button"
+          class="lf-gym-featured-card"
+          data-folder-plan="${
+            escapeGymHtml(
+              activePlan?.id ||
+              ""
+            )
+          }"
+        >
+          <div class="lf-gym-featured-copy">
+            <span>
+              Treino Personalizado
+            </span>
+
+            <strong>
+              ${escapeGymHtml(
+                activePlan?.name ||
+                "Meu treino"
+              )}
+            </strong>
+
+            <small>
+              ${escapeGymHtml(
+                activePlan?.focus ||
+                "Treino personalizado"
+              )}
+            </small>
+
+            <div class="lf-gym-featured-progress">
+              <b>
+                Progresso
+                ${planProgress}%
+              </b>
+
+              <div>
+                <i
+                  style="
+                    width:
+                    ${planProgress}%
+                  "
+                ></i>
+              </div>
+            </div>
+          </div>
+
+          <div class="lf-gym-featured-art">
+            <span>🏋️</span>
+          </div>
+
+          <em>⋮</em>
+        </button>
+      </section>
+
+      <section class="lf-gym-premium-section">
+        <div class="lf-gym-premium-title">
+          <h3>
+            Meus treinos
+          </h3>
+
+          <p>
+            Acesse suas próprias
+            rotinas
+          </p>
+        </div>
+
+        <div class="lf-gym-program-carousel">
+          ${gymPrograms.plans.map(
+            (
+              plan,
+              index
+            ) => `
+              <button
+                type="button"
+                class="lf-gym-program-card"
+                data-folder-plan="${
+                  escapeGymHtml(
+                    plan.id
+                  )
+                }"
+              >
+                <div class="lf-gym-program-card-top">
+                  <span>
+                    ${
+                      index % 3 === 0
+                        ? "🏋️"
+                        : index % 3 === 1
+                          ? "💪"
+                          : "⚡"
+                    }
+                  </span>
+
+                  <b>⋮</b>
+                </div>
+
+                <strong>
+                  ${escapeGymHtml(
+                    plan.name
+                  )}
+                </strong>
+
+                <small>
+                  ${escapeGymHtml(
+                    plan.focus ||
+                    "Treino personalizado"
+                  )}
+                </small>
+
+                <em>
+                  ${
+                    plan.exercises
+                      .length
+                  }
+                  exercícios
+                </em>
+              </button>
+            `
+          ).join("")}
 
           <button
             type="button"
-            class="lf-folder-card lf-folder-new"
+            class="lf-gym-program-card lf-gym-program-new"
             id="lfGymNewFolder"
           >
-            <div class="lf-folder-icon">＋</div>
-            <div class="lf-folder-copy">
-              <strong>Meus Treinos</strong>
-              <span>Crie novas divisões do seu jeito</span>
-              <small>Personalizado</small>
+            <div class="lf-gym-program-card-top">
+              <span>＋</span>
             </div>
-            <b>›</b>
+
+            <strong>
+              Novo treino
+            </strong>
+
+            <small>
+              Crie uma rotina
+            </small>
           </button>
         </div>
       </section>
 
-      <section class="lf-gym-quick">
-        <div>
-          <span>CRONÔMETRO</span>
-          <strong id="gymWorkoutTimer">${formatTimer(currentWorkoutSeconds())}</strong>
+      <section class="lf-gym-premium-section">
+        <div class="lf-gym-premium-title">
+          <h3>
+            Treino Imediato
+          </h3>
+
+          <p>
+            Comece seu treino
+            sem complicação
+          </p>
         </div>
-        <button id="gymStartWorkout" type="button">▶ Iniciar treino</button>
+
+        <button
+          id="gymStartWorkout"
+          class="lf-gym-immediate-card"
+          type="button"
+        >
+          <div>
+            <span>
+              Iniciar treino agora
+            </span>
+
+            <strong
+              id="gymWorkoutTimer"
+            >
+              ${formatTimer(
+                currentWorkoutSeconds()
+              )}
+            </strong>
+          </div>
+
+          <b>⚡</b>
+          <em>›</em>
+        </button>
       </section>
+
+      <nav class="lf-gym-internal-nav">
+        <button
+          class="active"
+          type="button"
+        >
+          <span>▣</span>
+          <strong>Treinos</strong>
+        </button>
+
+        <button
+          id="lfGymEvolutionTab"
+          type="button"
+        >
+          <span>▥</span>
+          <strong>Atividades</strong>
+        </button>
+
+        <button
+          id="lfGymExploreTab"
+          type="button"
+        >
+          <span>◉</span>
+          <strong>Explorar</strong>
+        </button>
+
+        <button
+          id="lfGymLibraryTab"
+          type="button"
+        >
+          <span>🏋</span>
+          <strong>Exercícios</strong>
+        </button>
+
+        <button
+          id="lfGymBodyTab"
+          type="button"
+        >
+          <span>⚙</span>
+          <strong>Corpo</strong>
+        </button>
+      </nav>
     `;
 
     document
-      .querySelectorAll("[data-folder-plan]")
+      .querySelectorAll(
+        "[data-folder-plan]"
+      )
       .forEach(button => {
-        button.addEventListener("click", () => {
-          showGymPlan(button.dataset.folderPlan);
-        });
+        button.addEventListener(
+          "click",
+          () => {
+            if (
+              button.dataset
+                .folderPlan
+            ) {
+              showGymPlan(
+                button.dataset
+                  .folderPlan
+              );
+            }
+          }
+        );
       });
 
     document
-      .getElementById("lfGymNewFolder")
-      ?.addEventListener("click", createGymPlan);
+      .getElementById(
+        "lfGymNewFolder"
+      )
+      ?.addEventListener(
+        "click",
+        createGymPlan
+      );
 
     document
-      .getElementById("lfGymCreatePlan")
-      ?.addEventListener("click", createGymPlan);
+      .getElementById(
+        "gymStartWorkout"
+      )
+      ?.addEventListener(
+        "click",
+        () => {
+          startWorkoutTimer();
+
+          showGymPlan(
+            getActiveGymPlan()
+              ?.id
+          );
+        }
+      );
 
     document
-      .getElementById("lfGymGoalsButton")
-      ?.addEventListener("click", openGymGoalsModal);
+      .getElementById(
+        "lfGymLibraryTab"
+      )
+      ?.addEventListener(
+        "click",
+        () => {
+          gymFolderView =
+            "library";
+
+          renderGymOrganizedPanel();
+        }
+      );
 
     document
-      .getElementById("gymStartWorkout")
-      ?.addEventListener("click", () => {
-        startWorkoutTimer();
-        showGymPlan(getActiveGymPlan()?.id);
-      });
+      .getElementById(
+        "lfGymExploreTab"
+      )
+      ?.addEventListener(
+        "click",
+        () => {
+          gymFolderView =
+            "library";
+
+          renderGymOrganizedPanel();
+        }
+      );
 
     document
-      .getElementById("lfGymLibraryTab")
-      ?.addEventListener("click", () => {
-        gymFolderView = "library";
-        renderGymOrganizedPanel();
-      });
+      .getElementById(
+        "lfGymEvolutionTab"
+      )
+      ?.addEventListener(
+        "click",
+        showGymEvolution
+      );
 
     document
-      .getElementById("lfGymHistoryTab")
-      ?.addEventListener("click", () => {
-        showSiteMessage("O histórico detalhado de treinos entra na próxima evolução.", "info");
-      });
+      .getElementById(
+        "lfGymBodyTab"
+      )
+      ?.addEventListener(
+        "click",
+        () => {
+          showGymEvolution();
+
+          setTimeout(
+            () => {
+              document
+                .querySelector(
+                  '[data-evolution-section="weight"]'
+                )
+                ?.click();
+            },
+            50
+          );
+        }
+      );
+
+    document
+      .getElementById(
+        "lfGymProfileShortcut"
+      )
+      ?.addEventListener(
+        "click",
+        () => {
+          if (
+            typeof showLifeSettings ===
+            "function"
+          ) {
+            showLifeSettings();
+          }
+        }
+      );
 
     updateWorkoutTimerDisplay();
   }
@@ -14541,6 +15445,7 @@ document.addEventListener("DOMContentLoaded", () => {
   injectLifeFlow40Styles();
   wireLifeHubDrawer();
   injectLifeFlow41Styles();
+  injectGymPremiumThemeStyles();
   renderLifeProfileChip();
   enforceLifeFlowAuth();
 
