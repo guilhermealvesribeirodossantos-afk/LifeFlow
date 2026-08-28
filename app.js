@@ -1,5 +1,271 @@
 
 /* ============================================================
+   LIFEFLOW 6.5 — WEEKLY INTELLIGENCE
+   Relatório real baseado no histórico local do LifeFlow.
+============================================================ */
+document.addEventListener("DOMContentLoaded", () => {
+  document.documentElement.setAttribute("data-lifeflow-weekly", "6.5");
+
+  const HISTORY_KEY = "lifeflow-history-v23";
+  const EVOLUTION_KEY = "lifeflow-evolution-v2";
+  const SLEEP_KEY = "lifeflow-sleep-v24";
+
+  const clamp = (n, min = 0, max = 100) =>
+    Math.max(min, Math.min(max, Number(n) || 0));
+
+  const readJson = (key, fallback) => {
+    try {
+      return JSON.parse(localStorage.getItem(key) || "null") || fallback;
+    } catch (_) {
+      return fallback;
+    }
+  };
+
+  const dateKey = date => {
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, "0");
+    const d = String(date.getDate()).padStart(2, "0");
+    return `${y}-${m}-${d}`;
+  };
+
+  const shortDay = date =>
+    date.toLocaleDateString("pt-BR", { weekday: "short" })
+      .replace(".", "")
+      .slice(0, 3)
+      .toUpperCase();
+
+  const range = (history, days = 7, offset = 0) => {
+    const items = [];
+    for (let i = days - 1; i >= 0; i--) {
+      const date = new Date();
+      date.setHours(12, 0, 0, 0);
+      date.setDate(date.getDate() - i - offset);
+      const key = dateKey(date);
+      const saved = history[key] || null;
+      items.push({
+        key,
+        date,
+        hasData: Boolean(saved),
+        routine: clamp(saved?.routinePercent),
+        water: clamp(saved?.waterPercent),
+        xp: Number(saved?.xp || 0),
+        completed: Number(saved?.completed || 0),
+        total: Number(saved?.total || 0)
+      });
+    }
+    return items;
+  };
+
+  const avg = (items, field) => {
+    const valid = items.filter(item => item.hasData);
+    if (!valid.length) return 0;
+    return Math.round(
+      valid.reduce((sum, item) => sum + Number(item[field] || 0), 0) /
+      valid.length
+    );
+  };
+
+  const sum = (items, field) =>
+    items.reduce((total, item) => total + Number(item[field] || 0), 0);
+
+  const sleepScoreFor = (sleepHistory, key) => {
+    const item = sleepHistory[key];
+    if (!item) return null;
+
+    if (Number.isFinite(Number(item.score))) {
+      return clamp(item.score);
+    }
+
+    const duration =
+      Number(item.durationMinutes || item.minutes || item.totalMinutes || 0);
+
+    if (!duration) return null;
+
+    const hours = duration / 60;
+    if (hours >= 7 && hours <= 9) return 100;
+    if (hours >= 6 && hours < 7) return 78;
+    if (hours > 9 && hours <= 10) return 82;
+    if (hours >= 5) return 58;
+    return 38;
+  };
+
+  const weeklySnapshot = () => {
+    const history = readJson(HISTORY_KEY, {});
+    const evolution = readJson(EVOLUTION_KEY, {});
+    const sleep = readJson(SLEEP_KEY, {});
+
+    const current = range(history, 7, 0);
+    const previous = range(history, 7, 7);
+
+    const routine = avg(current, "routine");
+    const water = avg(current, "water");
+    const prevRoutine = avg(previous, "routine");
+    const xp = sum(current, "xp");
+    const completed = sum(current, "completed");
+    const activeDays = current.filter(x => x.hasData).length;
+
+    const sleepValues = current
+      .map(item => sleepScoreFor(sleep, item.key))
+      .filter(value => value !== null);
+
+    const sleepAvg = sleepValues.length
+      ? Math.round(sleepValues.reduce((a,b) => a+b, 0) / sleepValues.length)
+      : null;
+
+    const dayScores = current.map(item => ({
+      ...item,
+      score: item.hasData
+        ? Math.round(item.routine * .68 + item.water * .22 + (item.xp > 0 ? 10 : 0))
+        : 0
+    }));
+
+    const best = [...dayScores]
+      .filter(item => item.hasData)
+      .sort((a,b) => b.score - a.score)[0] || null;
+
+    const trend = routine - prevRoutine;
+
+    let recommendation = "Registre sua rotina durante a semana para liberar uma análise mais precisa.";
+    let focus = "CRIAR BASE";
+
+    if (activeDays >= 2) {
+      if (routine < 60) {
+        focus = "CONSISTÊNCIA";
+        recommendation = "Seu maior ganho agora vem da rotina. Foque em concluir as prioridades antes de adicionar novas metas.";
+      } else if (water < 65) {
+        focus = "HIDRATAÇÃO";
+        recommendation = "Sua rotina está respondendo bem. O ponto mais fácil de elevar nesta semana é a hidratação diária.";
+      } else if (sleepAvg !== null && sleepAvg < 65) {
+        focus = "RECUPERAÇÃO";
+        recommendation = "O desempenho está avançando, mas a recuperação pode limitar sua constância. Priorize uma janela regular de sono.";
+      } else if (trend < -8) {
+        focus = "RETOMADA";
+        recommendation = "A semana caiu em relação à anterior. Reduza o volume e proteja as tarefas essenciais até recuperar o ritmo.";
+      } else {
+        focus = "MANTER RITMO";
+        recommendation = "Você está construindo consistência. Mantenha a rotina atual e tente melhorar apenas um indicador por vez.";
+      }
+    }
+
+    const totalXp = Number(evolution.totalXp || 0);
+
+    return {
+      current, routine, water, xp, completed, activeDays,
+      sleepAvg, best, trend, recommendation, focus, totalXp
+    };
+  };
+
+  function renderWeeklyIntelligence() {
+    const progress = document.getElementById("progressScreen");
+    if (!progress) return;
+
+    let host = document.getElementById("lf65WeeklyIntelligence");
+    if (!host) {
+      host = document.createElement("section");
+      host.id = "lf65WeeklyIntelligence";
+      host.className = "lf65-weekly";
+
+      const header = progress.querySelector(".page-header");
+      if (header) header.insertAdjacentElement("afterend", host);
+      else progress.prepend(host);
+    }
+
+    const data = weeklySnapshot();
+    const trendText =
+      data.trend > 0 ? `+${data.trend}%` :
+      data.trend < 0 ? `${data.trend}%` : "0%";
+
+    const trendClass =
+      data.trend > 0 ? "up" :
+      data.trend < 0 ? "down" : "stable";
+
+    const bars = data.current.map(item => `
+      <div class="lf65-day ${item.hasData ? "has-data" : ""}">
+        <div class="lf65-bar">
+          <i style="height:${Math.max(item.hasData ? 8 : 3, item.score)}%"></i>
+        </div>
+        <strong>${item.hasData ? item.score : "—"}</strong>
+        <span>${shortDay(item.date)}</span>
+      </div>
+    `).join("");
+
+    host.innerHTML = `
+      <div class="lf65-top">
+        <div>
+          <span class="lf65-kicker">WEEKLY INTELLIGENCE // 7 DIAS</span>
+          <h3>Seu relatório semanal</h3>
+          <p>${data.activeDays}/7 dias com dados registrados</p>
+        </div>
+        <div class="lf65-trend ${trendClass}">
+          <small>VS. SEMANA ANTERIOR</small>
+          <strong>${trendText}</strong>
+        </div>
+      </div>
+
+      <div class="lf65-score-grid">
+        <article>
+          <small>ROTINA</small>
+          <strong>${data.routine}%</strong>
+          <i><em style="width:${data.routine}%"></em></i>
+        </article>
+        <article>
+          <small>HIDRATAÇÃO</small>
+          <strong>${data.water}%</strong>
+          <i><em style="width:${data.water}%"></em></i>
+        </article>
+        <article>
+          <small>ATIVIDADES</small>
+          <strong>${data.completed}</strong>
+          <span>concluídas</span>
+        </article>
+        <article>
+          <small>XP DA SEMANA</small>
+          <strong>${data.xp}</strong>
+          <span>${data.totalXp} XP total</span>
+        </article>
+      </div>
+
+      <div class="lf65-chart-card">
+        <div class="lf65-chart-head">
+          <div>
+            <small>RITMO DA SEMANA</small>
+            <strong>Performance diária</strong>
+          </div>
+          <span>${data.best ? `Melhor: ${shortDay(data.best.date)} · ${data.best.score}` : "Aguardando dados"}</span>
+        </div>
+        <div class="lf65-chart">${bars}</div>
+      </div>
+
+      <div class="lf65-insight">
+        <div class="lf65-ai-icon">LF</div>
+        <div>
+          <small>FOCO RECOMENDADO // ${data.focus}</small>
+          <strong>${data.recommendation}</strong>
+          <span>${data.sleepAvg === null ? "Sono: registre dados para incluir recuperação no relatório." : `Recuperação do sono: ${data.sleepAvg}%`}</span>
+        </div>
+      </div>
+
+      <div class="lf65-note">
+        <i></i>
+        <span>O relatório usa apenas dados realmente salvos no LifeFlow. PMMG e Academia entrarão no score semanal quando houver histórico diário compatível.</span>
+      </div>
+    `;
+  }
+
+  renderWeeklyIntelligence();
+  [150, 500, 1200].forEach(ms => setTimeout(renderWeeklyIntelligence, ms));
+
+  window.addEventListener("storage", renderWeeklyIntelligence);
+  document.addEventListener("click", event => {
+    if (event.target.closest('[data-screen="progress"], #progressScreen')) {
+      setTimeout(renderWeeklyIntelligence, 80);
+    }
+  });
+});
+
+
+
+/* ============================================================
    LIFEFLOW 6.4 — HOME FINAL
 ============================================================ */
 document.addEventListener("DOMContentLoaded", () => {
