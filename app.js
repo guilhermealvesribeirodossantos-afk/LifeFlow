@@ -1059,59 +1059,56 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (!drawer) return;
 
-    let chip =
-      document.getElementById("lfProfileChip");
+    // LifeFlow 6.3.2:
+    // O perfil premium do menu é agora o ÚNICO perfil do drawer.
+    // O antigo #lfProfileChip não é mais criado.
+    document.getElementById("lfProfileChip")?.remove();
 
-    if (!chip) {
-      chip =
-        document.createElement("button");
+    const premium =
+      document.getElementById("lf63Profile");
 
-      chip.id = "lfProfileChip";
-      chip.className = "lf-profile-chip";
-      chip.type = "button";
+    if (!premium) return;
 
-      const head =
-        drawer.querySelector(".lf-drawer-head");
+    const avatar =
+      premium.querySelector(".lf63-avatar");
 
-      if (head?.parentNode) {
-        head.parentNode.insertBefore(
-          chip,
-          head.nextSibling
-        );
+    const title =
+      premium.querySelector(".lf63-profile-copy strong");
+
+    const subtitle =
+      premium.querySelector(".lf63-profile-copy span");
+
+    if (avatar) {
+      if (lfProfile.photo) {
+        avatar.innerHTML = `
+          <img
+            src="${lf40Esc(lfProfile.photo)}"
+            alt="Foto do perfil"
+          >
+        `;
       } else {
-        drawer.prepend(chip);
-      }
+        const initial =
+          (
+            lfProfile.name?.trim()?.charAt(0) ||
+            "L"
+          ).toUpperCase();
 
-      chip.addEventListener(
-        "click",
-        () => {
-          showLifeSettings();
-          window.closeLifeFlowDrawer?.();
-        }
-      );
+        avatar.innerHTML =
+          `<span>${lf40Esc(initial)}</span>`;
+      }
     }
 
-    chip.innerHTML = `
-      ${getLifeProfileAvatarHtml("lf-profile-chip-avatar")}
+    if (title) {
+      title.textContent =
+        lfProfile.name ||
+        "Meu perfil";
+    }
 
-      <div>
-        <strong>
-          ${lf40Esc(
-            lfProfile.name ||
-            "Meu perfil"
-          )}
-        </strong>
-
-        <span>
-          ${lf40Esc(
-            lfProfile.subtitle ||
-            "LifeFlow"
-          )}
-        </span>
-      </div>
-
-      <b>›</b>
-    `;
+    if (subtitle) {
+      subtitle.textContent =
+        lfProfile.subtitle ||
+        "Minha evolução, minha rotina.";
+    }
   }
 
   function chooseLifeProfilePhoto() {
@@ -1781,13 +1778,11 @@ document.addEventListener("DOMContentLoaded", () => {
     extra.innerHTML = `
       <button class="lf-drawer-item" id="lf40SleepDrawer"><span>☾</span><strong>Sono Inteligente</strong><b>›</b></button>
       <button class="lf-drawer-item" id="lf40AgendaDrawer"><span>▣</span><strong>Agenda</strong><b>›</b></button>
-      <button class="lf-drawer-item" id="lf40ProfileDrawer"><span>⚙</span><strong>Perfil e dados</strong><b>›</b></button>
     `;
     nav.appendChild(extra);
 
     document.getElementById("lf40SleepDrawer")?.addEventListener("click",()=>{showLifeSleep();window.closeLifeFlowDrawer?.();});
     document.getElementById("lf40AgendaDrawer")?.addEventListener("click",()=>{showLifeAgenda();window.closeLifeFlowDrawer?.();});
-    document.getElementById("lf40ProfileDrawer")?.addEventListener("click",()=>{showLifeSettings();window.closeLifeFlowDrawer?.();});
   }
 
 
@@ -13905,10 +13900,7 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("lfDrawerClose")?.addEventListener("click", closeDrawer);
 
     document.getElementById("lf63Profile")?.addEventListener("click", () => {
-      const profileTarget =
-        document.getElementById("lf40ProfileDrawer") ||
-        document.querySelector('[data-life-module="profile"]');
-      if (profileTarget) profileTarget.click();
+      showLifeSettings();
       closeDrawer();
     });
 
