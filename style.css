@@ -7686,3 +7686,29 @@ html[data-lifeflow-version="6.1.1"] .lf5-system-rail small {
       60px !important;
   }
 }
+
+
+/* ==================================================================
+   LIFEFLOW 6.3.1 — PROFILE DUPLICATE FIX
+================================================================== */
+
+/* Esconde apenas o perfil antigo dentro do drawer.
+   O novo card .lf63-profile permanece visível. */
+#lifeflowDrawer #lf40ProfileDrawer:not(.lf63-profile),
+#lifeflowDrawer .drawer-profile:not(.lf63-profile),
+#lifeflowDrawer .profile-card:not(.lf63-profile),
+#lifeflowDrawer [data-life-module="profile"]:not(.lf63-profile),
+#lifeflowDrawer [data-screen="profile"]:not(.lf63-profile) {
+  display: none !important;
+}
+
+/* Garante que o novo perfil premium fique no topo e sem espaço duplicado */
+#lifeflowDrawer .lf63-profile {
+  display: grid !important;
+  margin-top: 0 !important;
+}
+
+/* Remove eventual margem residual antes do card premium */
+#lifeflowDrawer .lf63-head + .lf63-profile {
+  margin-top: 0 !important;
+}
