@@ -1,4 +1,235 @@
 
+/* ============================================================
+   LIFEFLOW 6.1.1 — SMART COCKPIT BOOTSTRAP
+   Independent bootstrap: guaranteed to render before legacy app.
+============================================================ */
+document.addEventListener("DOMContentLoaded", () => {
+  document.documentElement.setAttribute("data-lifeflow-version", "6.1.1");
+  document.body?.setAttribute("data-lf-system", "online");
+
+  const esc = value => String(value ?? "")
+    .replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;").replaceAll("'","&#039;");
+
+  const timeToMinutes = value => {
+    const m = String(value || "").match(/(\d{1,2}):(\d{2})/);
+    return m ? Number(m[1]) * 60 + Number(m[2]) : 99999;
+  };
+
+  function readTasks() {
+    const selectors = [
+      "#homeScreen .task",
+      "#homeScreen .routine-item",
+      "#homeScreen [data-task]",
+      "#homeScreen .daily-task"
+    ];
+    const nodes = [...document.querySelectorAll(selectors.join(","))];
+
+    const seen = new Set();
+    return nodes.map((node, index) => {
+      const title =
+        node.querySelector(".task-title")?.textContent?.trim() ||
+        node.querySelector(".routine-title")?.textContent?.trim() ||
+        node.querySelector("strong")?.textContent?.trim() ||
+        node.dataset.title ||
+        "";
+      const time =
+        node.querySelector(".task-time")?.textContent?.trim() ||
+        node.querySelector(".routine-time")?.textContent?.trim() ||
+        node.dataset.time ||
+        "";
+      const done =
+        node.classList.contains("done") ||
+        node.classList.contains("completed") ||
+        Boolean(node.querySelector('input[type="checkbox"]:checked'));
+
+      const key = `${time}|${title}`;
+      if (!title || seen.has(key)) return null;
+      seen.add(key);
+      return { title, time, done, minutes: timeToMinutes(time), index };
+    }).filter(Boolean).sort((a,b) => a.minutes - b.minutes);
+  }
+
+  function readPercentage(selectors, fallback = null) {
+    for (const selector of selectors) {
+      const el = document.querySelector(selector);
+      if (!el) continue;
+      const m = el.textContent.match(/(\d{1,3})\s*%/);
+      if (m) return Math.min(100, Number(m[1]));
+    }
+    return fallback;
+  }
+
+  function readWater() {
+    const root = document.getElementById("homeScreen") || document;
+    const text = root.textContent || "";
+    const l = text.match(/(\d+(?:[.,]\d+)?)\s*L\b/i);
+    const ml = text.match(/(\d{2,5})\s*ml\b/i);
+    let current = l ? Number(l[1].replace(",",".")) : ml ? Number(ml[1]) / 1000 : 0;
+    const goalMatch = text.match(/(?:meta|objetivo)[^\d]{0,15}(\d+(?:[.,]\d+)?)\s*L/i);
+    const goal = goalMatch ? Number(goalMatch[1].replace(",",".")) : 2.5;
+    return { current, goal };
+  }
+
+  function dayMode(tasks) {
+    const text = tasks.map(t => t.title).join(" ").toLocaleLowerCase("pt-BR");
+    const work = ["trabalho","empresa","expediente","plantão","plantao"].some(w => text.includes(w));
+    return {
+      type: work ? "work" : "off",
+      label: work ? "DIA DE TRABALHO" : "DIA DE FOLGA",
+      icon: work ? "◫" : "◇"
+    };
+  }
+
+  function score(tasks) {
+    const done = tasks.filter(t => t.done).length;
+    const routine = tasks.length ? Math.round((done / tasks.length) * 60) : 24;
+    const study = readPercentage([
+      "#studyProgressText",
+      "#studiesScreen .progress-text",
+      "#homeScreen .study-card"
+    ], 35);
+    const water = readWater();
+    const waterPct = water.goal > 0 ? Math.min(100, Math.round(water.current / water.goal * 100)) : 0;
+    return Math.max(0, Math.min(100,
+      routine +
+      Math.round(study * .18) +
+      Math.round(waterPct * .12) +
+      10
+    ));
+  }
+
+  function scoreLabel(value) {
+    if (value >= 90) return "DIA EXCELENTE";
+    if (value >= 75) return "DIA SOB CONTROLE";
+    if (value >= 55) return "BOM RITMO";
+    if (value >= 35) return "ATENÇÃO ÀS PRIORIDADES";
+    return "HORA DE RETOMAR";
+  }
+
+  function getPriority(tasks) {
+    const now = new Date();
+    const minutes = now.getHours() * 60 + now.getMinutes();
+    return tasks.find(t => !t.done && t.minutes >= minutes) ||
+           tasks.find(t => !t.done) ||
+           {title:"Dia organizado", time:"Sem pendências"};
+  }
+
+  function ensureCockpit() {
+    const home = document.getElementById("homeScreen");
+    if (!home) return false;
+
+    let host = document.getElementById("lf611Cockpit");
+    if (!host) {
+      host = document.createElement("section");
+      host.id = "lf611Cockpit";
+      host.className = "lf61-cockpit lf611-cockpit";
+
+      const hero = home.querySelector(".hero-section");
+      if (hero) hero.insertAdjacentElement("afterend", host);
+      else home.prepend(host);
+    }
+
+    const tasks = readTasks();
+    const done = tasks.filter(t => t.done).length;
+    const mode = dayMode(tasks);
+    const value = score(tasks);
+    const priority = getPriority(tasks);
+    const water = readWater();
+    const study = readPercentage([
+      "#studyProgressText",
+      "#studiesScreen .progress-text",
+      "#homeScreen .study-card"
+    ], null);
+
+    host.innerHTML = `
+      <section class="lf61-cockpit-hero">
+        <div class="lf61-cockpit-top">
+          <div>
+            <span class="lf61-system-label">LIFEFLOW // SMART COCKPIT 6.1.1</span>
+            <div class="lf61-day-mode ${mode.type}">
+              <i>${mode.icon}</i>
+              <strong>${mode.label}</strong>
+            </div>
+          </div>
+          <div class="lf61-live-status"><i></i><span>LIVE</span></div>
+        </div>
+
+        <div class="lf61-score-zone">
+          <div class="lf61-score-ring" style="--score:${value}">
+            <div><strong>${value}</strong><small>/100</small></div>
+          </div>
+          <div class="lf61-score-copy">
+            <span>SCORE DO DIA</span>
+            <h3>${scoreLabel(value)}</h3>
+            <p>${done} de ${tasks.length || 0} atividades concluídas • atualização automática</p>
+          </div>
+        </div>
+
+        <div class="lf61-priority">
+          <div class="lf61-priority-number">01</div>
+          <div class="lf61-priority-copy">
+            <span>PRIORIDADE AGORA</span>
+            <strong>${esc(priority.title)}</strong>
+            <small>${esc(priority.time || "Sem horário")}</small>
+          </div>
+          <button id="lf611PriorityAction" type="button" aria-label="Ver rotina">→</button>
+        </div>
+      </section>
+
+      <section class="lf61-vitals">
+        <article>
+          <span class="lf61-vital-icon">◉</span>
+          <div><small>ROTINA</small><strong>${done}/${tasks.length || 0}</strong></div>
+          <i style="--v:${tasks.length ? Math.round(done/tasks.length*100) : 0}%"></i>
+        </article>
+        <article>
+          <span class="lf61-vital-icon">⌁</span>
+          <div><small>ACADEMIA</small><strong>HOJE</strong></div>
+          <i style="--v:35%"></i>
+        </article>
+        <article>
+          <span class="lf61-vital-icon">◈</span>
+          <div><small>PMMG</small><strong>${study == null ? "ATIVO" : study + "%"}</strong></div>
+          <i style="--v:${study == null ? 35 : study}%"></i>
+        </article>
+        <article>
+          <span class="lf61-vital-icon">◌</span>
+          <div><small>ÁGUA</small><strong>${water.current.toFixed(1)}L</strong></div>
+          <i style="--v:${water.goal ? Math.min(100,Math.round(water.current/water.goal*100)) : 0}%"></i>
+        </article>
+      </section>
+    `;
+
+    host.querySelector("#lf611PriorityAction")?.addEventListener("click", () => {
+      const target =
+        document.querySelector("#homeScreen .daily-card") ||
+        document.querySelector("#homeScreen .routine-card") ||
+        document.querySelector("#homeScreen .task");
+      target?.scrollIntoView({behavior:"smooth", block:"center"});
+    });
+
+    return true;
+  }
+
+  // Run immediately and retry because LifeFlow renders parts of Home dynamically.
+  ensureCockpit();
+  [80, 250, 700, 1400, 2500].forEach(ms => setTimeout(ensureCockpit, ms));
+
+  const home = document.getElementById("homeScreen");
+  if (home) {
+    const observer = new MutationObserver(() => {
+      clearTimeout(window.__lf611Refresh);
+      window.__lf611Refresh = setTimeout(ensureCockpit, 120);
+    });
+    observer.observe(home, {childList:true, subtree:true, characterData:true});
+  }
+
+  setInterval(ensureCockpit, 60000);
+});
+
+
+
 document.addEventListener("DOMContentLoaded", () => {
   document.documentElement.setAttribute("data-lifeflow-version", "5.0");
   document.body?.setAttribute("data-lf-system", "online");
@@ -467,7 +698,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
   // =====================================================
-  // LIFEFLOW 6.1 — SMART COCKPIT
+  // LIFEFLOW 6.1.1 — COCKPIT FIX
   // Conta única / proteção client-side
   // =====================================================
 
