@@ -136,7 +136,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
 /* ============================================================
-   LIFEFLOW 6.2.1 — MENU PRO FIX
+   LIFEFLOW 6.2.2 — MENU REBUILD
    Visual/UX enhancement for the existing LifeFlow drawer.
 ============================================================ */
 document.addEventListener("DOMContentLoaded", () => {
@@ -13999,50 +13999,76 @@ document.addEventListener("DOMContentLoaded", () => {
     drawer.className = "lf-drawer";
 
     drawer.innerHTML = `
-      <div class="lf-drawer-head">
-        <div>
+      <div class="lf-drawer-head lf622-head">
+        <div class="lf622-brand">
           <span>MENU</span>
-          <strong>LifeFlow</strong>
+          <strong>Life<span>Flow</span></strong>
+          <div class="lf622-os"><b>INTELLIGENCE OS</b><i></i></div>
         </div>
         <button id="lfDrawerClose" type="button" aria-label="Fechar menu">×</button>
       </div>
 
-      <div class="lf-drawer-nav">
-        <button class="lf-drawer-item active" data-drawer-go="home">
-          <span>⌂</span><strong>Início</strong>
+      <button id="lf622Profile" class="lf622-profile" type="button">
+        <div class="lf622-avatar">LF</div>
+        <div class="lf622-profile-copy">
+          <strong>Meu perfil</strong>
+          <span>Minha evolução, minha rotina.</span>
+        </div>
+        <b class="lf622-chevron">›</b>
+        <div class="lf622-level">
+          <span>NÍVEL ATIVO</span>
+          <i><em></em></i>
+          <small>EVOLUÇÃO</small>
+        </div>
+      </button>
+
+      <div class="lf-drawer-nav lf622-nav">
+        <button class="lf-drawer-item lf622-item active" data-drawer-go="home">
+          <span class="lf622-icon">⌂</span><strong>Início</strong><b>›</b>
         </button>
 
-        <div class="lf-drawer-group">
-          <button class="lf-drawer-item lf-drawer-parent" id="lfGymGroupButton" type="button">
-            <span>🏋️</span><strong>Academia</strong><b>⌃</b>
+        <div class="lf-drawer-group lf622-gym">
+          <button class="lf-drawer-item lf-drawer-parent lf622-item" id="lfGymGroupButton" type="button">
+            <span class="lf622-icon">◫</span><strong>Academia</strong><b>⌃</b>
           </button>
 
-          <div class="lf-drawer-submenu" id="lfGymSubmenu">
-            ${gymPrograms.plans.map(plan => `
+          <div class="lf-drawer-submenu lf622-submenu" id="lfGymSubmenu">
+            ${gymPrograms.plans.map((plan, idx) => `
               <button type="button" data-drawer-plan="${escapeGymHtml(plan.id)}">
-                ${escapeGymHtml(plan.name)}
+                <span>${idx === 0 ? "⌁" : "•"}</span>${escapeGymHtml(plan.name)}
               </button>
             `).join("")}
-            <button type="button" data-drawer-go="gym">Meus Treinos</button>
+            <button type="button" data-drawer-go="gym"><span>▦</span>Meus Treinos</button>
           </div>
         </div>
 
-        <button class="lf-drawer-item" data-drawer-go="sleep">
-          <span>🌙</span><strong>Sono</strong>
+        <button class="lf-drawer-item lf622-item lf622-sleep" data-drawer-go="sleep">
+          <span class="lf622-icon">☾</span><strong>Sono</strong><b>›</b>
         </button>
 
-        <button class="lf-drawer-item" data-drawer-go="study">
-          <span>📖</span><strong>Estudos</strong>
+        <button class="lf-drawer-item lf622-item lf622-study" data-drawer-go="study">
+          <span class="lf622-icon">▣</span><strong>Estudos</strong><b>›</b>
         </button>
 
-        <button class="lf-drawer-item" data-drawer-go="agenda">
-          <span>◫</span><strong>Agenda</strong>
+        <button class="lf-drawer-item lf622-item lf622-agenda" data-drawer-go="agenda">
+          <span class="lf622-icon">▦</span><strong>Agenda</strong><b>›</b>
         </button>
 
-        <button class="lf-drawer-item" data-drawer-go="progress">
-          <span>◒</span><strong>Estatísticas</strong>
+        <button class="lf-drawer-item lf622-item" data-drawer-go="progress">
+          <span class="lf622-icon">↗</span><strong>Progresso</strong><b>›</b>
         </button>
       </div>
+
+      <div class="lf622-motivation">
+        <span class="lf622-motivation-icon">↗</span>
+        <div>
+          <strong>Disciplina hoje, resultado sempre.</strong>
+          <small>Você no controle da sua melhor versão.</small>
+        </div>
+        <b>›</b>
+      </div>
+
+      <div class="lf622-signature">LIFEFLOW // INTELLIGENCE OS</div>
     `;
 
     const edgeHandle = document.createElement("button");
@@ -14076,6 +14102,14 @@ document.addEventListener("DOMContentLoaded", () => {
     edgeHandle.addEventListener("click", openDrawer);
     drawerOverlay.addEventListener("click", closeDrawer);
     document.getElementById("lfDrawerClose")?.addEventListener("click", closeDrawer);
+
+    document.getElementById("lf622Profile")?.addEventListener("click", () => {
+      const profileTarget =
+        document.getElementById("lf40ProfileDrawer") ||
+        document.querySelector('[data-life-module="profile"]');
+      if (profileTarget) profileTarget.click();
+      closeDrawer();
+    });
 
     document
       .getElementById("lfGymGroupButton")
@@ -15557,6 +15591,253 @@ document.addEventListener("DOMContentLoaded", () => {
         .lf-big-placeholder {
           min-height: 180px;
         }
+      }
+    `;
+
+
+    style.textContent += `
+      /* LIFEFLOW 6.2.2 — DIRECT MENU REBUILD */
+      #lifeflowDrawer {
+        width:min(430px,94vw) !important;
+        padding:max(24px,env(safe-area-inset-top)) 22px max(28px,env(safe-area-inset-bottom)) !important;
+        border-left:1px solid rgba(104,240,168,.14) !important;
+        background:
+          radial-gradient(circle at 12% 5%,rgba(104,240,168,.075),transparent 25%),
+          linear-gradient(180deg,#070b09,#030605) !important;
+        box-shadow:-42px 0 120px rgba(0,0,0,.75) !important;
+      }
+
+      #lifeflowDrawer .lf622-head {
+        min-height:108px !important;
+        align-items:flex-start !important;
+        padding:4px 0 20px !important;
+        margin:0 0 16px !important;
+        border-bottom:1px solid rgba(255,255,255,.06) !important;
+      }
+
+      #lifeflowDrawer .lf622-brand > span {
+        color:#64e79b !important;
+        font-size:8px !important;
+        font-weight:950 !important;
+        letter-spacing:2.4px !important;
+      }
+
+      #lifeflowDrawer .lf622-brand > strong {
+        margin-top:4px !important;
+        color:#f4f7f5 !important;
+        font-size:29px !important;
+        font-weight:950 !important;
+        letter-spacing:-1.5px !important;
+      }
+
+      #lifeflowDrawer .lf622-brand > strong span {
+        display:inline !important;
+        color:#64e79b !important;
+        font-size:inherit !important;
+        letter-spacing:inherit !important;
+      }
+
+      #lifeflowDrawer .lf622-os {
+        display:flex;
+        align-items:center;
+        gap:9px;
+        margin-top:7px;
+      }
+
+      #lifeflowDrawer .lf622-os b {
+        color:#69756d;
+        font-size:6px;
+        letter-spacing:2.1px;
+      }
+
+      #lifeflowDrawer .lf622-os i {
+        width:110px;
+        height:1px;
+        background:linear-gradient(90deg,#64e79b,transparent);
+      }
+
+      #lifeflowDrawer #lfDrawerClose {
+        width:54px !important;
+        height:54px !important;
+        border:1px solid rgba(104,240,168,.22) !important;
+        border-radius:18px !important;
+        background:linear-gradient(145deg,#0e1511,#060907) !important;
+        color:#f1f5f2 !important;
+      }
+
+      #lifeflowDrawer .lf622-profile {
+        width:100%;
+        min-height:148px;
+        position:relative;
+        display:grid;
+        grid-template-columns:64px 1fr 20px;
+        align-items:center;
+        gap:13px;
+        margin:0 0 18px;
+        padding:16px 16px 49px;
+        overflow:hidden;
+        border:1px solid rgba(104,240,168,.16);
+        border-radius:23px;
+        background:
+          radial-gradient(circle at 0 50%,rgba(104,240,168,.10),transparent 34%),
+          linear-gradient(145deg,#101713,#070a08);
+        color:inherit;
+        text-align:left;
+        box-shadow:0 20px 55px rgba(0,0,0,.3),inset 0 1px 0 rgba(255,255,255,.04);
+      }
+
+      #lifeflowDrawer .lf622-profile::before {
+        content:"";
+        position:absolute;
+        left:0; top:18px; bottom:18px;
+        width:2px;
+        background:linear-gradient(transparent,#64e79b,transparent);
+      }
+
+      #lifeflowDrawer .lf622-avatar {
+        width:62px;height:62px;display:grid;place-items:center;
+        border:1px solid rgba(104,240,168,.5);
+        border-radius:50%;
+        background:#09110d;
+        color:#64e79b;
+        font-size:17px;font-weight:950;
+      }
+
+      #lifeflowDrawer .lf622-profile-copy strong {
+        display:block;color:#edf3ef;font-size:13px;
+      }
+      #lifeflowDrawer .lf622-profile-copy span {
+        display:block;margin-top:5px;color:#6e7a72;font-size:7px;
+      }
+      #lifeflowDrawer .lf622-chevron {color:#e7ede9;font-size:22px;}
+
+      #lifeflowDrawer .lf622-level {
+        position:absolute;left:16px;right:16px;bottom:14px;
+        display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:9px;
+      }
+      #lifeflowDrawer .lf622-level span,
+      #lifeflowDrawer .lf622-level small {
+        color:#64e79b;font-size:6px;font-weight:950;letter-spacing:.8px;
+      }
+      #lifeflowDrawer .lf622-level small {color:#68746c;}
+      #lifeflowDrawer .lf622-level i {
+        height:5px;overflow:hidden;border-radius:999px;background:rgba(255,255,255,.07);
+      }
+      #lifeflowDrawer .lf622-level em {
+        display:block;width:68%;height:100%;border-radius:inherit;
+        background:linear-gradient(90deg,#2fc779,#64e79b);
+        box-shadow:0 0 12px rgba(104,240,168,.3);
+      }
+
+      #lifeflowDrawer .lf622-nav {
+        display:grid !important;
+        gap:10px !important;
+        margin-top:0 !important;
+      }
+
+      #lifeflowDrawer .lf622-item {
+        width:100% !important;
+        min-height:64px !important;
+        display:grid !important;
+        grid-template-columns:38px 1fr auto !important;
+        align-items:center !important;
+        gap:12px !important;
+        padding:11px 14px !important;
+        margin:0 !important;
+        border:1px solid rgba(255,255,255,.065) !important;
+        border-radius:18px !important;
+        background:linear-gradient(145deg,rgba(13,18,15,.94),rgba(6,9,7,.96)) !important;
+        color:#d6ded9 !important;
+      }
+
+      #lifeflowDrawer .lf622-item > .lf622-icon {
+        width:36px !important;height:36px !important;
+        display:grid !important;place-items:center !important;
+        border-radius:11px;background:rgba(104,240,168,.05);
+        color:#64e79b !important;font-size:16px !important;
+      }
+
+      #lifeflowDrawer .lf622-item strong {
+        color:inherit !important;font-size:12px !important;font-weight:850 !important;
+      }
+      #lifeflowDrawer .lf622-item > b {color:#a8b3ac;font-size:18px;}
+
+      #lifeflowDrawer .lf622-item.active {
+        border-color:rgba(104,240,168,.18) !important;
+        background:linear-gradient(90deg,rgba(104,240,168,.14),rgba(104,240,168,.035)) !important;
+        color:#64e79b !important;
+        box-shadow:inset -3px 0 0 #64e79b;
+      }
+
+      #lifeflowDrawer .lf622-sleep .lf622-icon {color:#d39cff !important;background:rgba(211,156,255,.055);}
+      #lifeflowDrawer .lf622-study .lf622-icon {color:#79aaff !important;background:rgba(121,170,255,.055);}
+      #lifeflowDrawer .lf622-agenda .lf622-icon {color:#ffcb50 !important;background:rgba(255,203,80,.055);}
+
+      #lifeflowDrawer .lf622-gym {
+        overflow:hidden;
+        border:1px solid rgba(104,240,168,.12);
+        border-radius:20px;
+        background:linear-gradient(145deg,#0c110e,#060907);
+      }
+
+      #lifeflowDrawer .lf622-gym > .lf622-item {
+        border:0 !important;border-radius:0 !important;background:transparent !important;
+      }
+
+      #lifeflowDrawer .lf622-submenu {
+        margin:0 12px 12px 51px !important;
+        overflow:hidden;
+        border:1px solid rgba(255,255,255,.055) !important;
+        border-left:1px solid rgba(104,240,168,.14) !important;
+        border-radius:14px !important;
+        background:rgba(0,0,0,.17);
+      }
+
+      #lifeflowDrawer .lf622-submenu button {
+        min-height:48px !important;
+        display:grid !important;
+        grid-template-columns:28px 1fr !important;
+        align-items:center !important;
+        gap:8px !important;
+        padding:8px 11px !important;
+        border-bottom:1px solid rgba(255,255,255,.045) !important;
+        color:#a6b0aa !important;
+        font-size:9px !important;
+      }
+
+      #lifeflowDrawer .lf622-submenu button span {
+        color:#64e79b !important;font-size:12px !important;
+      }
+
+      #lifeflowDrawer .lf622-motivation {
+        min-height:80px;display:grid;grid-template-columns:42px 1fr 18px;
+        align-items:center;gap:10px;margin-top:20px;padding:12px 13px;
+        border:1px solid rgba(104,240,168,.12);border-radius:18px;
+        background:linear-gradient(90deg,rgba(104,240,168,.07),rgba(255,255,255,.015));
+      }
+
+      #lifeflowDrawer .lf622-motivation-icon {
+        width:39px;height:39px;display:grid;place-items:center;
+        border-right:1px solid rgba(104,240,168,.17);
+        color:#64e79b;font-size:17px;
+      }
+      #lifeflowDrawer .lf622-motivation strong {display:block;color:#e6ece8;font-size:9px;}
+      #lifeflowDrawer .lf622-motivation small {display:block;margin-top:4px;color:#68736c;font-size:7px;}
+      #lifeflowDrawer .lf622-motivation > b {color:#64e79b;font-size:20px;}
+
+      #lifeflowDrawer .lf622-signature {
+        padding:16px 0 4px;color:rgba(104,240,168,.66);
+        font-size:6px;font-weight:950;letter-spacing:2.8px;text-align:center;
+      }
+
+      @media(max-width:520px){
+        #lifeflowDrawer {
+          width:min(390px,96vw) !important;
+          padding:max(20px,env(safe-area-inset-top)) 16px max(24px,env(safe-area-inset-bottom)) !important;
+        }
+        #lifeflowDrawer .lf622-brand > strong {font-size:25px !important;}
+        #lifeflowDrawer .lf622-profile {min-height:138px;}
+        #lifeflowDrawer .lf622-item {min-height:59px !important;}
       }
     `;
 
