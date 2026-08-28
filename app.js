@@ -1,6 +1,142 @@
 
 /* ============================================================
-   LIFEFLOW 6.2 — MENU PRO
+   LIFEFLOW 6.2.1 — EXACT DRAWER FIX
+   Targets the real #lifeflowDrawer / .lf-drawer-* structure.
+============================================================ */
+document.addEventListener("DOMContentLoaded", () => {
+  document.documentElement.setAttribute("data-lifeflow-menu", "6.2.1");
+
+  function lf621UpgradeRealDrawer() {
+    const drawer = document.getElementById("lifeflowDrawer");
+    if (!drawer) return false;
+
+    drawer.classList.add("lf621-menu");
+
+    const head = drawer.querySelector(".lf-drawer-head");
+    if (head && !head.querySelector(".lf621-subtitle")) {
+      const left = head.querySelector("div");
+      if (left) {
+        const sub = document.createElement("div");
+        sub.className = "lf621-subtitle";
+        sub.innerHTML = `<span>INTELLIGENCE OS</span><i></i>`;
+        left.appendChild(sub);
+      }
+    }
+
+    const nav = drawer.querySelector(".lf-drawer-nav");
+    if (!nav) return true;
+
+    // Profile card is inserted before the navigation.
+    if (!drawer.querySelector(".lf621-profile")) {
+      const profile = document.createElement("button");
+      profile.type = "button";
+      profile.className = "lf621-profile";
+      profile.innerHTML = `
+        <div class="lf621-avatar">LF</div>
+        <div class="lf621-profile-copy">
+          <strong>Meu perfil</strong>
+          <span>Minha evolução, minha rotina.</span>
+        </div>
+        <b>›</b>
+        <div class="lf621-xp">
+          <small>NÍVEL ATIVO</small>
+          <i><em></em></i>
+          <span>EVOLUÇÃO</span>
+        </div>
+      `;
+      nav.insertAdjacentElement("beforebegin", profile);
+      profile.addEventListener("click", () => {
+        const profileBtn =
+          document.getElementById("lf40ProfileDrawer") ||
+          document.querySelector('[data-life-module="profile"]');
+        if (profileBtn) profileBtn.click();
+      });
+    }
+
+    const map = {
+      home: ["⌂","home"],
+      sleep: ["☾","sleep"],
+      study: ["▣","study"],
+      agenda: ["▦","agenda"],
+      progress: ["↗","progress"]
+    };
+
+    nav.querySelectorAll(".lf-drawer-item[data-drawer-go]").forEach(btn => {
+      const type = btn.dataset.drawerGo;
+      btn.classList.add("lf621-row");
+      btn.dataset.lf621Type = type;
+      const icon = btn.querySelector(":scope > span");
+      if (icon && map[type]) icon.textContent = map[type][0];
+      if (type === "progress") {
+        const strong = btn.querySelector("strong");
+        if (strong) strong.textContent = "Progresso";
+      }
+      if (!btn.querySelector(":scope > b")) {
+        const arrow = document.createElement("b");
+        arrow.textContent = "›";
+        btn.appendChild(arrow);
+      }
+    });
+
+    const gymGroup = drawer.querySelector(".lf-drawer-group");
+    const gymBtn = drawer.querySelector("#lfGymGroupButton");
+    const gymSub = drawer.querySelector("#lfGymSubmenu");
+
+    if (gymGroup) gymGroup.classList.add("lf621-gym-card");
+    if (gymBtn) {
+      gymBtn.classList.add("lf621-row");
+      gymBtn.dataset.lf621Type = "gym";
+      const icon = gymBtn.querySelector(":scope > span");
+      if (icon) icon.textContent = "◫";
+    }
+
+    if (gymSub) {
+      gymSub.classList.add("lf621-gym-submenu");
+      [...gymSub.querySelectorAll("button")].forEach((btn, idx) => {
+        if (!btn.querySelector(".lf621-sub-icon")) {
+          const icon = document.createElement("span");
+          icon.className = "lf621-sub-icon";
+          icon.textContent = idx === 0 ? "⌁" : idx === gymSub.children.length - 1 ? "▦" : "↗";
+          btn.prepend(icon);
+        }
+      });
+    }
+
+    if (!drawer.querySelector(".lf621-motivation")) {
+      const motivation = document.createElement("div");
+      motivation.className = "lf621-motivation";
+      motivation.innerHTML = `
+        <span>↗</span>
+        <div>
+          <strong>Disciplina hoje, resultado sempre.</strong>
+          <small>Você no controle da sua melhor versão.</small>
+        </div>
+        <b>›</b>
+      `;
+      drawer.appendChild(motivation);
+
+      const sig = document.createElement("div");
+      sig.className = "lf621-signature";
+      sig.textContent = "LIFEFLOW // INTELLIGENCE OS";
+      drawer.appendChild(sig);
+    }
+
+    return true;
+  }
+
+  [0,80,200,500,1000,1800].forEach(ms => setTimeout(lf621UpgradeRealDrawer, ms));
+
+  const obs = new MutationObserver(() => {
+    clearTimeout(window.__lf621);
+    window.__lf621 = setTimeout(lf621UpgradeRealDrawer, 50);
+  });
+  obs.observe(document.body,{childList:true,subtree:true});
+});
+
+
+
+/* ============================================================
+   LIFEFLOW 6.2.1 — MENU PRO FIX
    Visual/UX enhancement for the existing LifeFlow drawer.
 ============================================================ */
 document.addEventListener("DOMContentLoaded", () => {
