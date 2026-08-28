@@ -1,3 +1,116 @@
+
+/* ============================================================
+   LIFEFLOW 6.4 — HOME FINAL
+============================================================ */
+document.addEventListener("DOMContentLoaded", () => {
+  document.documentElement.setAttribute("data-lifeflow-home", "6.4");
+
+  function lf64CompactHome() {
+    const home = document.getElementById("homeScreen");
+    if (!home) return;
+
+    home.classList.add("lf64-home");
+
+    // Hide redundant legacy blocks on Home only.
+    [
+      ".next-card",
+      ".dashboard-grid",
+      ".daily-card",
+      ".water-card",
+      ".study-card",
+      ".life-grid"
+    ].forEach(selector => {
+      home.querySelectorAll(selector).forEach(el => el.classList.add("lf64-legacy-hidden"));
+    });
+
+    // Add a section heading before the routine if absent.
+    const taskList = home.querySelector("#taskList");
+    const routineSection = taskList?.closest(".content-section");
+    if (routineSection && !routineSection.querySelector(".lf64-section-tag")) {
+      const tag = document.createElement("div");
+      tag.className = "lf64-section-tag";
+      tag.innerHTML = `
+        <span>EXECUÇÃO</span>
+        <strong>Rotina de hoje</strong>
+        <small>O que ainda precisa da sua atenção.</small>
+      `;
+      routineSection.prepend(tag);
+    }
+
+    // Add quick access row under cockpit/intelligence.
+    if (!home.querySelector("#lf64QuickHub")) {
+      const cockpit = document.getElementById("lf611Cockpit") || document.getElementById("lf61Cockpit");
+      const intelligence = document.getElementById("lf6Intelligence");
+
+      const hub = document.createElement("section");
+      hub.id = "lf64QuickHub";
+      hub.className = "lf64-quick-hub";
+      hub.innerHTML = `
+        <button type="button" data-lf64-go="gym">
+          <span>◫</span><div><small>ACADEMIA</small><strong>Treino</strong></div><b>›</b>
+        </button>
+        <button type="button" data-lf64-go="study">
+          <span>▣</span><div><small>PMMG</small><strong>Estudos</strong></div><b>›</b>
+        </button>
+        <button type="button" data-lf64-go="agenda">
+          <span>▦</span><div><small>AGENDA</small><strong>Planejar</strong></div><b>›</b>
+        </button>
+        <button type="button" data-lf64-go="progress">
+          <span>↗</span><div><small>EVOLUÇÃO</small><strong>Progresso</strong></div><b>›</b>
+        </button>
+      `;
+
+      if (intelligence) intelligence.insertAdjacentElement("afterend", hub);
+      else if (cockpit) cockpit.insertAdjacentElement("afterend", hub);
+      else home.prepend(hub);
+
+      hub.querySelectorAll("[data-lf64-go]").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const target = btn.dataset.lf64Go;
+
+          if (target === "gym" && typeof showGymRoot === "function") {
+            showGymRoot();
+            return;
+          }
+
+          const selectors = {
+            study: '.nav-item[data-screen="studies"], .nav-item[data-screen="study"]',
+            agenda: '.nav-item[data-screen="agenda"]',
+            progress: '.nav-item[data-screen="progress"]'
+          };
+
+          document.querySelector(selectors[target] || "")?.click();
+        });
+      });
+    }
+
+    // Add minimalist footer status.
+    if (!home.querySelector(".lf64-home-status")) {
+      const status = document.createElement("div");
+      status.className = "lf64-home-status";
+      status.innerHTML = `
+        <i></i>
+        <span>LifeFlow Intelligence acompanhando seu dia</span>
+        <b>06.4</b>
+      `;
+      home.appendChild(status);
+    }
+  }
+
+  lf64CompactHome();
+  [100,300,800,1600].forEach(ms => setTimeout(lf64CompactHome, ms));
+
+  const home = document.getElementById("homeScreen");
+  if (home) {
+    const observer = new MutationObserver(() => {
+      clearTimeout(window.__lf64HomeTimer);
+      window.__lf64HomeTimer = setTimeout(lf64CompactHome, 100);
+    });
+    observer.observe(home, {childList:true,subtree:true});
+  }
+});
+
+
 /* ============================================================
    LIFEFLOW 6.1.1 — SMART COCKPIT BOOTSTRAP
    Independent bootstrap: guaranteed to render before legacy app.
