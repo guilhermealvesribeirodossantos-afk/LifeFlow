@@ -467,7 +467,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
   // =====================================================
-  // LIFEFLOW 5.0 — NEO SYSTEM
+  // LIFEFLOW 6.0 — INTELLIGENCE
   // Conta única / proteção client-side
   // =====================================================
 
@@ -15530,5 +15530,390 @@ document.addEventListener("DOMContentLoaded", () => {
   renderGymPanel();
 
   renderProgressScreen();
+
+
+  /* ============================================================
+     LIFEFLOW 6.0 — INTELLIGENCE LAYER
+  ============================================================ */
+
+  function lf6Escape(value) {
+    return String(value ?? "")
+      .replaceAll("&","&amp;")
+      .replaceAll("<","&lt;")
+      .replaceAll(">","&gt;")
+      .replaceAll('"',"&quot;")
+      .replaceAll("'","&#039;");
+  }
+
+  function lf6TimeToMinutes(time) {
+    const match = String(time || "").match(/^(\d{1,2}):(\d{2})/);
+    if (!match) return 99999;
+    return Number(match[1]) * 60 + Number(match[2]);
+  }
+
+  function lf6GetRoutineForToday() {
+    try {
+      if (typeof getCurrentRoutine === "function") {
+        const r = getCurrentRoutine();
+        if (Array.isArray(r)) return r;
+      }
+    } catch (_) {}
+
+    const candidates = [
+      window.currentRoutine,
+      window.todayRoutine,
+      window.routineToday
+    ];
+
+    for (const c of candidates) {
+      if (Array.isArray(c)) return c;
+    }
+
+    return [];
+  }
+
+  function lf6CollectTodayItems() {
+    const now = new Date();
+    const nowMinutes = now.getHours() * 60 + now.getMinutes();
+    let items = [];
+
+    document.querySelectorAll("#homeScreen .task").forEach((task, index) => {
+      const time =
+        task.querySelector(".task-time")?.textContent?.trim() ||
+        task.dataset.time ||
+        "";
+      const title =
+        task.querySelector(".task-title")?.textContent?.trim() ||
+        task.querySelector("strong")?.textContent?.trim() ||
+        `Atividade ${index + 1}`;
+      const done =
+        task.classList.contains("done") ||
+        Boolean(task.querySelector('input[type="checkbox"]:checked'));
+
+      if (time || title) {
+        items.push({
+          time,
+          title,
+          done,
+          minutes: lf6TimeToMinutes(time)
+        });
+      }
+    });
+
+    if (!items.length) {
+      const routine = lf6GetRoutineForToday();
+      items = routine.map((item, index) => ({
+        time: item.time || item.hour || item.start || "",
+        title: item.title || item.name || item.label || `Atividade ${index + 1}`,
+        done: Boolean(item.done || item.completed),
+        minutes: lf6TimeToMinutes(item.time || item.hour || item.start)
+      }));
+    }
+
+    items.sort((a,b) => a.minutes - b.minutes);
+
+    return items.map(item => ({
+      ...item,
+      state: item.done ? "done" : item.minutes < nowMinutes ? "past" : "next"
+    }));
+  }
+
+  function lf6RenderTimeline() {
+    const host = document.getElementById("lf6TimelineList");
+    if (!host) return;
+
+    const items = lf6CollectTodayItems();
+
+    if (!items.length) {
+      host.innerHTML = `
+        <div class="lf6-empty-state">
+          <span>⌁</span>
+          <strong>Seu dia está livre</strong>
+          <small>As atividades da rotina aparecerão aqui automaticamente.</small>
+        </div>
+      `;
+      return;
+    }
+
+    let firstFutureMarked = false;
+
+    host.innerHTML = items.slice(0, 8).map(item => {
+      let state = item.done ? "done" : item.state;
+      if (!item.done && item.state === "next" && !firstFutureMarked) {
+        state = "current";
+        firstFutureMarked = true;
+      }
+
+      return `
+        <div class="lf6-timeline-item ${state}">
+          <div class="lf6-timeline-time">${lf6Escape(item.time || "—")}</div>
+          <div class="lf6-timeline-line">
+            <i></i>
+          </div>
+          <div class="lf6-timeline-copy">
+            <strong>${lf6Escape(item.title)}</strong>
+            <small>${
+              state === "done" ? "Concluído" :
+              state === "current" ? "Próxima ação" :
+              state === "past" ? "Horário passou" :
+              "Planejado"
+            }</small>
+          </div>
+          <span class="lf6-timeline-state">${
+            state === "done" ? "✓" :
+            state === "current" ? "AGORA" :
+            "•"
+          }</span>
+        </div>
+      `;
+    }).join("");
+  }
+
+  function lf6GetSmartInsight() {
+    const hour = new Date().getHours();
+    let title = "Mantenha o ritmo.";
+    let text = "Pequenas ações consistentes constroem sua evolução.";
+
+    if (hour < 9) {
+      title = "O dia está começando.";
+      text = "Priorize a primeira missão importante antes que o dia fique cheio.";
+    } else if (hour < 13) {
+      title = "Ritmo de execução.";
+      text = "Você está no melhor momento para manter o plano e evitar acumular pendências.";
+    } else if (hour < 18) {
+      title = "Proteja sua energia.";
+      text = "Finalize o essencial da tarde e deixe o restante organizado para depois.";
+    } else {
+      title = "Fechamento inteligente.";
+      text = "Conclua o que falta e prepare amanhã para começar sem atrito.";
+    }
+
+    const items = lf6CollectTodayItems();
+    const done = items.filter(i => i.done).length;
+    if (items.length) {
+      const pct = Math.round(done / items.length * 100);
+      text = `Você concluiu ${done} de ${items.length} atividades detectadas hoje (${pct}%). ${text}`;
+    }
+
+    return { title, text };
+  }
+
+  function lf6RefreshIntelligence() {
+    lf6RenderTimeline();
+
+    const insight = lf6GetSmartInsight();
+    const title = document.getElementById("lf6InsightTitle");
+    const text = document.getElementById("lf6InsightText");
+    if (title) title.textContent = insight.title;
+    if (text) text.textContent = insight.text;
+
+    const clock = document.getElementById("lf6Clock");
+    if (clock) {
+      clock.textContent = new Date().toLocaleTimeString("pt-BR", {
+        hour:"2-digit",
+        minute:"2-digit"
+      });
+    }
+  }
+
+  function lf6InjectSmartHome() {
+    const home = document.getElementById("homeScreen");
+    if (!home || home.querySelector("#lf6Intelligence")) return;
+
+    const hero = home.querySelector(".hero-section");
+    const mount = document.createElement("section");
+    mount.id = "lf6Intelligence";
+    mount.className = "lf6-intelligence";
+
+    mount.innerHTML = `
+      <div class="lf6-command-launch" id="lf6CommandLaunch" role="button" tabindex="0">
+        <div class="lf6-command-symbol">⌘</div>
+        <div class="lf6-command-copy">
+          <span>COMMAND CENTER</span>
+          <strong>O que você quer fazer?</strong>
+        </div>
+        <kbd>ABRIR</kbd>
+      </div>
+
+      <div class="lf6-intelligence-grid">
+        <article class="lf6-timeline-card">
+          <div class="lf6-card-head">
+            <div>
+              <span class="lf6-kicker">LIVE TIMELINE</span>
+              <h3>Hoje</h3>
+            </div>
+            <div class="lf6-live-clock">
+              <i></i>
+              <b id="lf6Clock">--:--</b>
+            </div>
+          </div>
+          <div id="lf6TimelineList" class="lf6-timeline-list"></div>
+        </article>
+
+        <article class="lf6-insight-card">
+          <div class="lf6-insight-mark">AI</div>
+          <span class="lf6-kicker">LIFEFLOW INTELLIGENCE</span>
+          <h3 id="lf6InsightTitle">Analisando seu dia...</h3>
+          <p id="lf6InsightText">Preparando seu insight.</p>
+          <div class="lf6-scan-line"></div>
+        </article>
+      </div>
+    `;
+
+    if (hero?.nextSibling) {
+      home.insertBefore(mount, hero.nextSibling);
+    } else if (hero) {
+      hero.insertAdjacentElement("afterend", mount);
+    } else {
+      home.prepend(mount);
+    }
+
+    const launch = mount.querySelector("#lf6CommandLaunch");
+    launch?.addEventListener("click", lf6OpenCommandCenter);
+    launch?.addEventListener("keydown", e => {
+      if (e.key === "Enter" || e.key === " ") lf6OpenCommandCenter();
+    });
+
+    lf6RefreshIntelligence();
+  }
+
+  function lf6CommandCatalog() {
+    return [
+      { icon:"⌂", title:"Ir para Início", hint:"home início hoje", action:() => document.querySelector('.nav-item[data-screen="home"]')?.click() },
+      { icon:"▦", title:"Abrir Agenda", hint:"agenda calendário compromisso", action:() => document.querySelector('.nav-item[data-screen="agenda"]')?.click() },
+      { icon:"◈", title:"Abrir Estudos", hint:"estudos pmmg estudar aula", action:() => document.querySelector('.nav-item[data-screen="studies"]')?.click() },
+      { icon:"↗", title:"Ver Progresso", hint:"progresso evolução xp meta", action:() => document.querySelector('.nav-item[data-screen="progress"]')?.click() },
+      { icon:"＋", title:"Registrar 250 ml de água", hint:"agua água hidratação beber", action:() => document.getElementById("addWaterButton")?.click() },
+      { icon:"✓", title:"Ver rotina de hoje", hint:"rotina hoje tarefas atividades", action:() => {
+          document.querySelector('.nav-item[data-screen="home"]')?.click();
+          setTimeout(() => document.querySelector(".daily-card")?.scrollIntoView({behavior:"smooth",block:"center"}), 180);
+        }
+      },
+      { icon:"⌁", title:"Abrir Academia", hint:"academia treino treinar", action:() => {
+          if (typeof showGymRoot === "function") showGymRoot();
+          else document.querySelector('[data-life-module="gym"],[data-module="gym"]')?.click();
+        }
+      },
+      { icon:"☾", title:"Abrir Sono", hint:"sono dormir descanso", action:() => {
+          if (typeof showSleepScreen === "function") showSleepScreen();
+          else document.querySelector('[data-life-module="sleep"],[data-module="sleep"]')?.click();
+        }
+      }
+    ];
+  }
+
+  function lf6OpenCommandCenter() {
+    let overlay = document.getElementById("lf6CommandCenter");
+
+    if (!overlay) {
+      overlay = document.createElement("div");
+      overlay.id = "lf6CommandCenter";
+      overlay.className = "lf6-command-overlay";
+      overlay.innerHTML = `
+        <div class="lf6-command-panel">
+          <div class="lf6-command-top">
+            <span>⌘</span>
+            <input id="lf6CommandInput"
+                   type="text"
+                   autocomplete="off"
+                   placeholder="Digite uma ação...">
+            <button id="lf6CommandClose" type="button">ESC</button>
+          </div>
+          <div class="lf6-command-label">AÇÕES RÁPIDAS</div>
+          <div id="lf6CommandResults" class="lf6-command-results"></div>
+          <div class="lf6-command-footer">
+            <span>LifeFlow Intelligence</span>
+            <b>v6.0</b>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(overlay);
+
+      overlay.querySelector("#lf6CommandClose")?.addEventListener("click", lf6CloseCommandCenter);
+      overlay.addEventListener("click", e => {
+        if (e.target === overlay) lf6CloseCommandCenter();
+      });
+
+      const input = overlay.querySelector("#lf6CommandInput");
+      input?.addEventListener("input", () => lf6RenderCommands(input.value));
+    }
+
+    overlay.classList.add("open");
+    document.body.classList.add("lf6-command-open");
+    lf6RenderCommands("");
+    setTimeout(() => overlay.querySelector("#lf6CommandInput")?.focus(), 50);
+  }
+
+  function lf6CloseCommandCenter() {
+    document.getElementById("lf6CommandCenter")?.classList.remove("open");
+    document.body.classList.remove("lf6-command-open");
+  }
+
+  function lf6RenderCommands(query = "") {
+    const host = document.getElementById("lf6CommandResults");
+    if (!host) return;
+
+    const q = query.trim().toLocaleLowerCase("pt-BR");
+    const commands = lf6CommandCatalog().filter(cmd =>
+      !q ||
+      cmd.title.toLocaleLowerCase("pt-BR").includes(q) ||
+      cmd.hint.toLocaleLowerCase("pt-BR").includes(q)
+    );
+
+    host.innerHTML = commands.length
+      ? commands.map((cmd,index) => `
+          <button type="button" class="lf6-command-result" data-lf6-command="${index}">
+            <span>${cmd.icon}</span>
+            <div>
+              <strong>${lf6Escape(cmd.title)}</strong>
+              <small>${lf6Escape(cmd.hint.split(" ").slice(0,3).join(" • "))}</small>
+            </div>
+            <i>↵</i>
+          </button>
+        `).join("")
+      : `<div class="lf6-command-empty">Nenhuma ação encontrada.</div>`;
+
+    const filtered = commands;
+    host.querySelectorAll("[data-lf6-command]").forEach(button => {
+      button.addEventListener("click", () => {
+        const cmd = filtered[Number(button.dataset.lf6Command)];
+        lf6CloseCommandCenter();
+        setTimeout(() => cmd?.action?.(), 80);
+      });
+    });
+  }
+
+  document.addEventListener("keydown", e => {
+    const isShortcut = (e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k";
+    if (isShortcut) {
+      e.preventDefault();
+      lf6OpenCommandCenter();
+    }
+    if (e.key === "Escape") lf6CloseCommandCenter();
+  });
+
+  // Keep intelligence synced when the home DOM changes.
+  const lf6HomeObserver = new MutationObserver(() => {
+    clearTimeout(window.__lf6RefreshTimer);
+    window.__lf6RefreshTimer = setTimeout(() => {
+      lf6InjectSmartHome();
+      lf6RefreshIntelligence();
+    }, 100);
+  });
+
+  const lf6Home = document.getElementById("homeScreen");
+  if (lf6Home) {
+    lf6HomeObserver.observe(lf6Home, {childList:true,subtree:true});
+    lf6InjectSmartHome();
+  }
+
+  setInterval(lf6RefreshIntelligence, 60000);
+
+  // PWA service worker.
+  if ("serviceWorker" in navigator && location.protocol.startsWith("http")) {
+    window.addEventListener("load", () => {
+      navigator.serviceWorker.register("./service-worker.js").catch(() => {});
+    });
+  }
 
 });
