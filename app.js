@@ -1,5 +1,80 @@
 
 /* ============================================================
+   LIFEFLOW 6.6 — FINAL MODULE REVIEW
+============================================================ */
+document.addEventListener("DOMContentLoaded", () => {
+  document.documentElement.setAttribute("data-lifeflow-modules", "6.6");
+
+  const moduleMeta = {
+    agendaScreen:   ["PLANEJAMENTO", "Agenda", "Organize seus compromissos e enxergue os próximos dias."],
+    studyScreen:    ["MISSÃO PMMG", "Estudos", "Continue sua preparação com foco, sequência e evolução."],
+    progressScreen: ["INTELLIGENCE", "Progresso", "Acompanhe consistência, resultados e tendências reais."],
+    sleepScreen:    ["RECUPERAÇÃO", "Sono", "Proteja sua recuperação para sustentar sua performance."]
+  };
+
+  function polishModule(screen, meta) {
+    if (!screen || screen.dataset.lf66Reviewed === "1") return;
+    screen.dataset.lf66Reviewed = "1";
+    screen.classList.add("lf66-reviewed-screen");
+
+    const header = screen.querySelector(".page-header");
+    if (header) {
+      header.classList.add("lf66-page-header");
+      const label = header.querySelector(".section-label");
+      const title = header.querySelector("h2");
+      const text = header.querySelector("p");
+
+      if (label && !label.textContent.trim()) label.textContent = meta[0];
+      if (title && !title.textContent.trim()) title.textContent = meta[1];
+      if (text && !text.textContent.trim()) text.textContent = meta[2];
+    }
+
+    if (!screen.querySelector(".lf66-module-status")) {
+      const status = document.createElement("div");
+      status.className = "lf66-module-status";
+      status.innerHTML = `
+        <i></i>
+        <span>${meta[1]} sincronizado com LifeFlow</span>
+        <b>06.6</b>
+      `;
+      screen.appendChild(status);
+    }
+  }
+
+  function reviewAllModules() {
+    Object.entries(moduleMeta).forEach(([id, meta]) => {
+      polishModule(document.getElementById(id), meta);
+    });
+
+    document.querySelectorAll(
+      ".lf-simple-gym-screen, .lifeflow-gym-screen, [data-lifeflow-gym]"
+    ).forEach(screen => {
+      screen.classList.add("lf66-reviewed-screen", "lf66-gym-reviewed");
+    });
+
+    document.querySelectorAll(
+      ".lifeflow-sleep-screen, .lf-sleep-card, .sleep-card"
+    ).forEach(el => el.classList.add("lf66-sleep-reviewed"));
+
+    document.querySelectorAll(
+      ".lf40-modal-card, .site-modal-card, .modal-card"
+    ).forEach(el => el.classList.add("lf66-modal-reviewed"));
+  }
+
+  reviewAllModules();
+  [100, 350, 900, 1800].forEach(ms => setTimeout(reviewAllModules, ms));
+
+  const observer = new MutationObserver(() => {
+    clearTimeout(window.__lf66ReviewTimer);
+    window.__lf66ReviewTimer = setTimeout(reviewAllModules, 100);
+  });
+
+  observer.observe(document.body, { childList: true, subtree: true });
+});
+
+
+
+/* ============================================================
    LIFEFLOW 6.5 — WEEKLY INTELLIGENCE
    Relatório real baseado no histórico local do LifeFlow.
 ============================================================ */
