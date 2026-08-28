@@ -8464,3 +8464,217 @@ html[data-lifeflow-version="6.1.1"] .lf5-system-rail small {
     font-size: 9px;
   }
 }
+
+
+/* ==================================================================
+   LIFEFLOW 6.7 — PWA + BACKUP / RESTORE FINAL
+================================================================== */
+.lf67-drawer-button {
+  width: 100%;
+  min-height: 64px;
+  display: grid;
+  grid-template-columns: 34px 1fr auto;
+  align-items: center;
+  gap: 10px;
+  margin: 11px 0 4px;
+  padding: 11px 13px;
+  border: 1px solid rgba(85,227,154,.09);
+  border-radius: 17px;
+  background: rgba(85,227,154,.025);
+  color: inherit;
+  text-align: left;
+}
+
+.lf67-drawer-button > span {
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  border-radius: 10px;
+  background: rgba(85,227,154,.06);
+  color: #55e39a;
+  font-size: 13px;
+}
+
+.lf67-drawer-button strong,
+.lf67-drawer-button small {
+  display: block;
+}
+
+.lf67-drawer-button strong {
+  color: #dce4de;
+  font-size: 9px;
+}
+
+.lf67-drawer-button small {
+  margin-top: 4px;
+  color: #59645d;
+  font-size: 6px;
+}
+
+.lf67-drawer-button b {
+  color: #637067;
+  font-size: 15px;
+}
+
+.lf67-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 120000;
+  display: grid;
+  place-items: center;
+  padding: 18px;
+  background: rgba(0,0,0,.78);
+  backdrop-filter: blur(14px);
+}
+
+.lf67-card {
+  width: min(520px,100%);
+  max-height: min(720px,92vh);
+  overflow: auto;
+  padding: 20px;
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 27px;
+  background:
+    radial-gradient(circle at 100% 0%,rgba(85,227,154,.07),transparent 29%),
+    linear-gradient(145deg,rgba(15,20,17,.995),rgba(5,7,6,.998));
+  box-shadow: 0 40px 120px rgba(0,0,0,.66);
+}
+
+.lf67-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid rgba(255,255,255,.055);
+}
+
+.lf67-head span,
+.lf67-head strong,
+.lf67-head small {
+  display: block;
+}
+
+.lf67-head span {
+  color: #55e39a;
+  font-size: 7px;
+  font-weight: 950;
+  letter-spacing: 1.2px;
+}
+
+.lf67-head strong {
+  margin-top: 6px;
+  color: #eff4f0;
+  font-size: 19px;
+  letter-spacing: -.55px;
+}
+
+.lf67-head small {
+  margin-top: 5px;
+  color: #616c64;
+  font-size: 7px;
+}
+
+.lf67-head button {
+  width: 38px;
+  height: 38px;
+  flex: 0 0 auto;
+  border: 1px solid rgba(85,227,154,.15);
+  border-radius: 13px;
+  background: rgba(0,0,0,.20);
+  color: #dfe6e1;
+  font-size: 20px;
+}
+
+.lf67-grid {
+  display: grid;
+  gap: 8px;
+  margin-top: 15px;
+}
+
+.lf67-action {
+  min-height: 72px;
+  display: grid;
+  grid-template-columns: 38px 1fr;
+  align-items: center;
+  gap: 11px;
+  padding: 12px;
+  border: 1px solid rgba(255,255,255,.06);
+  border-radius: 17px;
+  background: rgba(255,255,255,.018);
+  color: inherit;
+  text-align: left;
+}
+
+.lf67-action:hover {
+  border-color: rgba(85,227,154,.15);
+}
+
+.lf67-action:disabled {
+  opacity: .68;
+}
+
+.lf67-action > span {
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  border-radius: 12px;
+  background: rgba(85,227,154,.055);
+  color: #55e39a;
+  font-size: 16px;
+}
+
+.lf67-action strong,
+.lf67-action small {
+  display: block;
+}
+
+.lf67-action strong {
+  color: #dfe6e1;
+  font-size: 10px;
+}
+
+.lf67-action small {
+  margin-top: 4px;
+  color: #5c675f;
+  font-size: 6.5px;
+}
+
+.lf67-security {
+  display: grid;
+  grid-template-columns: 7px 1fr;
+  gap: 9px;
+  margin-top: 14px;
+  padding: 12px;
+  border: 1px solid rgba(85,227,154,.075);
+  border-radius: 15px;
+  background: rgba(85,227,154,.02);
+}
+
+.lf67-security > i {
+  width: 6px;
+  height: 6px;
+  margin-top: 3px;
+  border-radius: 50%;
+  background: #55e39a;
+  box-shadow: 0 0 10px rgba(85,227,154,.4);
+}
+
+.lf67-security strong,
+.lf67-security span {
+  display: block;
+}
+
+.lf67-security strong {
+  color: #aeb8b1;
+  font-size: 7px;
+}
+
+.lf67-security span {
+  margin-top: 4px;
+  color: #566159;
+  font-size: 6px;
+  line-height: 1.5;
+}
