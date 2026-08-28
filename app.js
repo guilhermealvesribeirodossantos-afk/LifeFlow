@@ -1,4 +1,8 @@
+
 document.addEventListener("DOMContentLoaded", () => {
+  document.documentElement.setAttribute("data-lifeflow-version", "5.0");
+  document.body?.setAttribute("data-lf-system", "online");
+
 
   // =====================================================
   // LIFEFLOW
@@ -463,7 +467,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
   // =====================================================
-  // LIFEFLOW 4.4 — ACADEMIA PRO
+  // LIFEFLOW 5.0 — NEO SYSTEM
   // Conta única / proteção client-side
   // =====================================================
 
