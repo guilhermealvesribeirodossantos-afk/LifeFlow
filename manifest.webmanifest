@@ -1,0 +1,11 @@
+{
+  "name": "LifeFlow — Personal Intelligence OS",
+  "short_name": "LifeFlow",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#030504",
+  "theme_color": "#07100b",
+  "description": "Sistema pessoal para rotina, evolução, estudos, treino e organização.",
+  "orientation": "portrait-primary"
+}
