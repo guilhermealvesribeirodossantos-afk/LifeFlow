@@ -7712,3 +7712,30 @@ html[data-lifeflow-version="6.1.1"] .lf5-system-rail small {
 #lifeflowDrawer .lf63-head + .lf63-profile {
   margin-top: 0 !important;
 }
+
+
+/* ==================================================================
+   LIFEFLOW 6.3.2 — PROFILE BIND
+================================================================== */
+
+#lifeflowDrawer #lfProfileChip {
+  display: none !important;
+}
+
+#lifeflowDrawer .lf63-avatar {
+  overflow: hidden !important;
+}
+
+#lifeflowDrawer .lf63-avatar img {
+  width: 100% !important;
+  height: 100% !important;
+  display: block !important;
+  object-fit: cover !important;
+  border-radius: inherit !important;
+}
+
+#lifeflowDrawer .lf63-avatar span {
+  color: #64e79b !important;
+  font-size: 18px !important;
+  font-weight: 950 !important;
+}
