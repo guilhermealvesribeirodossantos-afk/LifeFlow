@@ -2711,3 +2711,425 @@ button:active {
     font-size: 21px;
   }
 }
+
+/* =========================================================
+   LIFEFLOW 4.3 — ACADEMIA SIMPLIFICADA
+========================================================= */
+
+.lf-simple-gym-head {
+  display:flex;
+  align-items:flex-end;
+  justify-content:space-between;
+  gap:16px;
+  padding:10px 3px 22px;
+}
+
+.lf-simple-gym-head h2,
+.lf-simple-detail-head h2 {
+  margin:0;
+  font-size:34px;
+  letter-spacing:-1.3px;
+}
+
+.lf-simple-gym-head p,
+.lf-simple-detail-head p {
+  margin:7px 0 0;
+  color:var(--muted);
+  font-size:11px;
+  line-height:1.5;
+}
+
+.lf-simple-gym-week {
+  min-width:76px;
+  padding:11px 12px;
+  border:1px solid var(--green-line);
+  border-radius:16px;
+  background:var(--green-soft);
+  text-align:center;
+}
+
+.lf-simple-gym-week strong {
+  display:block;
+  color:var(--green);
+  font-size:20px;
+}
+
+.lf-simple-gym-week span {
+  color:#8a8f8c;
+  font-size:8px;
+}
+
+.lf-simple-today-card {
+  padding:20px;
+  margin-bottom:25px;
+  border:1px solid rgba(85,227,154,.18);
+  border-radius:24px;
+  background:
+    radial-gradient(circle at 100% 0%, rgba(85,227,154,.09), transparent 38%),
+    linear-gradient(145deg,#151817,#090b0a);
+  box-shadow:var(--shadow-soft);
+}
+
+.lf-simple-today-top {
+  display:flex;
+  justify-content:space-between;
+  gap:14px;
+}
+
+.lf-simple-today-top > div > span {
+  color:var(--green);
+  font-size:9px;
+  font-weight:950;
+  letter-spacing:1.4px;
+}
+
+.lf-simple-today-top h3 {
+  margin:8px 0 4px;
+  font-size:25px;
+}
+
+.lf-simple-today-top p {
+  margin:0;
+  color:#949997;
+  font-size:11px;
+}
+
+.lf-simple-status {
+  height:max-content;
+  padding:7px 9px;
+  border:1px solid var(--border);
+  border-radius:999px;
+  color:#8a8e8c;
+  font-size:7px;
+  font-weight:950;
+  letter-spacing:.7px;
+}
+
+.lf-simple-status.done {
+  border-color:var(--green-line);
+  background:var(--green-soft);
+  color:var(--green);
+}
+
+.lf-simple-progress {
+  margin-top:22px;
+}
+
+.lf-simple-progress > div {
+  height:7px;
+  overflow:hidden;
+  border-radius:999px;
+  background:rgba(255,255,255,.07);
+}
+
+.lf-simple-progress i {
+  display:block;
+  height:100%;
+  border-radius:inherit;
+  background:linear-gradient(90deg,#49d993,#6be5ac);
+}
+
+.lf-simple-progress span {
+  display:block;
+  margin-top:7px;
+  color:#696e6b;
+  font-size:8px;
+}
+
+.lf-simple-today-card > button {
+  width:100%;
+  margin-top:17px;
+  padding:13px 14px;
+  display:flex;
+  justify-content:space-between;
+  border:1px solid var(--green-line);
+  border-radius:14px;
+  background:rgba(85,227,154,.07);
+  color:var(--green);
+  font-size:10px;
+  font-weight:900;
+}
+
+.lf-simple-section {
+  margin-bottom:23px;
+}
+
+.lf-simple-section-title {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  padding:0 3px;
+  margin-bottom:12px;
+}
+
+.lf-simple-section-title h3 {
+  margin:0;
+  font-size:19px;
+}
+
+.lf-simple-section-title > button {
+  padding:9px 11px;
+  border:1px solid var(--green-line);
+  border-radius:11px;
+  background:var(--green-soft);
+  color:var(--green);
+  font-size:9px;
+  font-weight:900;
+}
+
+.lf-simple-plan-list {
+  display:grid;
+  gap:8px;
+}
+
+.lf-simple-plan-row {
+  width:100%;
+  min-height:78px;
+  display:grid;
+  grid-template-columns:48px 1fr auto;
+  align-items:center;
+  gap:12px;
+  padding:12px;
+  border:1px solid var(--border);
+  border-radius:18px;
+  background:linear-gradient(145deg,#141515,#090a0a);
+  color:inherit;
+  text-align:left;
+}
+
+.lf-simple-plan-row.active {
+  border-color:rgba(85,227,154,.24);
+  background:linear-gradient(145deg,rgba(85,227,154,.07),#090b0a);
+}
+
+.lf-simple-plan-letter {
+  width:46px;
+  height:46px;
+  display:grid;
+  place-items:center;
+  border:1px solid var(--green-line);
+  border-radius:14px;
+  background:var(--green-soft);
+  color:var(--green);
+  font-size:13px;
+  font-weight:950;
+}
+
+.lf-simple-plan-copy {
+  min-width:0;
+}
+
+.lf-simple-plan-copy strong,
+.lf-simple-plan-copy small {
+  display:block;
+}
+
+.lf-simple-plan-copy strong {
+  color:#ededed;
+  font-size:13px;
+}
+
+.lf-simple-plan-copy small {
+  margin-top:5px;
+  overflow:hidden;
+  color:#777c79;
+  font-size:9px;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+
+.lf-simple-plan-state {
+  color:var(--green);
+  font-size:8px;
+  font-weight:950;
+}
+
+.lf-simple-summary {
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:8px;
+}
+
+.lf-simple-summary > div {
+  min-height:104px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  border:1px solid var(--border);
+  border-radius:18px;
+  background:#0d0f0e;
+}
+
+.lf-simple-summary span {
+  color:var(--green);
+  font-size:17px;
+}
+
+.lf-simple-summary strong {
+  margin-top:6px;
+  font-size:18px;
+}
+
+.lf-simple-summary small {
+  margin-top:3px;
+  color:#6d716f;
+  font-size:7px;
+}
+
+.lf-simple-detail-head {
+  display:grid;
+  grid-template-columns:42px 1fr 42px;
+  align-items:start;
+  gap:12px;
+  padding:8px 0 22px;
+}
+
+.lf-simple-detail-head > button {
+  width:42px;
+  height:42px;
+  border:1px solid var(--border);
+  border-radius:14px;
+  background:#101211;
+  color:#d8dad9;
+  font-size:21px;
+}
+
+.lf-simple-focus-card {
+  padding:20px;
+  border:1px solid var(--border);
+  border-radius:24px;
+  background:linear-gradient(145deg,#151716,#090a0a);
+}
+
+.lf-simple-focus-card h3 {
+  margin:0 0 16px;
+  font-size:20px;
+}
+
+.lf-muscle-check-list {
+  display:grid;
+  gap:8px;
+}
+
+.lf-muscle-check {
+  min-height:64px;
+  display:grid;
+  grid-template-columns:38px 1fr auto;
+  align-items:center;
+  gap:10px;
+  padding:10px;
+  border:1px solid var(--border);
+  border-radius:15px;
+  background:rgba(255,255,255,.018);
+}
+
+.lf-muscle-check > span {
+  width:34px;
+  height:34px;
+  display:grid;
+  place-items:center;
+  border-radius:11px;
+  background:rgba(255,255,255,.04);
+  color:#8d918f;
+  font-size:9px;
+  font-weight:950;
+}
+
+.lf-muscle-check strong {
+  font-size:12px;
+}
+
+.lf-muscle-check small {
+  color:#696e6b;
+  font-size:8px;
+}
+
+.lf-muscle-check.done {
+  border-color:var(--green-line);
+}
+
+.lf-muscle-check.done > span {
+  background:var(--green-soft);
+  color:var(--green);
+}
+
+.lf-simple-note-card {
+  display:flex;
+  gap:12px;
+  margin-top:12px;
+  padding:15px;
+  border:1px solid var(--border);
+  border-radius:18px;
+  background:#0c0e0d;
+}
+
+.lf-simple-note-card > span {
+  color:var(--green);
+  font-weight:950;
+}
+
+.lf-simple-note-card strong {
+  display:block;
+  font-size:11px;
+}
+
+.lf-simple-note-card p {
+  margin:5px 0 0;
+  color:#737875;
+  font-size:9px;
+  line-height:1.55;
+}
+
+.lf-simple-complete {
+  width:100%;
+  margin-top:15px;
+  min-height:54px;
+  border:1px solid var(--green-line);
+  border-radius:16px;
+  background:var(--green-soft);
+  color:var(--green);
+  font-size:11px;
+  font-weight:950;
+}
+
+.lf-simple-complete.done {
+  background:rgba(85,227,154,.16);
+}
+
+.lf-simple-delete {
+  width:100%;
+  margin-top:9px;
+  min-height:45px;
+  border:1px solid rgba(255,100,100,.13);
+  border-radius:14px;
+  background:rgba(255,100,100,.035);
+  color:#a36e6e;
+  font-size:9px;
+  font-weight:850;
+}
+
+.lf-simple-empty {
+  padding:18px;
+  border:1px dashed var(--border);
+  border-radius:14px;
+  color:var(--muted);
+  font-size:10px;
+  text-align:center;
+}
+
+@media (max-width:520px) {
+  .lf-simple-gym-head h2,
+  .lf-simple-detail-head h2 {
+    font-size:30px;
+  }
+
+  .lf-simple-today-card {
+    padding:17px;
+  }
+
+  .lf-simple-summary {
+    gap:6px;
+  }
+}
