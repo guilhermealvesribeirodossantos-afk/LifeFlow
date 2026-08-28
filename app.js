@@ -1,5 +1,256 @@
 
 /* ============================================================
+   LIFEFLOW 6.7 — PWA + BACKUP / RESTORE FINAL
+============================================================ */
+document.addEventListener("DOMContentLoaded", () => {
+  document.documentElement.setAttribute("data-lifeflow-pwa", "6.7");
+
+  const LF67_BACKUP_VERSION = "6.7";
+  let deferredInstallPrompt = null;
+
+  window.addEventListener("beforeinstallprompt", event => {
+    event.preventDefault();
+    deferredInstallPrompt = event;
+    updateInstallButtons();
+  });
+
+  window.addEventListener("appinstalled", () => {
+    deferredInstallPrompt = null;
+    showSiteMessage?.("LifeFlow instalado com sucesso.", "success");
+    updateInstallButtons();
+  });
+
+  function isStandalone() {
+    return window.matchMedia?.("(display-mode: standalone)")?.matches ||
+      window.navigator.standalone === true;
+  }
+
+  function updateInstallButtons() {
+    document.querySelectorAll("[data-lf67-install]").forEach(btn => {
+      if (isStandalone()) {
+        btn.disabled = true;
+        btn.innerHTML = "<span>✓</span><div><strong>LifeFlow instalado</strong><small>Executando como aplicativo</small></div>";
+      } else if (deferredInstallPrompt) {
+        btn.disabled = false;
+        btn.innerHTML = "<span>↓</span><div><strong>Instalar LifeFlow</strong><small>Adicionar como aplicativo neste dispositivo</small></div>";
+      } else {
+        btn.disabled = false;
+        btn.innerHTML = "<span>＋</span><div><strong>Instalar LifeFlow</strong><small>Use a opção “Adicionar à tela inicial” do navegador</small></div>";
+      }
+    });
+  }
+
+  async function installLifeFlow() {
+    if (isStandalone()) {
+      showSiteMessage?.("O LifeFlow já está instalado neste dispositivo.", "success");
+      return;
+    }
+
+    if (!deferredInstallPrompt) {
+      showSiteMessage?.(
+        "No navegador, abra o menu e escolha “Instalar aplicativo” ou “Adicionar à tela inicial”.",
+        "info"
+      );
+      return;
+    }
+
+    deferredInstallPrompt.prompt();
+    try {
+      await deferredInstallPrompt.userChoice;
+    } catch (_) {}
+    deferredInstallPrompt = null;
+    updateInstallButtons();
+  }
+
+  function buildBackup() {
+    const storage = {};
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (!key) continue;
+      if (/^lifeflow-/i.test(key)) {
+        storage[key] = localStorage.getItem(key);
+      }
+    }
+
+    return {
+      app: "LifeFlow",
+      backupVersion: LF67_BACKUP_VERSION,
+      createdAt: new Date().toISOString(),
+      origin: location.origin,
+      storage
+    };
+  }
+
+  function downloadBackup() {
+    const backup = buildBackup();
+    const date = new Date().toISOString().slice(0, 10);
+    const blob = new Blob(
+      [JSON.stringify(backup, null, 2)],
+      { type: "application/json;charset=utf-8" }
+    );
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `LifeFlow-backup-${date}.json`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 500);
+    showSiteMessage?.("Backup do LifeFlow criado.", "success");
+  }
+
+  function restoreBackupFile(file) {
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      try {
+        const data = JSON.parse(String(reader.result || ""));
+        if (
+          data?.app !== "LifeFlow" ||
+          !data.storage ||
+          typeof data.storage !== "object"
+        ) {
+          throw new Error("backup inválido");
+        }
+
+        const entries = Object.entries(data.storage)
+          .filter(([key, value]) =>
+            /^lifeflow-/i.test(key) &&
+            typeof value === "string"
+          );
+
+        if (!entries.length) throw new Error("backup vazio");
+
+        showSiteConfirm?.(
+          `Restaurar ${entries.length} registros do backup? Os dados atuais do LifeFlow serão substituídos quando houver a mesma chave.`,
+          () => {
+            entries.forEach(([key, value]) => localStorage.setItem(key, value));
+            showSiteMessage?.("Backup restaurado. Recarregando o LifeFlow...", "success");
+            setTimeout(() => location.reload(), 900);
+          },
+          { confirmText: "Restaurar", danger: false }
+        );
+      } catch (_) {
+        showSiteMessage?.("Este arquivo não é um backup válido do LifeFlow.", "error");
+      }
+    };
+    reader.readAsText(file);
+  }
+
+  function openRestorePicker() {
+    let input = document.getElementById("lf67RestoreInput");
+    if (!input) {
+      input = document.createElement("input");
+      input.id = "lf67RestoreInput";
+      input.type = "file";
+      input.accept = ".json,application/json";
+      input.hidden = true;
+      input.addEventListener("change", () => {
+        restoreBackupFile(input.files?.[0]);
+        input.value = "";
+      });
+      document.body.appendChild(input);
+    }
+    input.click();
+  }
+
+  function openDataCenter() {
+    document.getElementById("lf67DataCenter")?.remove();
+
+    const overlay = document.createElement("div");
+    overlay.id = "lf67DataCenter";
+    overlay.className = "lf67-overlay";
+    overlay.innerHTML = `
+      <div class="lf67-card" role="dialog" aria-modal="true" aria-label="Backup e instalação">
+        <div class="lf67-head">
+          <div>
+            <span>DATA CENTER // 06.7</span>
+            <strong>Proteção do LifeFlow</strong>
+            <small>Instalação, backup e recuperação dos seus dados.</small>
+          </div>
+          <button type="button" data-lf67-close aria-label="Fechar">×</button>
+        </div>
+
+        <div class="lf67-grid">
+          <button type="button" class="lf67-action" data-lf67-install>
+            <span>＋</span>
+            <div><strong>Instalar LifeFlow</strong><small>Adicionar como aplicativo neste dispositivo</small></div>
+          </button>
+
+          <button type="button" class="lf67-action" data-lf67-backup>
+            <span>⇩</span>
+            <div><strong>Criar backup</strong><small>Salvar seus dados em um arquivo JSON</small></div>
+          </button>
+
+          <button type="button" class="lf67-action" data-lf67-restore>
+            <span>⇧</span>
+            <div><strong>Restaurar backup</strong><small>Recuperar dados salvos anteriormente</small></div>
+          </button>
+        </div>
+
+        <div class="lf67-security">
+          <i></i>
+          <div>
+            <strong>Seus dados continuam locais</strong>
+            <span>O backup inclui somente chaves LifeFlow salvas neste navegador. Guarde o arquivo em local seguro.</span>
+          </div>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(overlay);
+
+    overlay.querySelector("[data-lf67-close]")?.addEventListener("click", () => overlay.remove());
+    overlay.addEventListener("click", event => {
+      if (event.target === overlay) overlay.remove();
+    });
+    overlay.querySelector("[data-lf67-install]")?.addEventListener("click", installLifeFlow);
+    overlay.querySelector("[data-lf67-backup]")?.addEventListener("click", downloadBackup);
+    overlay.querySelector("[data-lf67-restore]")?.addEventListener("click", openRestorePicker);
+    updateInstallButtons();
+  }
+
+  function bindProfileDataCenter() {
+    const drawer = document.getElementById("lifeflowDrawer");
+    if (!drawer || drawer.querySelector("#lf67DataCenterButton")) return;
+
+    const motivation = drawer.querySelector(".lf63-motivation");
+    const btn = document.createElement("button");
+    btn.id = "lf67DataCenterButton";
+    btn.className = "lf67-drawer-button";
+    btn.type = "button";
+    btn.innerHTML = `
+      <span>⌁</span>
+      <div>
+        <strong>Backup & App</strong>
+        <small>Instalação e proteção dos dados</small>
+      </div>
+      <b>›</b>
+    `;
+    btn.addEventListener("click", () => {
+      window.closeLifeFlowDrawer?.();
+      openDataCenter();
+    });
+
+    if (motivation) motivation.insertAdjacentElement("beforebegin", btn);
+    else drawer.appendChild(btn);
+  }
+
+  bindProfileDataCenter();
+  [200, 600, 1400].forEach(ms => setTimeout(bindProfileDataCenter, ms));
+
+  const observer = new MutationObserver(() => {
+    clearTimeout(window.__lf67BindTimer);
+    window.__lf67BindTimer = setTimeout(bindProfileDataCenter, 120);
+  });
+  observer.observe(document.body, { childList: true, subtree: true });
+
+  window.openLifeFlowDataCenter = openDataCenter;
+});
+
+
+
+/* ============================================================
    LIFEFLOW 6.6 — FINAL MODULE REVIEW
 ============================================================ */
 document.addEventListener("DOMContentLoaded", () => {
