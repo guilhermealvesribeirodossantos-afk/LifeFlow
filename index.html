@@ -14,24 +14,42 @@
     content="#05070a"
   >
 
-  <title>LifeFlow</title>
+  <title>LifeFlow // Personal OS</title>
 
   <!-- CACHE BUST -->
   <link
     rel="stylesheet"
-    href="style.css?v=202608280952"
+    href="style.css?v=202608281005"
   >
 </head>
 
 <body>
 
-  <div class="app-shell">
+  <div class="lf5-ambient" aria-hidden="true">
+    <div class="lf5-orb lf5-orb-a"></div>
+    <div class="lf5-orb lf5-orb-b"></div>
+    <div class="lf5-grid"></div>
+    <div class="lf5-noise"></div>
+  </div>
+
+  <div class="lf5-system-rail" aria-hidden="true">
+    <span>LF</span>
+    <i></i>
+    <small>05.0</small>
+  </div>
+
+
+  <div class="app-shell lf5-shell">
 
     <!-- =========================================
          HEADER
     ========================================== -->
 
     <header class="app-header">
+      <div class="lf5-system-status" aria-hidden="true">
+        <i></i>
+        <span>SYSTEM ONLINE</span>
+      </div>
 
       <div class="brand-area">
 
@@ -41,7 +59,7 @@
 
         <div>
           <p class="brand-kicker">
-            LIFE MANAGEMENT
+            PERSONAL OPERATING SYSTEM
           </p>
 
           <h1>
@@ -1255,7 +1273,7 @@
 
 
   <!-- CACHE BUST -->
-  <script src="app.js?v=202608280952"></script>
+  <script src="app.js?v=202608281005"></script>
 
 </body>
 
