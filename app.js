@@ -704,7 +704,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
 /* ============================================================
-   LIFEFLOW 6.1.2 — SMART COCKPIT BOOTSTRAP — FIX CONTADOR ROTINA
+   LIFEFLOW 6.1.3 — SMART COCKPIT BOOTSTRAP — FIX CONTADOR EM TEMPO REAL
    Independent bootstrap: guaranteed to render before legacy app.
 ============================================================ */
 document.addEventListener("DOMContentLoaded", () => {
@@ -947,6 +947,9 @@ document.addEventListener("DOMContentLoaded", () => {
     });
     observer.observe(home, {childList:true, subtree:true, characterData:true});
   }
+
+  // Atualização imediata disparada pela rotina principal.
+  window.addEventListener("lifeflow:routine-updated", ensureCockpit);
 
   setInterval(ensureCockpit, 60000);
 });
@@ -8374,6 +8377,11 @@ document.addEventListener("DOMContentLoaded", () => {
             syncDailyEvolution();
 
             renderHome();
+
+            // Sincroniza imediatamente todos os Cockpits/contadores da Home.
+            window.dispatchEvent(
+              new CustomEvent("lifeflow:routine-updated")
+            );
 
             renderProgressScreen();
 
@@ -17482,6 +17490,11 @@ document.addEventListener("DOMContentLoaded", () => {
   if (lf61Home) {
     lf61Observer.observe(lf61Home, {childList:true,subtree:true});
   }
+
+  window.addEventListener("lifeflow:routine-updated", () => {
+    lf6RefreshIntelligence();
+    lf61RenderCockpit();
+  });
 
   setInterval(lf61RenderCockpit, 60000);
 
