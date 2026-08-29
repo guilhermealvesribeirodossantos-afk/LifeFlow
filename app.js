@@ -704,7 +704,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
 /* ============================================================
-   LIFEFLOW 6.1.1 — SMART COCKPIT BOOTSTRAP
+   LIFEFLOW 6.1.2 — SMART COCKPIT BOOTSTRAP — FIX CONTADOR ROTINA
    Independent bootstrap: guaranteed to render before legacy app.
 ============================================================ */
 document.addEventListener("DOMContentLoaded", () => {
@@ -729,6 +729,23 @@ document.addEventListener("DOMContentLoaded", () => {
     ];
     const nodes = [...document.querySelectorAll(selectors.join(","))];
 
+    // Fonte de verdade da rotina: o estado salvo do dia.
+    // Isso evita o Cockpit ficar em 0/N quando a tarefa já foi marcada.
+    let savedCompleted = [];
+    try {
+      const now = new Date();
+      const dayKey =
+        `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
+      const saved =
+        JSON.parse(localStorage.getItem(`lifeflow-${dayKey}`) || "null");
+
+      if (Array.isArray(saved?.completed)) {
+        savedCompleted = saved.completed;
+      } else if (Array.isArray(saved?.done)) {
+        savedCompleted = saved.done;
+      }
+    } catch (_) {}
+
     const seen = new Set();
     return nodes.map((node, index) => {
       const title =
@@ -743,9 +760,11 @@ document.addEventListener("DOMContentLoaded", () => {
         node.dataset.time ||
         "";
       const done =
+        savedCompleted.includes(index) ||
         node.classList.contains("done") ||
         node.classList.contains("completed") ||
-        Boolean(node.querySelector('input[type="checkbox"]:checked'));
+        Boolean(node.querySelector('input[type="checkbox"]:checked')) ||
+        (node.querySelector(".check")?.textContent || "").includes("✓");
 
       const key = `${time}|${title}`;
       if (!title || seen.has(key)) return null;
@@ -16849,28 +16868,50 @@ document.addEventListener("DOMContentLoaded", () => {
     const nowMinutes = now.getHours() * 60 + now.getMinutes();
     let items = [];
 
-    document.querySelectorAll("#homeScreen .task").forEach((task, index) => {
-      const time =
-        task.querySelector(".task-time")?.textContent?.trim() ||
-        task.dataset.time ||
-        "";
-      const title =
-        task.querySelector(".task-title")?.textContent?.trim() ||
-        task.querySelector("strong")?.textContent?.trim() ||
-        `Atividade ${index + 1}`;
-      const done =
-        task.classList.contains("done") ||
-        Boolean(task.querySelector('input[type="checkbox"]:checked'));
-
-      if (time || title) {
-        items.push({
-          time,
-          title,
-          done,
-          minutes: lf6TimeToMinutes(time)
-        });
+    // Usa diretamente o estado real da rotina quando ele estiver disponível.
+    // Assim o Cockpit atualiza a contagem no mesmo instante em que a tarefa é marcada.
+    try {
+      if (
+        Array.isArray(tasks) &&
+        typeof state === "object" &&
+        Array.isArray(state.completed)
+      ) {
+        items = tasks.map((item, index) => ({
+          time: item.time || item.hour || item.start || "",
+          title: item.title || item.name || item.label || `Atividade ${index + 1}`,
+          done: state.completed.includes(index),
+          minutes: lf6TimeToMinutes(item.time || item.hour || item.start)
+        }));
       }
-    });
+    } catch (_) {}
+
+    // Fallback para leitura do DOM.
+    if (!items.length) {
+      document.querySelectorAll("#homeScreen .task").forEach((task, index) => {
+        const time =
+          task.querySelector(".task-time")?.textContent?.trim() ||
+          task.dataset.time ||
+          "";
+        const title =
+          task.querySelector(".task-title")?.textContent?.trim() ||
+          task.querySelector("strong")?.textContent?.trim() ||
+          `Atividade ${index + 1}`;
+        const done =
+          task.classList.contains("done") ||
+          task.classList.contains("completed") ||
+          Boolean(task.querySelector('input[type="checkbox"]:checked')) ||
+          (task.querySelector(".check")?.textContent || "").includes("✓");
+
+        if (time || title) {
+          items.push({
+            time,
+            title,
+            done,
+            minutes: lf6TimeToMinutes(time)
+          });
+        }
+      });
+    }
 
     if (!items.length) {
       const routine = lf6GetRoutineForToday();
