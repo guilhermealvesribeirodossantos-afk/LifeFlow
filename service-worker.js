@@ -1,10 +1,10 @@
-const CACHE = "lifeflow-v6-7-3-202608291130";
+const CACHE = "lifeflow-v7-0-home-202608301545";
 const ASSETS = [
   "./",
   "./index.html",
-  "./style.css?v=202608291130",
-  "./app.js?v=202608291130",
-  "./manifest.webmanifest?v=202608291130"
+  "./style.css?v=202608301545",
+  "./app.js?v=202608301545",
+  "./manifest.webmanifest?v=202608301545"
 ];
 
 self.addEventListener("install", event => {
@@ -18,34 +18,20 @@ self.addEventListener("install", event => {
 self.addEventListener("activate", event => {
   event.waitUntil(
     caches.keys()
-      .then(keys =>
-        Promise.all(
-          keys
-            .filter(key => key !== CACHE)
-            .map(key => caches.delete(key))
-        )
-      )
+      .then(keys => Promise.all(keys.filter(key => key !== CACHE).map(key => caches.delete(key))))
       .then(() => self.clients.claim())
   );
 });
 
 self.addEventListener("fetch", event => {
   if (event.request.method !== "GET") return;
-
   event.respondWith(
     fetch(event.request, { cache: "no-store" })
       .then(response => {
         const copy = response.clone();
-
-        caches.open(CACHE).then(cache => {
-          cache.put(event.request, copy);
-        });
-
+        caches.open(CACHE).then(cache => cache.put(event.request, copy));
         return response;
       })
-      .catch(() =>
-        caches.match(event.request)
-          .then(cached => cached || caches.match("./index.html"))
-      )
+      .catch(() => caches.match(event.request).then(cached => cached || caches.match("./index.html")))
   );
 });
