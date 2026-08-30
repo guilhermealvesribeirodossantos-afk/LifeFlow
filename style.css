@@ -8678,3 +8678,191 @@ html[data-lifeflow-version="6.1.1"] .lf5-system-rail small {
   font-size: 6px;
   line-height: 1.5;
 }
+
+
+/* ============================================================
+   LIFEFLOW 6.8 — TEMA SIMPLES
+   Menos informação, leitura rápida, acesso fácil
+============================================================ */
+
+:root{
+  --lf68-bg:#070a08;
+  --lf68-card:#0f1411;
+  --lf68-card-2:#121814;
+  --lf68-line:rgba(255,255,255,.075);
+  --lf68-green:#67e79f;
+  --lf68-text:#f2f6f3;
+  --lf68-muted:#879188;
+}
+
+html,body{
+  background:var(--lf68-bg)!important;
+}
+
+body{
+  color:var(--lf68-text)!important;
+}
+
+#homeScreen.lf68-simple-home{
+  width:min(100%,760px)!important;
+  padding:16px 14px 110px!important;
+}
+
+#homeScreen.lf68-simple-home .hero-section{
+  min-height:auto!important;
+  padding:12px 2px 18px!important;
+  margin:0!important;
+  align-items:center!important;
+}
+
+#homeScreen.lf68-simple-home .hero-section h2{
+  font-size:clamp(30px,8vw,42px)!important;
+  letter-spacing:-1.4px!important;
+}
+
+#homeScreen.lf68-simple-home .welcome-subtitle{
+  margin-top:6px!important;
+  font-size:12px!important;
+  color:var(--lf68-muted)!important;
+}
+
+#homeScreen.lf68-simple-home .next-card,
+#homeScreen.lf68-simple-home .metric-card,
+#homeScreen.lf68-simple-home .water-card,
+#homeScreen.lf68-simple-home .study-card,
+#homeScreen.lf68-simple-home .task{
+  background:var(--lf68-card)!important;
+  border:1px solid var(--lf68-line)!important;
+  box-shadow:none!important;
+}
+
+#homeScreen.lf68-simple-home .next-card{
+  padding:18px!important;
+  border-radius:20px!important;
+  margin-bottom:10px!important;
+}
+
+#homeScreen.lf68-simple-home .next-card-header h3{
+  font-size:21px!important;
+}
+
+#homeScreen.lf68-simple-home .dashboard-grid{
+  grid-template-columns:repeat(3,minmax(0,1fr))!important;
+  gap:8px!important;
+  margin-bottom:12px!important;
+}
+
+#homeScreen.lf68-simple-home .metric-card{
+  min-height:92px!important;
+  padding:12px!important;
+  border-radius:17px!important;
+}
+
+#homeScreen.lf68-simple-home .metric-card>strong{
+  font-size:19px!important;
+}
+
+#homeScreen.lf68-simple-home .daily-card{
+  display:none!important;
+}
+
+#homeScreen.lf68-simple-home #lf6Intelligence,
+#homeScreen.lf68-simple-home #lf61Cockpit,
+#homeScreen.lf68-simple-home #lf611Cockpit{
+  display:none!important;
+}
+
+#homeScreen.lf68-simple-home .lf68-hide-home-areas{
+  display:none!important;
+}
+
+#homeScreen.lf68-simple-home .lf64-quick-hub{
+  order:0!important;
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  gap:8px!important;
+  margin:12px 0 18px!important;
+}
+
+#homeScreen.lf68-simple-home .lf64-quick-hub button{
+  min-height:72px!important;
+  padding:12px!important;
+  border-radius:17px!important;
+  background:var(--lf68-card-2)!important;
+  border:1px solid var(--lf68-line)!important;
+  box-shadow:none!important;
+}
+
+#homeScreen.lf68-simple-home .lf64-quick-hub button:hover,
+#homeScreen.lf68-simple-home .lf64-quick-hub button:active{
+  border-color:rgba(103,231,159,.34)!important;
+  transform:none!important;
+}
+
+#homeScreen.lf68-simple-home .content-section{
+  margin-bottom:16px!important;
+}
+
+#homeScreen.lf68-simple-home .task-list{
+  display:grid!important;
+  gap:7px!important;
+}
+
+#homeScreen.lf68-simple-home .task{
+  min-height:60px!important;
+  padding:11px!important;
+  border-radius:15px!important;
+}
+
+#homeScreen.lf68-simple-home .water-card,
+#homeScreen.lf68-simple-home .study-card{
+  padding:16px!important;
+  border-radius:20px!important;
+  margin-bottom:14px!important;
+}
+
+#homeScreen.lf68-simple-home .study-logo{
+  background:rgba(103,231,159,.08)!important;
+  color:var(--lf68-green)!important;
+}
+
+#homeScreen.lf68-simple-home .primary-button{
+  min-height:48px!important;
+  border-radius:14px!important;
+  box-shadow:none!important;
+}
+
+#homeScreen.lf68-simple-home .lf64-home-status{
+  display:none!important;
+}
+
+.app-header{
+  background:rgba(7,10,8,.94)!important;
+  backdrop-filter:blur(14px)!important;
+  -webkit-backdrop-filter:blur(14px)!important;
+}
+
+.bottom-nav{
+  border:1px solid rgba(255,255,255,.08)!important;
+  background:rgba(12,16,13,.96)!important;
+  box-shadow:0 12px 36px rgba(0,0,0,.38)!important;
+}
+
+@media(max-width:430px){
+  #homeScreen.lf68-simple-home{
+    padding-left:10px!important;
+    padding-right:10px!important;
+  }
+
+  #homeScreen.lf68-simple-home .dashboard-grid{
+    gap:6px!important;
+  }
+
+  #homeScreen.lf68-simple-home .metric-card{
+    min-height:86px!important;
+    padding:10px!important;
+  }
+
+  #homeScreen.lf68-simple-home .metric-caption{
+    font-size:7px!important;
+  }
+}
