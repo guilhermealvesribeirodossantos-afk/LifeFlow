@@ -9099,3 +9099,84 @@ body{
     bottom:7px!important;
   }
 }
+
+
+/* ============================================================
+   LIFEFLOW 6.9.1 — HOME COMPACT
+   Remove espaço vazio e aproxima o conteúdo principal
+============================================================ */
+
+#homeScreen.lf68-simple-home{
+  padding-top:0!important;
+}
+
+/* aproxima atalhos do conteúdo do dia */
+#homeScreen.lf68-simple-home .lf64-quick-hub{
+  margin:10px 0 10px!important;
+}
+
+/* reduz respiro excessivo antes do bloco principal */
+#homeScreen.lf68-simple-home .hero-section{
+  margin-top:0!important;
+  padding-top:4px!important;
+  padding-bottom:10px!important;
+}
+
+/* caso existam wrappers entre atalhos e saudação */
+#homeScreen.lf68-simple-home > *{
+  scroll-margin-top:84px;
+}
+
+#homeScreen.lf68-simple-home .lf64-quick-hub + *,
+#homeScreen.lf68-simple-home .lf64-quick-hub ~ .hero-section{
+  margin-top:0!important;
+}
+
+/* data + saudação mais compactas */
+#homeScreen.lf68-simple-home .hero-section .eyebrow,
+#homeScreen.lf68-simple-home .hero-section small{
+  margin-bottom:6px!important;
+}
+
+#homeScreen.lf68-simple-home .hero-section h2{
+  margin-top:0!important;
+  margin-bottom:5px!important;
+}
+
+#homeScreen.lf68-simple-home .welcome-subtitle{
+  margin-top:4px!important;
+  margin-bottom:0!important;
+}
+
+/* reduz distância do primeiro bloco da rotina */
+#homeScreen.lf68-simple-home .hero-section + .content-section,
+#homeScreen.lf68-simple-home .hero-section + section{
+  margin-top:8px!important;
+}
+
+/* elementos decorativos não devem roubar espaço */
+#homeScreen.lf68-simple-home .lf64-home-status,
+#homeScreen.lf68-simple-home .lf6-watermark,
+#homeScreen.lf68-simple-home .system-watermark,
+#homeScreen.lf68-simple-home .cockpit-watermark{
+  display:none!important;
+}
+
+/* deixa o conteúdo mais "app" e menos "landing page" */
+#homeScreen.lf68-simple-home{
+  min-height:auto!important;
+}
+
+@media(min-width:700px){
+  #homeScreen.lf68-simple-home{
+    width:min(100%,680px)!important;
+  }
+
+  #homeScreen.lf68-simple-home .lf64-quick-hub{
+    margin-bottom:8px!important;
+  }
+
+  #homeScreen.lf68-simple-home .hero-section{
+    padding-top:2px!important;
+  }
+}
