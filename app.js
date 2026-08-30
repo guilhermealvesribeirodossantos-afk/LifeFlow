@@ -1277,6 +1277,13 @@ document.addEventListener("DOMContentLoaded", () => {
     },
 
     {
+      time: "20:40",
+      title: "Skincare • 30 min",
+      description:
+        "Limpeza do rosto, cuidado frio/gelo com proteção, hidratante/creme e cuidados pessoais."
+    },
+
+    {
       time: "21:10",
       title: "Revisão de estudos • 20 min",
       description:
@@ -1333,6 +1340,13 @@ document.addEventListener("DOMContentLoaded", () => {
       title: "Voltar para casa",
       description:
         "Banho e café da manhã."
+    },
+
+    {
+      time: "08:45",
+      title: "Skincare • 30 min",
+      description:
+        "Limpeza do rosto, cuidado frio/gelo com proteção, hidratante/creme e cuidados pessoais."
     },
 
     {
