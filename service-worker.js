@@ -1,10 +1,10 @@
-const CACHE = "lifeflow-v6-7-3-202608291130";
+const CACHE = "lifeflow-v6-7-3-202608301645";
 const ASSETS = [
   "./",
   "./index.html",
-  "./style.css?v=202608291130",
-  "./app.js?v=202608291130",
-  "./manifest.webmanifest?v=202608291130"
+  "./style.css?v=202608301645",
+  "./app.js?v=202608301645",
+  "./manifest.webmanifest?v=202608301645"
 ];
 
 self.addEventListener("install", event => {
