@@ -704,7 +704,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
 /* ============================================================
-   LIFEFLOW 6.1.3 — SMART COCKPIT BOOTSTRAP — FIX CONTADOR EM TEMPO REAL
+   LIFEFLOW 6.1.1 — SMART COCKPIT BOOTSTRAP
    Independent bootstrap: guaranteed to render before legacy app.
 ============================================================ */
 document.addEventListener("DOMContentLoaded", () => {
@@ -729,23 +729,6 @@ document.addEventListener("DOMContentLoaded", () => {
     ];
     const nodes = [...document.querySelectorAll(selectors.join(","))];
 
-    // Fonte de verdade da rotina: o estado salvo do dia.
-    // Isso evita o Cockpit ficar em 0/N quando a tarefa já foi marcada.
-    let savedCompleted = [];
-    try {
-      const now = new Date();
-      const dayKey =
-        `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
-      const saved =
-        JSON.parse(localStorage.getItem(`lifeflow-${dayKey}`) || "null");
-
-      if (Array.isArray(saved?.completed)) {
-        savedCompleted = saved.completed;
-      } else if (Array.isArray(saved?.done)) {
-        savedCompleted = saved.done;
-      }
-    } catch (_) {}
-
     const seen = new Set();
     return nodes.map((node, index) => {
       const title =
@@ -760,11 +743,9 @@ document.addEventListener("DOMContentLoaded", () => {
         node.dataset.time ||
         "";
       const done =
-        savedCompleted.includes(index) ||
         node.classList.contains("done") ||
         node.classList.contains("completed") ||
-        Boolean(node.querySelector('input[type="checkbox"]:checked')) ||
-        (node.querySelector(".check")?.textContent || "").includes("✓");
+        Boolean(node.querySelector('input[type="checkbox"]:checked'));
 
       const key = `${time}|${title}`;
       if (!title || seen.has(key)) return null;
@@ -947,9 +928,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
     observer.observe(home, {childList:true, subtree:true, characterData:true});
   }
-
-  // Atualização imediata disparada pela rotina principal.
-  window.addEventListener("lifeflow:routine-updated", ensureCockpit);
 
   setInterval(ensureCockpit, 60000);
 });
@@ -1256,7 +1234,14 @@ document.addEventListener("DOMContentLoaded", () => {
       time: "11:30",
       title: "Almoço",
       description:
-        "Marmita na empresa."
+        "Marmita na empresa • 30 min."
+    },
+
+    {
+      time: "12:00",
+      title: "Estudo PMMG • 30 min",
+      description:
+        "Estudo leve ou revisão durante o restante do intervalo."
     },
 
     {
@@ -1281,6 +1266,13 @@ document.addEventListener("DOMContentLoaded", () => {
     },
 
     {
+      time: "21:10",
+      title: "Revisão PMMG • 20 min",
+      description:
+        "Questões rápidas ou revisão do conteúdo estudado."
+    },
+
+    {
       time: "21:30",
       title: "Organizar amanhã",
       description:
@@ -1299,6 +1291,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // =====================================================
   // ROTINA - FOLGA
+  // CARGA PMMG: 4H30
   // =====================================================
 
   const offTasks = [
@@ -1333,41 +1326,41 @@ document.addEventListener("DOMContentLoaded", () => {
 
     {
       time: "09:15",
-      title: "Estudo PMMG",
+      title: "PMMG • Bloco 1 • 2h",
       description:
-        "Bloco principal de teoria."
+        "Conteúdo novo e estudo principal."
     },
 
     {
-      time: "11:30",
-      title: "Almoço",
+      time: "11:15",
+      title: "Almoço + descanso",
       description:
-        "Refeição completa."
+        "Refeição e pausa antes do próximo bloco."
     },
 
     {
       time: "12:30",
-      title: "Descanso",
+      title: "PMMG • Bloco 2 • 1h30",
       description:
-        "Recuperar corpo e mente."
+        "Continuação do conteúdo e prática."
     },
 
     {
-      time: "13:15",
-      title: "Projeto da moto",
+      time: "14:00",
+      title: "Intervalo",
       description:
-        "Tempo reservado para o projeto."
+        "Pausa de 30 minutos."
     },
 
     {
-      time: "14:15",
-      title: "Revisão PMMG",
+      time: "14:30",
+      title: "PMMG • Questões e revisão • 1h",
       description:
-        "Questões e revisão dos erros."
+        "Questões, correção e revisão dos erros."
     },
 
     {
-      time: "15:15",
+      time: "15:30",
       title: "Se preparar",
       description:
         "Organizar tudo antes de sair."
@@ -1416,8 +1409,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
   ];
-
-
 
 
 
@@ -8377,11 +8368,6 @@ document.addEventListener("DOMContentLoaded", () => {
             syncDailyEvolution();
 
             renderHome();
-
-            // Sincroniza imediatamente todos os Cockpits/contadores da Home.
-            window.dispatchEvent(
-              new CustomEvent("lifeflow:routine-updated")
-            );
 
             renderProgressScreen();
 
@@ -16876,50 +16862,28 @@ document.addEventListener("DOMContentLoaded", () => {
     const nowMinutes = now.getHours() * 60 + now.getMinutes();
     let items = [];
 
-    // Usa diretamente o estado real da rotina quando ele estiver disponível.
-    // Assim o Cockpit atualiza a contagem no mesmo instante em que a tarefa é marcada.
-    try {
-      if (
-        Array.isArray(tasks) &&
-        typeof state === "object" &&
-        Array.isArray(state.completed)
-      ) {
-        items = tasks.map((item, index) => ({
-          time: item.time || item.hour || item.start || "",
-          title: item.title || item.name || item.label || `Atividade ${index + 1}`,
-          done: state.completed.includes(index),
-          minutes: lf6TimeToMinutes(item.time || item.hour || item.start)
-        }));
+    document.querySelectorAll("#homeScreen .task").forEach((task, index) => {
+      const time =
+        task.querySelector(".task-time")?.textContent?.trim() ||
+        task.dataset.time ||
+        "";
+      const title =
+        task.querySelector(".task-title")?.textContent?.trim() ||
+        task.querySelector("strong")?.textContent?.trim() ||
+        `Atividade ${index + 1}`;
+      const done =
+        task.classList.contains("done") ||
+        Boolean(task.querySelector('input[type="checkbox"]:checked'));
+
+      if (time || title) {
+        items.push({
+          time,
+          title,
+          done,
+          minutes: lf6TimeToMinutes(time)
+        });
       }
-    } catch (_) {}
-
-    // Fallback para leitura do DOM.
-    if (!items.length) {
-      document.querySelectorAll("#homeScreen .task").forEach((task, index) => {
-        const time =
-          task.querySelector(".task-time")?.textContent?.trim() ||
-          task.dataset.time ||
-          "";
-        const title =
-          task.querySelector(".task-title")?.textContent?.trim() ||
-          task.querySelector("strong")?.textContent?.trim() ||
-          `Atividade ${index + 1}`;
-        const done =
-          task.classList.contains("done") ||
-          task.classList.contains("completed") ||
-          Boolean(task.querySelector('input[type="checkbox"]:checked')) ||
-          (task.querySelector(".check")?.textContent || "").includes("✓");
-
-        if (time || title) {
-          items.push({
-            time,
-            title,
-            done,
-            minutes: lf6TimeToMinutes(time)
-          });
-        }
-      });
-    }
+    });
 
     if (!items.length) {
       const routine = lf6GetRoutineForToday();
@@ -17491,11 +17455,6 @@ document.addEventListener("DOMContentLoaded", () => {
     lf61Observer.observe(lf61Home, {childList:true,subtree:true});
   }
 
-  window.addEventListener("lifeflow:routine-updated", () => {
-    lf6RefreshIntelligence();
-    lf61RenderCockpit();
-  });
-
   setInterval(lf61RenderCockpit, 60000);
 
   // PWA service worker.
@@ -17505,4 +17464,358 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+});
+
+/* ============================================================
+   LIFEFLOW 7.0 — HOME 2.0 PREMIUM
+   Camada visual inspirada no conceito aprovado.
+   Mantém os módulos, dados e rotinas existentes.
+============================================================ */
+document.addEventListener("DOMContentLoaded", () => {
+  const HOME_ID = "homeScreen";
+  const DASH_ID = "lf20Dashboard";
+  const PROFILE_KEY = "lifeflow-profile-v41";
+  const EVOLUTION_KEY = "lifeflow-evolution-v2";
+  const STUDY_TIME_PREFIX = "lifeflow-pmmg-study-minutes-";
+  const WORK_ANCHOR = new Date(2026, 7, 24);
+
+  const esc = value => String(value ?? "").replace(/[&<>\"']/g, ch => ({
+    "&":"&amp;", "<":"&lt;", ">":"&gt;", '\"':"&quot;", "'":"&#039;"
+  }[ch]));
+
+  const readJson = (key, fallback = {}) => {
+    try {
+      const value = JSON.parse(localStorage.getItem(key) || "null");
+      return value ?? fallback;
+    } catch (_) {
+      return fallback;
+    }
+  };
+
+  const dateKey = date => {
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, "0");
+    const d = String(date.getDate()).padStart(2, "0");
+    return `${y}-${m}-${d}`;
+  };
+
+  const startOfDay = date => new Date(date.getFullYear(), date.getMonth(), date.getDate());
+
+  const isWorkDay20 = date => {
+    const diff = Math.round((startOfDay(date) - startOfDay(WORK_ANCHOR)) / 86400000);
+    return (((diff % 2) + 2) % 2) === 0;
+  };
+
+  const today = new Date();
+  const todayKey20 = dateKey(today);
+  const workDay20 = isWorkDay20(today);
+  const studyGoal = workDay20 ? 50 : 270;
+
+  const greeting = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return "Bom dia";
+    if (hour < 18) return "Boa tarde";
+    return "Boa noite";
+  };
+
+  const firstName = () => {
+    const profile = readJson(PROFILE_KEY, {});
+    const name = String(profile?.name || "").trim();
+    return name ? name.split(/\s+/)[0] : "Guerreiro";
+  };
+
+  const currentState = () => readJson(`lifeflow-${dateKey(new Date())}`, { completed: [], water: 0, xp: 0 });
+
+  const routineSnapshot = () => {
+    const state = currentState();
+    const cards = [...document.querySelectorAll(`#${HOME_ID} .task`)];
+    const totalFromDom = cards.length;
+    const completed = Array.isArray(state.completed) ? state.completed.length : 0;
+    let total = workDay20 ? 14 : 15;
+    if (totalFromDom > 0 && totalFromDom < 40) total = totalFromDom;
+    return { completed: Math.min(completed, total), total };
+  };
+
+  const studyMinutesToday = () => {
+    const direct = Number(localStorage.getItem(`${STUDY_TIME_PREFIX}${todayKey20}`));
+    if (Number.isFinite(direct) && direct >= 0) return Math.round(direct);
+
+    const candidates = [
+      "lifeflow-pmmg-time-v1",
+      "pmmg-study-time-v1",
+      "pmmg_study_minutes",
+      "lifeflow-study-minutes"
+    ];
+    for (const key of candidates) {
+      const data = readJson(key, null);
+      if (data && typeof data === "object") {
+        const value = Number(data[todayKey20]?.minutes ?? data[todayKey20] ?? data.todayMinutes);
+        if (Number.isFinite(value) && value >= 0) return Math.round(value);
+      }
+    }
+    return 0;
+  };
+
+  const streakValue = () => {
+    const evolution = readJson(EVOLUTION_KEY, {});
+    const completedDays = Array.isArray(evolution.completedDays) ? evolution.completedDays : [];
+    if (!completedDays.length) return Number(evolution.bestStreak || 0);
+    const keys = new Set(completedDays);
+    let streak = 0;
+    const cursor = new Date();
+    for (let i = 0; i < 365; i++) {
+      if (keys.has(dateKey(cursor))) streak++;
+      else if (i > 0) break;
+      cursor.setDate(cursor.getDate() - 1);
+    }
+    return Math.max(streak, 0);
+  };
+
+  const sleepText = () => {
+    const history = readJson("lifeflow-sleep-v24", {});
+    const item = history[todayKey20] || null;
+    const minutes = Number(item?.durationMinutes || item?.minutes || item?.totalMinutes || 0);
+    if (!minutes) return "—";
+    const h = Math.floor(minutes / 60);
+    const m = minutes % 60;
+    return `${h}h ${String(m).padStart(2, "0")}min`;
+  };
+
+  const gymDoneToday = () => {
+    const keys = ["lifeflow-gym-history-v1", "lifeflow-gym-history", "lifeflow-training-history-v1"];
+    for (const key of keys) {
+      const data = readJson(key, null);
+      if (!data) continue;
+      if (Array.isArray(data) && data.some(x => x?.date === todayKey20 || x?.key === todayKey20)) return true;
+      if (typeof data === "object" && (data[todayKey20]?.completed || data[todayKey20] === true)) return true;
+    }
+    return false;
+  };
+
+  const findNextTask = () => {
+    const now = new Date();
+    const mins = now.getHours() * 60 + now.getMinutes();
+    const state = currentState();
+    const doneSet = new Set(Array.isArray(state.completed) ? state.completed : []);
+    const cards = [...document.querySelectorAll(`#${HOME_ID} .task`)];
+
+    const parsed = cards.map((card, index) => {
+      const timeText = card.querySelector(".task-time, time, .time")?.textContent?.trim() || "";
+      const match = timeText.match(/(\d{1,2}):(\d{2})/);
+      const title = card.querySelector("h3, h4, strong, .task-title")?.textContent?.trim() || "Atividade da rotina";
+      if (!match) return { card, index, title, timeText, at: 9999, done: doneSet.has(index) || card.classList.contains("done") };
+      return { card, index, title, timeText, at: Number(match[1]) * 60 + Number(match[2]), done: doneSet.has(index) || card.classList.contains("done") };
+    }).filter(x => !x.done);
+
+    let next = parsed.filter(x => x.at >= mins).sort((a,b) => a.at - b.at)[0];
+    if (!next) next = parsed.sort((a,b) => a.at - b.at)[0];
+    if (!next) {
+      return { title: "Dia concluído", timeText: "Tudo em dia", remaining: "Você concluiu sua rotina de hoje." };
+    }
+
+    const delta = next.at === 9999 ? null : next.at - mins;
+    const remaining = delta === null ? "Próxima atividade da sua rotina" : delta > 0 ? `Faltam ${delta} minutos` : "É hora de fazer agora";
+    return { title: next.title, timeText: next.timeText || "Próxima", remaining };
+  };
+
+  const openByExistingAction = target => {
+    const selectors = {
+      gym: ["#navTrain", '.nav-item[data-screen="gym"]', '.nav-item[data-screen="training"]'],
+      study: ["#navStudy", '.nav-item[data-screen="studies"]', '.nav-item[data-screen="study"]'],
+      agenda: ['.nav-item[data-screen="agenda"]', '#navAgenda'],
+      progress: ["#navEvolution", '.nav-item[data-screen="progress"]'],
+      home: ["#navHome", '.nav-item[data-screen="home"]']
+    };
+    const btn = (selectors[target] || []).map(s => document.querySelector(s)).find(Boolean);
+    if (btn) {
+      btn.click();
+      return true;
+    }
+    try {
+      if (target === "gym" && typeof window.openTrainingArea === "function") return window.openTrainingArea(), true;
+      if (target === "study" && typeof window.openStudyArea === "function") return window.openStudyArea(), true;
+      if (target === "progress" && typeof window.openEvolutionArea === "function") return window.openEvolutionArea(), true;
+      if (target === "agenda" && typeof window.showScreen === "function") return window.showScreen("agendaScreen"), true;
+    } catch (_) {}
+    return false;
+  };
+
+  function mountDashboard() {
+    const home = document.getElementById(HOME_ID);
+    if (!home || document.getElementById(DASH_ID)) return;
+
+    home.classList.add("lf20-home");
+
+    const dash = document.createElement("section");
+    dash.id = DASH_ID;
+    dash.className = "lf20-dashboard";
+    dash.innerHTML = `
+      <header class="lf20-topbar">
+        <button class="lf20-icon-btn lf20-menu-btn" type="button" aria-label="Menu">☰</button>
+        <div class="lf20-brand">Life<span>Flow</span><em>2.0</em></div>
+        <button class="lf20-icon-btn lf20-bell-btn" type="button" aria-label="Notificações">♢<i></i></button>
+      </header>
+
+      <section class="lf20-welcome">
+        <div class="lf20-avatar" aria-hidden="true"><span>LF</span><i></i></div>
+        <div class="lf20-welcome-copy">
+          <h1>${esc(greeting())}, <b>${esc(firstName())}!</b> 👊</h1>
+          <p>Foco • Disciplina • Constância</p>
+        </div>
+        <div class="lf20-streak"><strong>🔥 <span id="lf20Streak">0</span></strong><small>dias seguidos</small></div>
+      </section>
+
+      <section class="lf20-card lf20-summary">
+        <div class="lf20-card-head"><strong>RESUMO DO DIA</strong><span id="lf20Date"></span></div>
+        <div class="lf20-summary-grid">
+          <div class="lf20-ring" id="lf20DayRing"><div><strong id="lf20DayPercent">0%</strong><span>do dia</span></div></div>
+          <div class="lf20-kpis">
+            <button type="button" data-lf20="routine"><i class="green">✓</i><span>Rotina<strong id="lf20Routine">0/0</strong></span><b>›</b></button>
+            <button type="button" data-lf20="study"><i class="purple">▣</i><span>Estudos PMMG<strong id="lf20Study">0 / ${studyGoal} min</strong></span><b>›</b></button>
+            <button type="button" data-lf20="gym"><i class="blue">⚑</i><span>Treino<strong id="lf20Gym">Pendente</strong></span><b>›</b></button>
+            <button type="button" data-lf20="sleep"><i class="blue">☾</i><span>Sono<strong id="lf20Sleep">—</strong></span><b>›</b></button>
+          </div>
+        </div>
+      </section>
+
+      <section class="lf20-card lf20-priority">
+        <div class="lf20-card-head"><strong>PRIORIDADE AGORA</strong><button type="button" data-lf20="routine">Ver rotina ›</button></div>
+        <div class="lf20-priority-body">
+          <div class="lf20-priority-icon">▣</div>
+          <div class="lf20-priority-copy"><span id="lf20NextTime">Próxima</span><strong id="lf20NextTitle">Carregando...</strong><div class="lf20-priority-track"><i id="lf20PriorityBar"></i></div><small id="lf20Remaining">Organizando seu dia...</small></div>
+        </div>
+      </section>
+
+      <section class="lf20-quick-section">
+        <div class="lf20-card-head"><strong>ACESSO RÁPIDO</strong><button type="button" class="lf20-customize">⚙ Personalizar</button></div>
+        <div class="lf20-quick-grid">
+          <button type="button" data-lf20="gym"><i class="green">⚑</i><strong>Treino</strong><span>Academia</span></button>
+          <button type="button" data-lf20="study"><i class="purple">▣</i><strong>Estudos</strong><span>PMMG</span></button>
+          <button type="button" data-lf20="agenda"><i class="blue">▦</i><strong>Planejar</strong><span>Agenda</span></button>
+          <button type="button" data-lf20="progress"><i class="orange">↗</i><strong>Progresso</strong><span>Evolução</span></button>
+        </div>
+      </section>
+
+      <section class="lf20-card lf20-achievements">
+        <div class="lf20-card-head"><strong>SUAS CONQUISTAS</strong><button type="button" data-lf20="progress">Ver todas ›</button></div>
+        <div class="lf20-badges">
+          <article><i class="green">◎</i><strong>Foco Diário</strong><span id="lf20FocusBadge">Começando</span></article>
+          <article><i class="purple">▣</i><strong>Estudioso</strong><span id="lf20StudyBadge">Meta diária</span></article>
+          <article><i class="blue">⚑</i><strong>Disciplina</strong><span id="lf20GymBadge">Treino em dia</span></article>
+          <article><i class="orange">🔥</i><strong>Imparável</strong><span id="lf20StreakBadge">0 dias</span></article>
+        </div>
+      </section>
+
+      <section class="lf20-study-goals">
+        <div class="lf20-goals-title">METAS DE ESTUDO PMMG</div>
+        <div class="lf20-goals-grid">
+          <article class="${workDay20 ? "active" : ""}"><div><small>💼 DIA DE TRABALHO</small><span>Meta diária</span><strong>50 <em>minutos</em></strong></div><i class="lf20-mini-ring green-ring"></i></article>
+          <article class="${!workDay20 ? "active" : ""}"><div><small>⌂ DIA DE FOLGA</small><span>Meta diária</span><strong>4h30 <em>minutos</em></strong></div><i class="lf20-mini-ring blue-ring"></i></article>
+        </div>
+      </section>
+
+      <section class="lf20-card lf20-how">
+        <strong>COMO O LIFEFLOW FUNCIONA</strong>
+        <ol><li><b>1</b>Defina sua rotina e metas</li><li><b>2</b>Siga sua prioridade do momento</li><li><b>3</b>Conclua tarefas e ganhe XP</li><li><b>4</b>Mantenha sua sequência</li><li><b>5</b>Evolua todos os dias</li></ol>
+      </section>
+
+      <section class="lf20-motto"><span>DISCIPLINA HOJE</span><strong>LIBERDADE AMANHÃ!</strong><i>♛</i></section>
+
+      <section class="lf20-trust">
+        <article><b>♢</b><strong>100% SEGURO</strong><span>Seus dados ficam com você.</span></article>
+        <article><b>☁</b><strong>FUNCIONA OFFLINE</strong><span>Use o essencial sem internet.</span></article>
+        <article><b>↻</b><strong>SINCRONIZAÇÃO</strong><span>Dados atualizados no aparelho.</span></article>
+        <article><b>▯</b><strong>APP ANDROID</strong><span>Experiência instalada.</span></article>
+      </section>
+    `;
+
+    home.prepend(dash);
+
+    dash.addEventListener("click", event => {
+      const action = event.target.closest("[data-lf20]")?.dataset?.lf20;
+      if (!action) return;
+      if (action === "routine") {
+        const firstTask = [...home.querySelectorAll(".task")].find(el => !dash.contains(el));
+        if (firstTask) {
+          firstTask.scrollIntoView({ behavior: "smooth", block: "center" });
+          firstTask.classList.add("lf20-pulse");
+          setTimeout(() => firstTask.classList.remove("lf20-pulse"), 1200);
+        }
+        return;
+      }
+      if (action === "sleep") {
+        if (typeof window.showScreen === "function") window.showScreen("sleepScreen");
+        else document.getElementById("sleepScreen")?.scrollIntoView({ behavior: "smooth" });
+        return;
+      }
+      openByExistingAction(action);
+    });
+
+    dash.querySelector(".lf20-menu-btn")?.addEventListener("click", () => {
+      const menu = document.querySelector("#lifeflowDrawerToggle, .menu-btn, [data-action='menu']");
+      if (menu) menu.click();
+      else if (typeof window.openLifeFlowDrawer === "function") window.openLifeFlowDrawer();
+    });
+
+    refreshDashboard();
+  }
+
+  function refreshDashboard() {
+    const dash = document.getElementById(DASH_ID);
+    if (!dash) return;
+
+    const routine = routineSnapshot();
+    const studyMinutes = studyMinutesToday();
+    const gymDone = gymDoneToday();
+    const sleep = sleepText();
+    const streak = streakValue();
+    const routinePct = routine.total ? Math.round((routine.completed / routine.total) * 100) : 0;
+    const studyPct = Math.min(100, Math.round((studyMinutes / studyGoal) * 100));
+    const gymPct = gymDone ? 100 : 0;
+    const sleepPct = sleep !== "—" ? 100 : 0;
+    const overall = Math.round(routinePct * .55 + studyPct * .25 + gymPct * .12 + sleepPct * .08);
+    const next = findNextTask();
+
+    const setText = (id, text) => {
+      const el = document.getElementById(id);
+      if (el) el.textContent = text;
+    };
+
+    setText("lf20Streak", streak);
+    setText("lf20StreakBadge", `${streak} ${streak === 1 ? "dia" : "dias"}`);
+    setText("lf20Routine", `${routine.completed}/${routine.total}`);
+    setText("lf20Study", `${studyMinutes} / ${studyGoal} min`);
+    setText("lf20Gym", gymDone ? "Concluído ✓" : "Pendente");
+    setText("lf20Sleep", sleep);
+    setText("lf20DayPercent", `${overall}%`);
+    setText("lf20NextTime", next.timeText);
+    setText("lf20NextTitle", next.title);
+    setText("lf20Remaining", next.remaining);
+    setText("lf20FocusBadge", routine.completed ? `${routine.completed} concluídas` : "Começando");
+    setText("lf20StudyBadge", studyMinutes ? `${studyMinutes} min hoje` : `${studyGoal} min hoje`);
+    setText("lf20GymBadge", gymDone ? "Concluído hoje" : "Meta de hoje");
+
+    const dateLabel = new Date().toLocaleDateString("pt-BR", { weekday:"long", day:"2-digit", month:"long" });
+    setText("lf20Date", dateLabel.charAt(0).toUpperCase() + dateLabel.slice(1));
+
+    const ring = document.getElementById("lf20DayRing");
+    if (ring) ring.style.setProperty("--lf20-progress", `${overall * 3.6}deg`);
+    const pbar = document.getElementById("lf20PriorityBar");
+    if (pbar) pbar.style.width = `${Math.max(8, Math.min(100, overall))}%`;
+  }
+
+  mountDashboard();
+  [120, 450, 1000, 2200].forEach(ms => setTimeout(() => { mountDashboard(); refreshDashboard(); }, ms));
+
+  window.addEventListener("lifeflow:routine-updated", refreshDashboard);
+  window.addEventListener("storage", refreshDashboard);
+  document.addEventListener("click", () => setTimeout(refreshDashboard, 80));
+
+  const observer = new MutationObserver(() => {
+    clearTimeout(window.__lf20RefreshTimer);
+    window.__lf20RefreshTimer = setTimeout(refreshDashboard, 100);
+  });
+  observer.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ["class"] });
+
+  window.refreshLifeFlow20 = refreshDashboard;
 });
