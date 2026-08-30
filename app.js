@@ -596,6 +596,7 @@ document.addEventListener("DOMContentLoaded", () => {
 ============================================================ */
 document.addEventListener("DOMContentLoaded", () => {
   document.documentElement.setAttribute("data-lifeflow-home", "6.4");
+  document.documentElement.setAttribute("data-lifeflow-quick-access", "6.8.1");
 
   function lf64CompactHome() {
     const home = document.getElementById("homeScreen");
@@ -660,18 +661,28 @@ document.addEventListener("DOMContentLoaded", () => {
         btn.addEventListener("click", () => {
           const target = btn.dataset.lf64Go;
 
-          if (target === "gym" && typeof showGymRoot === "function") {
-            showGymRoot();
+          // Os botões reais da navegação do LifeFlow usam IDs,
+          // não data-screen. Clicar neles reaproveita toda a
+          // navegação já existente sem duplicar lógica.
+          const targetButtons = {
+            gym: "gymButton",
+            study: "studyNavButton",
+            agenda: "agendaButton",
+            progress: "progressButton"
+          };
+
+          const realButton = document.getElementById(targetButtons[target] || "");
+
+          if (realButton) {
+            realButton.click();
             return;
           }
 
-          const selectors = {
-            study: '.nav-item[data-screen="studies"], .nav-item[data-screen="study"]',
-            agenda: '.nav-item[data-screen="agenda"]',
-            progress: '.nav-item[data-screen="progress"]'
-          };
-
-          document.querySelector(selectors[target] || "")?.click();
+          // Fallback para Academia caso o botão seja criado depois.
+          if (target === "gym") {
+            const delayedGymButton = document.getElementById("gymButton");
+            delayedGymButton?.click();
+          }
         });
       });
     }
