@@ -642,7 +642,7 @@ document.addEventListener("DOMContentLoaded", () => {
           <span>◫</span><div><small>ACADEMIA</small><strong>Treino</strong></div><b>›</b>
         </button>
         <button type="button" data-lf64-go="study">
-          <span>▣</span><div><small>PMMG</small><strong>Estudos</strong></div><b>›</b>
+          <span>▣</span><div><small>ESTUDOS</small><strong>Foco</strong></div><b>›</b>
         </button>
         <button type="button" data-lf64-go="agenda">
           <span>▦</span><div><small>AGENDA</small><strong>Planejar</strong></div><b>›</b>
@@ -1239,7 +1239,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     {
       time: "12:00",
-      title: "Estudo PMMG • 30 min",
+      title: "Estudos • 30 min",
       description:
         "Estudo leve ou revisão durante o restante do intervalo."
     },
@@ -1267,7 +1267,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     {
       time: "21:10",
-      title: "Revisão PMMG • 20 min",
+      title: "Revisão de estudos • 20 min",
       description:
         "Questões rápidas ou revisão do conteúdo estudado."
     },
@@ -1326,7 +1326,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     {
       time: "09:15",
-      title: "PMMG • Bloco 1 • 2h",
+      title: "Estudos • Bloco 1 • 2h",
       description:
         "Conteúdo novo e estudo principal."
     },
@@ -1340,7 +1340,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     {
       time: "12:30",
-      title: "PMMG • Bloco 2 • 1h30",
+      title: "Estudos • Bloco 2 • 1h30",
       description:
         "Continuação do conteúdo e prática."
     },
@@ -1354,7 +1354,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     {
       time: "14:30",
-      title: "PMMG • Questões e revisão • 1h",
+      title: "Questões e revisão • 1h",
       description:
         "Questões, correção e revisão dos erros."
     },
@@ -8865,7 +8865,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (studyText) {
 
         studyText.textContent =
-          "Hoje é dia de trabalho. Se estiver bem, faça apenas uma revisão leve. Sono e recuperação têm prioridade.";
+          "Dia de trabalho: 30 min no almoço + 20 min de revisão à noite. Total: 50 min.";
       }
 
 
@@ -8879,14 +8879,14 @@ document.addEventListener("DOMContentLoaded", () => {
       if (goal) {
 
         goal.textContent =
-          "0–30 min";
+          "50 min";
       }
 
 
       if (type) {
 
         type.textContent =
-          "Revisão";
+          "30 + 20 min";
       }
 
     } else {
@@ -8894,7 +8894,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (studyText) {
 
         studyText.textContent =
-          "Hoje é dia de folga. Este é o principal momento para avançar nos estudos da PMMG.";
+          "Dia de folga: 4h30 de estudo, divididas em blocos com pausas para manter o foco.";
       }
 
 
@@ -8908,14 +8908,14 @@ document.addEventListener("DOMContentLoaded", () => {
       if (goal) {
 
         goal.textContent =
-          "2h45";
+          "4h30";
       }
 
 
       if (type) {
 
         type.textContent =
-          "Teoria + questões";
+          "Blocos + pausas";
       }
     }
   }
@@ -8923,163 +8923,121 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function renderStudyPlan() {
 
-    const title =
-      document.getElementById(
-        "studyPlanTitle"
-      );
+    const title = document.getElementById("studyPlanTitle");
+    const badge = document.getElementById("studyPlanBadge");
+    const icon = document.getElementById("studyPlanIcon");
+    const mainTitle = document.getElementById("studyPlanMainTitle");
+    const description = document.getElementById("studyPlanDescription");
+    const list = document.getElementById("studyScheduleList");
 
-    const badge =
-      document.getElementById(
-        "studyPlanBadge"
-      );
-
-    const icon =
-      document.getElementById(
-        "studyPlanIcon"
-      );
-
-    const mainTitle =
-      document.getElementById(
-        "studyPlanMainTitle"
-      );
-
-    const description =
-      document.getElementById(
-        "studyPlanDescription"
-      );
-
-    const list =
-      document.getElementById(
-        "studyScheduleList"
-      );
-
-
-    if (
-      !title ||
-      !badge ||
-      !icon ||
-      !mainTitle ||
-      !description ||
-      !list
-    ) {
-
+    if (!title || !badge || !icon || !mainTitle || !description || !list) {
       return;
     }
 
-
     list.innerHTML = "";
-
 
     if (workDay) {
 
-      title.textContent =
-        "Dia de trabalho";
-
-      badge.textContent =
-        "TRABALHO";
-
-      icon.textContent =
-        "🧠";
-
-      mainTitle.textContent =
-        "Revisão opcional";
-
+      title.textContent = "Dia de trabalho";
+      badge.textContent = "TRABALHO";
+      icon.textContent = "🧠";
+      mainTitle.textContent = "Meta de estudos • 50 min";
       description.textContent =
-        "Depois da academia e de 12 horas de trabalho, o descanso continua sendo prioridade.";
-
+        "Estudo curto e realista: 30 min no almoço e 20 min à noite, sem sacrificar o descanso.";
 
       const schedule = [
-
         {
-          time: "21:00",
-          title: "Revisão leve",
-          description:
-            "Somente se estiver disposto. Questões ou revisão curta."
+          time: "12:00–12:30",
+          title: "Estudo • 30 min",
+          description: "Leitura, aula curta ou revisão."
         },
-
         {
-          time: "22:00",
-          title: "Desacelerar",
-          description:
-            "Reduzir estímulos para dormir melhor."
+          time: "12:30–20:00",
+          title: "Trabalho / pausa dos estudos",
+          description: "Nada de estudo nesse período. Foque no expediente."
         },
-
+        {
+          time: "21:10–21:30",
+          title: "Revisão • 20 min",
+          description: "Questões rápidas ou revisão do conteúdo do dia."
+        },
+        {
+          time: "21:30–22:30",
+          title: "Descanso",
+          description: "Desacelerar, organizar o próximo dia e preparar o sono."
+        },
         {
           time: "22:30",
           title: "Dormir",
-          description:
-            "Recuperação para o próximo dia."
+          description: "Recuperação é prioridade."
         }
-
       ];
 
-
-      schedule.forEach(
-        item =>
-          addStudyScheduleItem(
-            list,
-            item
-          )
-      );
+      schedule.forEach(item => addStudyScheduleItem(list, item));
 
     } else {
 
-      title.textContent =
-        "Dia de folga";
-
-      badge.textContent =
-        "FOLGA";
-
-      icon.textContent =
-        "📚";
-
-      mainTitle.textContent =
-        "Dia principal de estudos";
-
+      title.textContent = "Dia de folga";
+      badge.textContent = "FOLGA";
+      icon.textContent = "📚";
+      mainTitle.textContent = "Meta de estudos • 4h30";
       description.textContent =
-        "Use a manhã para teoria e a tarde para questões e revisão.";
-
+        "Quatro horas e meia de estudo distribuídas ao longo do dia, com pausas programadas.";
 
       const schedule = [
-
         {
-          time: "09:15",
-          title: "Bloco principal",
-          description:
-            "50 min de teoria + 10 min de intervalo + 50 min de teoria."
+          time: "09:15–10:15",
+          title: "Bloco 1 • 1h",
+          description: "Conteúdo novo e estudo principal."
         },
-
         {
-          time: "11:05",
-          title: "Fechamento",
-          description:
-            "Anotar pontos importantes e erros."
+          time: "10:15–10:30",
+          title: "Descanso • 15 min",
+          description: "Levantar, água e sair da tela."
         },
-
         {
-          time: "14:15",
-          title: "Questões e revisão",
-          description:
-            "Resolver exercícios no site PMMG e revisar os erros."
+          time: "10:30–11:30",
+          title: "Bloco 2 • 1h",
+          description: "Continuação do conteúdo."
         },
-
         {
-          time: "15:00",
+          time: "11:30–12:30",
+          title: "Almoço + descanso • 1h",
+          description: "Pausa completa antes de voltar a estudar."
+        },
+        {
+          time: "12:30–13:15",
+          title: "Bloco 3 • 45 min",
+          description: "Prática e consolidação."
+        },
+        {
+          time: "13:15–13:30",
+          title: "Descanso • 15 min",
+          description: "Água, alongamento e sem estudo."
+        },
+        {
+          time: "13:30–14:15",
+          title: "Bloco 4 • 45 min",
+          description: "Continuação da prática."
+        },
+        {
+          time: "14:15–14:30",
+          title: "Descanso • 15 min",
+          description: "Pausa antes do último bloco."
+        },
+        {
+          time: "14:30–15:30",
+          title: "Questões + revisão • 1h",
+          description: "Questões, correção e revisão dos erros."
+        },
+        {
+          time: "15:30",
           title: "Encerrar estudos",
-          description:
-            "Finalizar antes de se preparar para buscar sua filha."
+          description: "Meta diária concluída: 4h30."
         }
-
       ];
 
-
-      schedule.forEach(
-        item =>
-          addStudyScheduleItem(
-            list,
-            item
-          )
-      );
+      schedule.forEach(item => addStudyScheduleItem(list, item));
     }
   }
 
@@ -17464,4 +17422,29 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+});
+
+/* ============================================================
+   LIFEFLOW 6.8 — SIMPLE HOME
+   Interface mais limpa e acesso rápido
+============================================================ */
+window.addEventListener("load", () => {
+  const home = document.getElementById("homeScreen");
+  if (!home) return;
+
+  home.classList.add("lf68-simple-home");
+
+  home.querySelectorAll(".content-section").forEach(section => {
+    if (section.querySelector(".life-grid")) {
+      section.classList.add("lf68-hide-home-areas");
+    }
+  });
+
+  const study = document.getElementById("studySection");
+  if (study) {
+    const label = study.querySelector(".section-label");
+    const logo = study.querySelector(".study-logo");
+    if (label) label.textContent = "ESTUDOS";
+    if (logo) logo.textContent = "📚";
+  }
 });
