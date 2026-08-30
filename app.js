@@ -16380,7 +16380,10 @@ document.addEventListener("DOMContentLoaded", () => {
   injectLifeFlow41Styles();
   injectGymPremiumThemeStyles();
   renderLifeProfileChip();
-  enforceLifeFlowAuth();
+  // LifeFlow 7.0.1 — correção do travamento visual no carregamento.
+  // Evita que uma sessão antiga deixe todo o aplicativo permanentemente desfocado.
+  document.body.classList.remove("lf-auth-locked");
+  document.getElementById("lfLoginScreen")?.classList.remove("visible");
 
   // =====================================================
   // NAVEGAÇÃO
