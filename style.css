@@ -9180,3 +9180,143 @@ body{
     padding-top:2px!important;
   }
 }
+
+
+/* ============================================================
+   LIFEFLOW 6.9.2 — LIMPEZA FINAL DA HOME
+   Remove excessos visuais e deixa a rotina mais compacta
+============================================================ */
+
+/* remove marcas decorativas que poluem a tela */
+#homeScreen.lf68-simple-home .system-rail,
+#homeScreen.lf68-simple-home .side-rail,
+#homeScreen.lf68-simple-home .lf-side-rail,
+#homeScreen.lf68-simple-home .lf64-system-rail,
+#homeScreen.lf68-simple-home .lf-watermark,
+#homeScreen.lf68-simple-home .hero-watermark,
+#homeScreen.lf68-simple-home .big-watermark,
+#homeScreen.lf68-simple-home [class*="watermark"]{
+  display:none!important;
+}
+
+/* garante que qualquer rail lateral fixo não apareça na Home */
+body:has(#homeScreen.lf68-simple-home:not(.hidden)) .system-rail,
+body:has(#homeScreen.lf68-simple-home:not(.hidden)) .side-rail,
+body:has(#homeScreen.lf68-simple-home:not(.hidden)) .lf-side-rail,
+body:has(#homeScreen.lf68-simple-home:not(.hidden)) .lf64-system-rail{
+  display:none!important;
+}
+
+/* saudação mais discreta */
+#homeScreen.lf68-simple-home .hero-section h2{
+  font-size:clamp(27px,7vw,36px)!important;
+  letter-spacing:-1.35px!important;
+}
+
+/* deixa a data mais compacta */
+#homeScreen.lf68-simple-home .hero-section .eyebrow{
+  font-size:8px!important;
+  letter-spacing:.12em!important;
+}
+
+/* rotina mais enxuta */
+#homeScreen.lf68-simple-home .task-list{
+  gap:5px!important;
+}
+
+#homeScreen.lf68-simple-home .task{
+  min-height:52px!important;
+  padding:8px 10px!important;
+  border-radius:14px!important;
+}
+
+#homeScreen.lf68-simple-home .task .task-time,
+#homeScreen.lf68-simple-home .task time{
+  min-width:50px!important;
+  font-size:10px!important;
+}
+
+#homeScreen.lf68-simple-home .task h4,
+#homeScreen.lf68-simple-home .task strong{
+  font-size:12px!important;
+  line-height:1.2!important;
+}
+
+#homeScreen.lf68-simple-home .task p,
+#homeScreen.lf68-simple-home .task small{
+  font-size:9px!important;
+  line-height:1.35!important;
+}
+
+/* ações da rotina menores */
+#homeScreen.lf68-simple-home .routine-actions,
+#homeScreen.lf68-simple-home .routine-toolbar{
+  gap:7px!important;
+  margin-bottom:8px!important;
+}
+
+#homeScreen.lf68-simple-home .routine-actions button,
+#homeScreen.lf68-simple-home .routine-toolbar button{
+  min-height:40px!important;
+  border-radius:12px!important;
+  font-size:10px!important;
+}
+
+/* toast menor, menos invasivo */
+.toast,
+.lf-toast,
+#toast,
+#appToast,
+[class*="toast"]{
+  max-width:min(320px,calc(100vw - 28px))!important;
+  min-height:auto!important;
+  padding:10px 13px!important;
+  border-radius:13px!important;
+  font-size:11px!important;
+  line-height:1.3!important;
+}
+
+/* quando suportado, deixa toast mais abaixo sem cobrir tanto */
+@media (min-width:600px){
+  .toast,
+  .lf-toast,
+  #toast,
+  #appToast,
+  [class*="toast"]{
+    bottom:86px!important;
+  }
+}
+
+/* reforça a ordem visual da Home */
+#homeScreen.lf68-simple-home .lf64-quick-hub{
+  margin-bottom:8px!important;
+}
+
+#homeScreen.lf68-simple-home .hero-section{
+  padding-bottom:8px!important;
+}
+
+/* header um pouco menor */
+.app-header{
+  min-height:72px!important;
+}
+
+/* mantém o conteúdo principal bem centralizado */
+#homeScreen.lf68-simple-home{
+  width:min(100%,680px)!important;
+}
+
+@media(max-width:430px){
+  #homeScreen.lf68-simple-home .hero-section h2{
+    font-size:29px!important;
+  }
+
+  #homeScreen.lf68-simple-home .task{
+    min-height:50px!important;
+  }
+
+  #homeScreen.lf68-simple-home .task p,
+  #homeScreen.lf68-simple-home .task small{
+    font-size:8.5px!important;
+  }
+}
