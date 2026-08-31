@@ -609,7 +609,6 @@ document.addEventListener("DOMContentLoaded", () => {
       ".next-card",
       ".dashboard-grid",
       ".daily-card",
-      ".water-card",
       ".study-card",
       ".life-grid"
     ].forEach(selector => {
@@ -1350,17 +1349,17 @@ document.addEventListener("DOMContentLoaded", () => {
     },
 
     {
-      time: "09:15",
+      time: "09:30",
       title: "Estudos • Bloco 1 • 2h",
       description:
-        "Conteúdo novo e estudo principal."
+        "Conteúdo novo/continuação."
     },
 
     {
-      time: "11:15",
+      time: "11:30",
       title: "Almoço + descanso",
       description:
-        "Refeição e pausa antes do próximo bloco."
+        "Refeição completa e pausa antes do próximo bloco."
     },
 
     {
@@ -1372,14 +1371,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
     {
       time: "14:00",
-      title: "Intervalo",
+      title: "Descanso",
       description:
-        "Pausa de 30 minutos."
+        "Pausa de 30 minutos para recuperar corpo e mente."
     },
 
     {
       time: "14:30",
-      title: "Questões e revisão • 1h",
+      title: "Estudos • Questões e revisão • 1h",
       description:
         "Questões, correção e revisão dos erros."
     },
@@ -9245,19 +9244,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
       const schedule = [
         {
-          time: "09:15–10:15",
-          title: "Bloco 1 • 1h",
-          description: "Conteúdo novo e estudo principal."
-        },
-        {
-          time: "10:15–10:30",
-          title: "Descanso • 15 min",
-          description: "Levantar, água e sair da tela."
-        },
-        {
-          time: "10:30–11:30",
-          title: "Bloco 2 • 1h",
-          description: "Continuação do conteúdo."
+          time: "09:30–11:30",
+          title: "Bloco 1 • 2h",
+          description: "Conteúdo novo/continuação."
         },
         {
           time: "11:30–12:30",
@@ -9265,34 +9254,19 @@ document.addEventListener("DOMContentLoaded", () => {
           description: "Pausa completa antes de voltar a estudar."
         },
         {
-          time: "12:30–13:15",
-          title: "Bloco 3 • 45 min",
-          description: "Prática e consolidação."
+          time: "12:30–14:00",
+          title: "Bloco 2 • 1h30",
+          description: "Continuação e prática."
         },
         {
-          time: "13:15–13:30",
-          title: "Descanso • 15 min",
-          description: "Água, alongamento e sem estudo."
-        },
-        {
-          time: "13:30–14:15",
-          title: "Bloco 4 • 45 min",
-          description: "Continuação da prática."
-        },
-        {
-          time: "14:15–14:30",
-          title: "Descanso • 15 min",
+          time: "14:00–14:30",
+          title: "Descanso • 30 min",
           description: "Pausa antes do último bloco."
         },
         {
           time: "14:30–15:30",
           title: "Questões + revisão • 1h",
           description: "Questões, correção e revisão dos erros."
-        },
-        {
-          time: "15:30",
-          title: "Encerrar estudos",
-          description: "Meta diária concluída: 4h30."
         }
       ];
 
@@ -17709,3 +17683,5 @@ window.addEventListener("load", () => {
 });
 
 /* LifeFlow 7.0 — rotina detalhada */
+
+/* LifeFlow 7.0.1 — horários sincronizados + skincare 30 min + água restaurada */
