@@ -9550,3 +9550,17 @@ body:has(#homeScreen.lf68-simple-home:not(.hidden)) .lf64-system-rail{
   visibility:visible!important;
   opacity:1!important;
 }
+
+
+/* ============================================================
+   LIFEFLOW 7.0.4 — ÁGUA/HIDRATAÇÃO SEMPRE VISÍVEL NA HOME
+============================================================ */
+#homeScreen .water-card,
+#homeScreen .water-card.lf64-legacy-hidden {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  height: auto !important;
+  max-height: none !important;
+  overflow: visible !important;
+}
