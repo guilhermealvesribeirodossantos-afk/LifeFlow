@@ -9540,3 +9540,13 @@ body:has(#homeScreen.lf68-simple-home:not(.hidden)) .lf64-system-rail{
     padding:0 6px!important;
   }
 }
+
+
+/* ============================================================
+   LIFEFLOW 7.0.3 — HIDRATAÇÃO RESTAURADA
+============================================================ */
+#homeScreen .water-card{
+  display:block!important;
+  visibility:visible!important;
+  opacity:1!important;
+}
