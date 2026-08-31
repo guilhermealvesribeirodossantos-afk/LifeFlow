@@ -9320,3 +9320,223 @@ body:has(#homeScreen.lf68-simple-home:not(.hidden)) .lf64-system-rail{
     font-size:8.5px!important;
   }
 }
+
+
+/* ============================================================
+   LIFEFLOW 7.0 — ROTINA DETALHADA
+============================================================ */
+
+#homeScreen .lf-routine-detail-card{
+  align-items:flex-start!important;
+  min-height:72px!important;
+  padding:13px 12px!important;
+  overflow:hidden!important;
+  transition:border-color .18s ease, background .18s ease!important;
+}
+
+#homeScreen .lf-routine-detail-card.is-expanded{
+  border-color:rgba(114,230,162,.16)!important;
+  background:#101712!important;
+}
+
+#homeScreen .lf-routine-detail-card .task-time{
+  padding-top:5px!important;
+}
+
+#homeScreen .lf-routine-detail-card .task-time span{
+  color:#66e49c!important;
+  font-weight:800!important;
+  font-size:12px!important;
+}
+
+#homeScreen .lf-routine-detail-card .task-body{
+  min-width:0!important;
+  flex:1!important;
+}
+
+#homeScreen .lf-routine-topline{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:space-between!important;
+  gap:10px!important;
+}
+
+#homeScreen .lf-routine-detail-card .task-title{
+  font-size:14px!important;
+  font-weight:800!important;
+  line-height:1.25!important;
+}
+
+#homeScreen .lf-routine-status{
+  flex:0 0 auto!important;
+  display:inline-flex!important;
+  align-items:center!important;
+  min-height:22px!important;
+  padding:0 8px!important;
+  border-radius:999px!important;
+  font-size:7px!important;
+  font-weight:850!important;
+  letter-spacing:.09em!important;
+  text-transform:uppercase!important;
+  border:1px solid rgba(255,255,255,.08)!important;
+  color:#8d9890!important;
+  background:rgba(255,255,255,.025)!important;
+}
+
+#homeScreen .lf-routine-status.is-now{
+  color:#72e6a2!important;
+  border-color:rgba(114,230,162,.28)!important;
+  background:rgba(114,230,162,.08)!important;
+}
+
+#homeScreen .lf-routine-status.is-next{
+  color:#d5ddd7!important;
+}
+
+#homeScreen .lf-routine-status.is-done{
+  color:#72e6a2!important;
+}
+
+#homeScreen .lf-routine-status.is-late{
+  color:#c7a6a6!important;
+}
+
+#homeScreen .lf-routine-meta{
+  display:flex!important;
+  align-items:center!important;
+  gap:5px!important;
+  margin-top:5px!important;
+  color:#718078!important;
+  font-size:9px!important;
+  font-weight:650!important;
+}
+
+#homeScreen .lf-routine-detail-card .task-sub{
+  margin-top:5px!important;
+  color:#8e9891!important;
+  font-size:10px!important;
+  line-height:1.45!important;
+}
+
+#homeScreen .lf-routine-expand{
+  display:inline-flex!important;
+  align-items:center!important;
+  gap:6px!important;
+  margin-top:9px!important;
+  padding:0!important;
+  min-height:28px!important;
+  background:transparent!important;
+  border:0!important;
+  color:#72e6a2!important;
+  font-size:9px!important;
+  font-weight:750!important;
+}
+
+#homeScreen .lf-routine-expand span{
+  font-size:12px!important;
+  transition:transform .18s ease!important;
+}
+
+#homeScreen .lf-routine-detail-card.is-expanded .lf-routine-expand span{
+  transform:rotate(180deg)!important;
+}
+
+#homeScreen .lf-routine-details{
+  margin-top:10px!important;
+  padding-top:11px!important;
+  border-top:1px solid rgba(255,255,255,.065)!important;
+}
+
+#homeScreen .lf-routine-details[hidden]{
+  display:none!important;
+}
+
+#homeScreen .lf-routine-goal{
+  padding:11px!important;
+  border-radius:12px!important;
+  background:rgba(114,230,162,.045)!important;
+  border:1px solid rgba(114,230,162,.08)!important;
+}
+
+#homeScreen .lf-routine-goal small,
+#homeScreen .lf-routine-steps>small{
+  display:block!important;
+  margin-bottom:5px!important;
+  color:#6f7d74!important;
+  font-size:7px!important;
+  font-weight:850!important;
+  letter-spacing:.14em!important;
+}
+
+#homeScreen .lf-routine-goal strong{
+  display:block!important;
+  color:#dfe7e1!important;
+  font-size:10px!important;
+  font-weight:650!important;
+  line-height:1.45!important;
+}
+
+#homeScreen .lf-routine-steps{
+  display:grid!important;
+  gap:6px!important;
+  margin-top:12px!important;
+}
+
+#homeScreen .lf-routine-step{
+  display:flex!important;
+  align-items:flex-start!important;
+  gap:7px!important;
+  color:#9ba59e!important;
+  font-size:9px!important;
+  line-height:1.4!important;
+}
+
+#homeScreen .lf-routine-step>span:first-child{
+  display:grid!important;
+  place-items:center!important;
+  width:16px!important;
+  height:16px!important;
+  flex:0 0 16px!important;
+  margin-top:1px!important;
+  border-radius:5px!important;
+  background:rgba(114,230,162,.08)!important;
+  color:#72e6a2!important;
+  font-size:8px!important;
+}
+
+#homeScreen .lf-routine-details .routine-task-actions{
+  display:flex!important;
+  gap:6px!important;
+  margin-top:12px!important;
+}
+
+#homeScreen .lf-routine-details .routine-task-actions button{
+  min-height:34px!important;
+  padding:0 10px!important;
+  border-radius:10px!important;
+  font-size:9px!important;
+}
+
+#homeScreen .lf-routine-detail-card>.check{
+  margin-top:7px!important;
+  flex:0 0 auto!important;
+}
+
+@media(max-width:430px){
+  #homeScreen .lf-routine-detail-card{
+    padding:12px 10px!important;
+  }
+
+  #homeScreen .lf-routine-detail-card .task-time{
+    min-width:48px!important;
+  }
+
+  #homeScreen .lf-routine-topline{
+    align-items:flex-start!important;
+  }
+
+  #homeScreen .lf-routine-status{
+    font-size:6.5px!important;
+    padding:0 6px!important;
+  }
+}
