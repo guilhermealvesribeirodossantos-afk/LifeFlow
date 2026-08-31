@@ -5414,6 +5414,40 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function loadCustomRoutines() {
     try {
+      // LifeFlow 7.0.4:
+      // A rotina antiga salva no celular estava sobrescrevendo
+      // os novos horários do código. Esta migração roda UMA vez,
+      // guarda um backup e limpa somente a rotina antiga.
+      const routineMigrationKey =
+        "lifeflow-routine-migration-v704";
+
+      if (
+        localStorage.getItem(
+          routineMigrationKey
+        ) !== "done"
+      ) {
+        const legacyRoutine =
+          localStorage.getItem(
+            routineStorageKey
+          );
+
+        if (legacyRoutine) {
+          localStorage.setItem(
+            "lifeflow-custom-routines-backup-before-v704",
+            legacyRoutine
+          );
+        }
+
+        localStorage.removeItem(
+          routineStorageKey
+        );
+
+        localStorage.setItem(
+          routineMigrationKey,
+          "done"
+        );
+      }
+
       const saved =
         JSON.parse(
           localStorage.getItem(
@@ -17703,3 +17737,12 @@ window.addEventListener("load", () => {
 /* LifeFlow 7.0.2 — tela de login/senha temporariamente desativada */
 
 /* LifeFlow 7.0.3 — rotina sincronizada + skincare + água + cache refresh */
+
+/* LifeFlow 7.0.4
+   CORREÇÃO REAL:
+   - limpa uma única vez a rotina antiga salva no localStorage;
+   - aplica os horários novos do código;
+   - mantém backup da rotina anterior;
+   - skincare volta pela rotina padrão;
+   - hidratação restaurada.
+*/
