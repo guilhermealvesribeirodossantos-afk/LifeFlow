@@ -1498,11 +1498,9 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function isLifeFlowAuthenticated() {
-    return (
-      sessionStorage.getItem(
-        lfAuthSessionKey
-      ) === "authenticated"
-    );
+    // LifeFlow 7.0.2 — login temporariamente desativado.
+    // Enquanto este retorno estiver true, o app abre direto.
+    return true;
   }
 
   function setLifeFlowAuthenticated() {
@@ -1691,16 +1689,32 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function enforceLifeFlowAuth() {
-    ensureLifeFlowLogin();
+    // Login temporariamente desativado.
+    document
+      .getElementById("lfLoginScreen")
+      ?.remove();
 
-    if (!isLifeFlowAuthenticated()) {
-      showLifeFlowLogin();
-    }
+    document.body.classList.remove(
+      "lf-auth-locked"
+    );
   }
 
   function logoutLifeFlow() {
+    // Login temporariamente desativado.
     sessionStorage.removeItem(lfAuthSessionKey);
-    showLifeFlowLogin();
+
+    document
+      .getElementById("lfLoginScreen")
+      ?.remove();
+
+    document.body.classList.remove(
+      "lf-auth-locked"
+    );
+
+    showSiteMessage(
+      "Tela de login está desativada.",
+      "success"
+    );
   }
 
   function resizeProfileImage(file, maxSize = 512) {
@@ -17685,3 +17699,5 @@ window.addEventListener("load", () => {
 /* LifeFlow 7.0 — rotina detalhada */
 
 /* LifeFlow 7.0.1 — horários sincronizados + skincare 30 min + água restaurada */
+
+/* LifeFlow 7.0.2 — tela de login/senha temporariamente desativada */
