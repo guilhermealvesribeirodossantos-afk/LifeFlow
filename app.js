@@ -8196,6 +8196,156 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
   // =====================================================
+  // LIFEFLOW 7.0 — ROTINA DETALHADA
+  // Horário final, duração, objetivo, etapas e status
+  // =====================================================
+
+  function lfRoutineMinutesToLabel(totalMinutes) {
+    if (!Number.isFinite(totalMinutes) || totalMinutes <= 0) return "";
+
+    const hours = Math.floor(totalMinutes / 60);
+    const minutes = totalMinutes % 60;
+
+    if (hours && minutes) return `${hours}h${String(minutes).padStart(2, "0")}`;
+    if (hours) return `${hours}h`;
+    return `${minutes} min`;
+  }
+
+  function lfRoutineEndTime(index) {
+    const current = tasks[index];
+    const next = tasks[index + 1];
+
+    if (!current?.time || !next?.time) {
+      return current?.title === "Dormir" ? "05:30" : "";
+    }
+
+    return next.time;
+  }
+
+  function lfRoutineDuration(index) {
+    const start = tasks[index]?.time;
+    const end = lfRoutineEndTime(index);
+
+    if (!start || !end) return "";
+
+    const toMinutes = value => {
+      const [h, m] = value.split(":").map(Number);
+      return (h * 60) + m;
+    };
+
+    let diff = toMinutes(end) - toMinutes(start);
+    if (diff <= 0) diff += 1440;
+
+    return lfRoutineMinutesToLabel(diff);
+  }
+
+  function lfRoutineDetailFor(task) {
+    const title = (task?.title || "").toLowerCase();
+
+    const presets = [
+      {
+        match: ["acordar"],
+        goal: "Começar o dia sem atraso e estar pronto para a próxima atividade.",
+        steps: ["Beber água", "Higiene pessoal", "Banho", "Se arrumar"]
+      },
+      {
+        match: ["sair para academia"],
+        goal: "Sair no horário e chegar à academia sem precisar correr.",
+        steps: ["Conferir celular e chave", "Pegar capacete", "Sair de moto", "Chegar até 06:00"]
+      },
+      {
+        match: ["academia"],
+        goal: "Cumprir o treino programado dentro do horário planejado.",
+        steps: ["Aquecimento", "Treino do dia", "Finalizar sem estourar o horário"]
+      },
+      {
+        match: ["voltar para casa"],
+        goal: "Chegar em casa e concluir a preparação para o próximo compromisso.",
+        steps: ["Voltar com calma", "Higiene", "Trocar de roupa", "Organizar o necessário"]
+      },
+      {
+        match: ["sair para o trabalho"],
+        goal: "Chegar ao trabalho antes das 08:00.",
+        steps: ["Conferir itens necessários", "Pegar capacete", "Sair no horário"]
+      },
+      {
+        match: ["início do trabalho", "voltar ao trabalho"],
+        goal: "Manter o expediente organizado até o próximo bloco da rotina.",
+        steps: ["Iniciar as atividades", "Manter foco", "Respeitar o próximo horário"]
+      },
+      {
+        match: ["almoço"],
+        goal: "Fazer a refeição com calma e recuperar energia.",
+        steps: ["Comer a marmita", "Beber água", "Evitar gastar todo o intervalo no celular"]
+      },
+      {
+        match: ["estudos", "revisão de estudos", "questões e revisão"],
+        goal: "Completar o bloco previsto com foco e sem prolongar além do necessário.",
+        steps: ["Separar o material", "Estudar sem interrupções", "Registrar o que ficou pendente"]
+      },
+      {
+        match: ["jantar e banho"],
+        goal: "Encerrar o pós-trabalho, alimentar-se e preparar o corpo para a noite.",
+        steps: ["Jantar", "Beber água", "Banho", "Desacelerar"]
+      },
+      {
+        match: ["skincare"],
+        goal: "Reservar 30 minutos completos para os cuidados pessoais.",
+        steps: ["Limpar o rosto", "Cuidado frio/gelo com proteção", "Aplicar hidratante/creme", "Finalizar os cuidados da pele"]
+      },
+      {
+        match: ["organizar amanhã", "se preparar"],
+        goal: "Deixar o próximo período preparado para evitar correria.",
+        steps: ["Separar roupas", "Conferir compromissos", "Preparar itens necessários"]
+      },
+      {
+        match: ["dormir"],
+        goal: "Encerrar o dia no horário e priorizar recuperação.",
+        steps: ["Reduzir estímulos", "Deixar celular de lado", "Preparar ambiente", "Dormir"]
+      },
+      {
+        match: ["buscar sua filha", "tempo com sua filha", "levar sua filha"],
+        goal: "Cumprir esse compromisso com tranquilidade e pontualidade.",
+        steps: ["Conferir horário", "Sair com antecedência", "Evitar atrasos"]
+      }
+    ];
+
+    const preset = presets.find(item =>
+      item.match.some(term => title.includes(term))
+    );
+
+    return preset || {
+      goal: "Concluir esta atividade dentro do horário planejado.",
+      steps: ["Começar no horário", "Executar a atividade", "Concluir antes da próxima tarefa"]
+    };
+  }
+
+  function lfRoutineStatus(index, completed) {
+    if (completed) return { label: "Concluída", cls: "is-done" };
+
+    const now = new Date();
+    const currentMinutes = now.getHours() * 60 + now.getMinutes();
+    const start = timeToMinutes(tasks[index].time);
+    const next = tasks[index + 1];
+    const end = next?.time ? timeToMinutes(next.time) : start + 60;
+
+    if (currentMinutes >= start && currentMinutes < end) {
+      return { label: "Agora", cls: "is-now" };
+    }
+
+    if (currentMinutes < start) {
+      const previousIncomplete = tasks
+        .slice(0, index)
+        .some((_, i) => !state.completed.includes(i) && timeToMinutes(tasks[i].time) > currentMinutes);
+
+      return { label: previousIncomplete ? "Programada" : "Próxima", cls: "is-next" };
+    }
+
+    return { label: "Pendente", cls: "is-late" };
+  }
+
+
+  // =====================================================
   // TAREFAS
   // =====================================================
 
@@ -8269,36 +8419,83 @@ document.addEventListener("DOMContentLoaded", () => {
             : "task";
 
 
+        const endTime = lfRoutineEndTime(index);
+        const duration = lfRoutineDuration(index);
+        const detail = lfRoutineDetailFor(task);
+        const status = lfRoutineStatus(index, completed);
+        const rangeLabel = endTime
+          ? `${task.time}–${endTime}`
+          : task.time;
+
+        item.classList.add("lf-routine-detail-card");
+
         item.innerHTML = `
 
           <div class="task-time">
-            ${task.time}
+            <span>${task.time}</span>
           </div>
 
           <div class="task-body">
 
-            <div class="task-title">
-              ${task.title}
+            <div class="lf-routine-topline">
+              <div class="task-title">
+                ${task.title}
+              </div>
+
+              <span class="lf-routine-status ${status.cls}">
+                ${status.label}
+              </span>
+            </div>
+
+            <div class="lf-routine-meta">
+              <span>◷ ${rangeLabel}</span>
+              ${duration ? `<span>• ${duration}</span>` : ""}
             </div>
 
             <div class="task-sub">
               ${task.description}
             </div>
 
-            <div class="routine-task-actions">
-              <button
-                class="routine-edit-task"
-                type="button"
-              >
-                ✎ Editar
-              </button>
+            <button
+              class="lf-routine-expand"
+              type="button"
+              aria-expanded="false"
+            >
+              Ver detalhes
+              <span>⌄</span>
+            </button>
 
-              <button
-                class="routine-delete-task"
-                type="button"
-              >
-                🗑 Excluir
-              </button>
+            <div class="lf-routine-details" hidden>
+              <div class="lf-routine-goal">
+                <small>OBJETIVO</small>
+                <strong>${detail.goal}</strong>
+              </div>
+
+              <div class="lf-routine-steps">
+                <small>O QUE FAZER</small>
+                ${detail.steps.map(step => `
+                  <div class="lf-routine-step">
+                    <span>✓</span>
+                    <span>${step}</span>
+                  </div>
+                `).join("")}
+              </div>
+
+              <div class="routine-task-actions">
+                <button
+                  class="routine-edit-task"
+                  type="button"
+                >
+                  ✎ Editar
+                </button>
+
+                <button
+                  class="routine-delete-task"
+                  type="button"
+                >
+                  🗑 Excluir
+                </button>
+              </div>
             </div>
 
           </div>
@@ -8306,6 +8503,7 @@ document.addEventListener("DOMContentLoaded", () => {
           <button
             class="check"
             type="button"
+            aria-label="${completed ? "Marcar como pendente" : "Concluir atividade"}"
           >
             ${
               completed
@@ -8316,6 +8514,42 @@ document.addEventListener("DOMContentLoaded", () => {
 
         `;
 
+
+        const expandButton =
+          item.querySelector(
+            ".lf-routine-expand"
+          );
+
+        const detailsPanel =
+          item.querySelector(
+            ".lf-routine-details"
+          );
+
+        const toggleDetails = () => {
+          const opening = detailsPanel?.hasAttribute("hidden");
+
+          if (!detailsPanel || !expandButton) return;
+
+          if (opening) {
+            detailsPanel.removeAttribute("hidden");
+            item.classList.add("is-expanded");
+            expandButton.setAttribute("aria-expanded", "true");
+            expandButton.firstChild.textContent = "Ocultar detalhes ";
+          } else {
+            detailsPanel.setAttribute("hidden", "");
+            item.classList.remove("is-expanded");
+            expandButton.setAttribute("aria-expanded", "false");
+            expandButton.firstChild.textContent = "Ver detalhes ";
+          }
+        };
+
+        expandButton?.addEventListener(
+          "click",
+          event => {
+            event.stopPropagation();
+            toggleDetails();
+          }
+        );
 
         const editButton =
           item.querySelector(
@@ -17473,3 +17707,5 @@ window.addEventListener("load", () => {
     if (logo) logo.textContent = "📚";
   }
 });
+
+/* LifeFlow 7.0 — rotina detalhada */
