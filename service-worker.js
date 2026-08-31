@@ -1,4 +1,4 @@
-const CACHE = "lifeflow-v7-0-3-202608311415";
+const CACHE = "lifeflow-v7-0-4-202608311700";
 const ASSETS = [
   "./",
   "./index.html",
